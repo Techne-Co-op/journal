@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Common Work and Daybook — cooperative coordination and daily activity system for RegenHub, LCA. A peer commons across the full arc.">
+<title>Common Work · Daybook · RegenHub, LCA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;--sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
+  }
+  html[data-mode="dark"]{
+    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
+    --line:#2A2A30;--rule:#3A3A42;
+    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
+    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
+    --ok:#6A9A6A;--warn:#C46A6A;
+  }
+  html[data-mode="light"]{
+    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
+    --line:#D8D3C8;--rule:#9A958A;
+    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
+    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
+    --ok:#4A7A4A;--warn:#A84F4C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:dark light}
+  body{background:var(--bg);color:var(--text);font:400 16px/1.72 var(--serif);
+    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+
+  .toggle{position:fixed;top:16px;right:16px;z-index:100;font:500 11px/1 var(--mono);
+    color:var(--text);background:var(--surface);border:1px solid var(--rule);
+    border-radius:2px;padding:8px 13px;cursor:pointer}
+  .toggle:hover{background:var(--raised);border-color:var(--heading)}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 var(--s5) var(--s8)}
+
+  /* band */
+  .band{display:flex;height:4px;border-bottom:1px solid var(--line)}
+  .band span{flex:1}
+
+  /* mast */
+  .mast{padding:var(--s8) 0 var(--s6);border-bottom:1px solid var(--rule);margin-bottom:var(--s6)}
+  .kick{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;letter-spacing:.14em;margin-bottom:var(--s3)}
+  .mast h1{font:700 42px/1.06 var(--serif);color:var(--heading);letter-spacing:-.018em;margin-bottom:var(--s3)}
+  .mast h1 em{font-style:normal;color:var(--ember)}
+  .mast .sub{font:400 17px/1.6 var(--serif);color:var(--text);max-width:62ch}
+  .mast .sub em{color:var(--heading)}
+  .status-row{display:flex;align-items:center;gap:var(--s4);margin-top:var(--s5);flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;font:500 10px/1 var(--mono);
+    text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;
+    border:1px solid var(--line);border-radius:2px}
+  .chip.placeholder{color:var(--muted);border-color:var(--line)}
+  .chip.draft{color:var(--ember-text);border-color:var(--ember)}
+  .chip .dot{width:6px;height:6px;border-radius:50%}
+  .chip.placeholder .dot{background:var(--muted)}
+  .chip.draft .dot{background:var(--ember)}
+
+  /* arc strip */
+  .arc{display:flex;gap:4px;margin-top:var(--s5);align-items:center}
+  .arc-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+  .arc-step .a-dot{width:10px;height:10px;border-radius:50%}
+  .arc-step .a-lab{font:500 9px/1 var(--mono);text-transform:lowercase;letter-spacing:.04em;color:var(--faint)}
+  .arc-arrow{font-size:10px;color:var(--faint);flex:none;margin-bottom:14px}
+
+  /* sections */
+  .sec{padding:var(--s7) 0 0}
+  .sec-label{font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ember-text);margin-bottom:var(--s3)}
+  .sec h2{font:700 26px/1.15 var(--serif);color:var(--heading);letter-spacing:-.01em;margin-bottom:var(--s4)}
+  .sec p{font:400 15.5px/1.7 var(--serif);color:var(--text);max-width:68ch;margin-bottom:var(--s4)}
+  .sec p em{color:var(--heading)}
+  .rule{font:500 13.5px/1.65 var(--serif);color:var(--heading);background:var(--inset);
+    border:1px solid var(--line);border-left:2px solid var(--ember);padding:13px 17px;margin:var(--s3) 0 var(--s4)}
+  .rule b{font:500 9px/1.5 var(--mono);color:var(--ember-text);text-transform:uppercase;
+    letter-spacing:.1em;display:block;margin-bottom:5px}
+
+  /* module cards */
+  .modules{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s4)}
+  @media(max-width:580px){.modules{grid-template-columns:1fr}}
+  .mod{background:var(--surface);border:1px solid var(--line);padding:var(--s4) var(--s5)}
+  .mod a{text-decoration:none;color:inherit;display:block;height:100%}
+  .mod a:hover .mod-title{color:var(--blue-text)}
+  .mod-tag{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:var(--s3)}
+  .mod-title{font:700 19px/1.2 var(--serif);color:var(--heading);margin-bottom:var(--s3);
+    transition:color var(--micro) var(--ease)}
+  .mod-desc{font:400 13.5px/1.6 var(--serif);color:var(--text);margin-bottom:var(--s4)}
+  .mod-desc em{color:var(--heading)}
+  .mod-meta{display:flex;flex-wrap:wrap;gap:6px}
+  .mod-tag-sm{font:400 9.5px/1 var(--mono);color:var(--muted);padding:3px 7px;
+    border:1px solid var(--line);border-radius:2px}
+
+  /* four kinds */
+  .kinds{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3);margin-top:var(--s4)}
+  @media(max-width:500px){.kinds{grid-template-columns:1fr}}
+  .kind{padding:var(--s3) var(--s4);border:1px solid var(--line)}
+  .kind .k-name{font:600 11px/1 var(--mono);color:var(--heading);text-transform:uppercase;
+    letter-spacing:.06em;margin-bottom:6px}
+  .kind .k-desc{font:400 13px/1.55 var(--serif);color:var(--text)}
+
+  /* arc stages */
+  .stages{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+  .stage{display:flex;align-items:center;gap:6px;font:400 11.5px/1 var(--mono);
+    color:var(--muted);padding:5px 9px;border:1px solid var(--line)}
+  .stage .sm{width:8px;height:8px;flex:none}
+
+  /* principles */
+  .principles{display:flex;flex-direction:column;gap:var(--s3);margin-top:var(--s4)}
+  .pr{display:grid;grid-template-columns:28px 1fr;gap:var(--s3);
+    padding:var(--s3) 0;border-bottom:1px solid var(--line)}
+  .pr:last-child{border-bottom:none}
+  .pr .pn{font:600 11px/1.6 var(--mono);color:var(--ember-text)}
+  .pr .pt{font:700 13px/1.4 var(--serif);color:var(--heading);margin-bottom:4px}
+  .pr .pd{font:400 12.5px/1.55 var(--serif);color:var(--text)}
+
+  /* foot */
+  .foot{border-top:1px solid var(--rule);margin-top:var(--s8);padding:var(--s5) 0 var(--s8);
+    font:400 11px/1.7 var(--mono);color:var(--faint)}
+  .foot b{color:var(--muted);font-weight:500}
+  .foot a{color:var(--blue-text);text-decoration:none}
+  .foot a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<button class="toggle" id="toggle">light</button>
+
+<div class="band">
+  <span style="background:var(--sun-gold)"></span>
+  <span style="background:var(--sun-amber)"></span>
+  <span style="background:var(--sun-coral)"></span>
+  <span style="background:var(--sun-rose)"></span>
+  <span style="background:var(--sun-violet)"></span>
+  <span style="background:var(--sun-blue)"></span>
+</div>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="kick">RegenHub, LCA &middot; Common Information System</div>
+    <h1>Common Work<br><em>&amp; Daybook</em></h1>
+    <p class="sub">A peer commons across the full arc — where shared work becomes legible one entry at a time, and every authoritative write has a <em>named human</em> at the moment of landing.</p>
+    <div class="status-row">
+      <span class="chip placeholder"><span class="dot"></span>Placeholder</span>
+      <span class="chip draft"><span class="dot"></span>Concepts in development</span>
+      <span style="font:400 11px/1.5 var(--mono);color:var(--faint)">RegenHub, LCA &middot; Boulder, CO &middot; June 2026</span>
+    </div>
+    <div class="arc" style="margin-top:var(--s6)">
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-gold)"></div>
+        <div class="a-lab">captured</div>
+      </div>
+      <div class="arc-arrow">→</div>
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-amber)"></div>
+        <div class="a-lab">offered</div>
+      </div>
+      <div class="arc-arrow">→</div>
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-coral)"></div>
+        <div class="a-lab">held</div>
+      </div>
+      <div class="arc-arrow">→</div>
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-rose)"></div>
+        <div class="a-lab">standing</div>
+      </div>
+      <div class="arc-arrow">→</div>
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-violet)"></div>
+        <div class="a-lab">socialized</div>
+      </div>
+      <div class="arc-arrow">→</div>
+      <div class="arc-step">
+        <div class="a-dot" style="background:var(--sun-blue)"></div>
+        <div class="a-lab">resolved</div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- WHAT IT IS -->
+  <section class="sec">
+    <div class="sec-label">The system</div>
+    <h2>Two surfaces, one arc</h2>
+    <p><em>Common Work</em> is the coordination surface — a peer commons where shared work moves through six stages from captured idea to resolved outcome. Each stage carries its own colour from the sunrise spectrum, making the state of collective effort visible at a glance. The field view renders the whole commons as a concentric map: work at the center, peers in the rings, signals on the periphery.</p>
+    <p><em>The Daybook</em> is the personal daily record — a module within the cooperative's Common Information System where a member's lived activity enters the ledger one entry at a time. It adds a ripening lifecycle between the moment something happens and the moment it becomes an immutable event, and keeps that move in the member's hands. Nothing economic is written without a person landing it.</p>
+    <div class="rule">
+      <b>The load-bearing rule</b>
+      A precondition set can reach one hundred percent, and the signal can show ready, but only a person's landing action writes the authoritative event. Every economic write in the Daybook has a named human author at the moment of commit.
+    </div>
+  </section>
+
+
+  <!-- MODULE DOCS -->
+  <section class="sec">
+    <div class="sec-label">Documents</div>
+    <h2>Concept artifacts</h2>
+    <div class="modules">
+
+      <div class="mod">
+        <a href="./common-work/">
+          <div class="mod-tag">MVP Interface Concept</div>
+          <div class="mod-title">Common Work</div>
+          <div class="mod-desc">The peer commons. Board view, field view, peer signals, and a detail panel. Work moves through the six-stage arc in the colour of each stage. <em>Widescreen instrument grammar.</em></div>
+          <div class="mod-meta">
+            <span class="mod-tag-sm">Techne v4</span>
+            <span class="mod-tag-sm">Board + Field</span>
+            <span class="mod-tag-sm">Peer signals</span>
+            <span class="mod-tag-sm">Capture form</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="mod">
+        <a href="./daybook/">
+          <div class="mod-tag">Module Specification v0.1</div>
+          <div class="mod-title">The Daybook</div>
+          <div class="mod-desc">Four kinds of entry: Reflection, Contribution, Exchange, Clearing. Each ripens through preconditions and waits for a human to land it. <em>Document grammar, parchment and ink.</em></div>
+          <div class="mod-meta">
+            <span class="mod-tag-sm">CIS PRD v0.2</span>
+            <span class="mod-tag-sm">REA ontology</span>
+            <span class="mod-tag-sm">Ripening lifecycle</span>
+            <span class="mod-tag-sm">Rhythm view</span>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- FOUR KINDS -->
+  <section class="sec">
+    <div class="sec-label">Daybook entry types</div>
+    <h2>Four kinds, one landing rule</h2>
+    <p>Three kinds compose economic events the CIS already holds. The fourth — Reflection — is the one new thing: narrative, non-valued, private by default. Everything economic requires a human to land it before it touches a balance.</p>
+    <div class="kinds">
+      <div class="kind">
+        <div class="k-name" style="color:var(--sun-gold-t,var(--sun-gold))">Reflection</div>
+        <div class="k-desc">Narrative, non-valued. Private to the author until explicitly made public. Append-only, portable, censorship-resistant. The one new entity the module adds to the CIS.</div>
+      </div>
+      <div class="kind">
+        <div class="k-name" style="color:var(--sun-amber-t,var(--sun-amber))">Contribution</div>
+        <div class="k-desc">Labor logged. Member reads and confirms, then lands. Emits a <code style="font-family:var(--mono);font-size:.85em;color:var(--ember-text)">capital_event</code> against the program budget. Self-confirmed.</div>
+      </div>
+      <div class="kind">
+        <div class="k-name" style="color:var(--sun-coral-t,var(--sun-coral))">Exchange</div>
+        <div class="k-desc">Transfer or allocation of shared value. Brought to the circle; requires the circle's assent before landing. Higher bar because it moves shared value.</div>
+      </div>
+      <div class="kind">
+        <div class="k-name" style="color:var(--sun-rose-t,var(--sun-rose))">Clearing</div>
+        <div class="k-desc">Settlement between vaults at day's end. Both peers confirm the line, then one lands. Records the settlement in Treasury &amp; Distributions.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ARC STAGES -->
+  <section class="sec">
+    <div class="sec-label">Common Work arc</div>
+    <h2>Six stages, one compost</h2>
+    <p>Every piece of work moves through the arc in sequence. Stages are not gatekeepers — they are a rhythm. The compost column holds work that completed its arc or was retired, visible as provenance rather than hidden as deletion.</p>
+    <div class="stages">
+      <div class="stage"><div class="sm" style="background:var(--sun-gold)"></div>Captured — raw, just in</div>
+      <div class="stage"><div class="sm" style="background:var(--sun-amber)"></div>Offered — put to the commons</div>
+      <div class="stage"><div class="sm" style="background:var(--sun-coral)"></div>Held — someone is carrying it</div>
+      <div class="stage"><div class="sm" style="background:var(--sun-rose)"></div>Standing — durable, recurring</div>
+      <div class="stage"><div class="sm" style="background:var(--sun-violet)"></div>Socialized — shared understanding</div>
+      <div class="stage"><div class="sm" style="background:var(--sun-blue)"></div>Resolved — outcome recorded</div>
+      <div class="stage"><div class="sm" style="background:var(--ember)"></div>Composted — returned to the soil</div>
+    </div>
+  </section>
+
+
+  <!-- DESIGN PRINCIPLES -->
+  <section class="sec">
+    <div class="sec-label">Design principles</div>
+    <h2>CROPS — four properties</h2>
+    <div class="principles">
+      <div class="pr">
+        <div class="pn">01</div>
+        <div>
+          <div class="pt">Augmentation over automation</div>
+          <div class="pd">Agents prepare; people land. No economic write happens without a named human at the moment of commit. This is structural, not a policy promise — the landing action is the only path to the ledger.</div>
+        </div>
+      </div>
+      <div class="pr">
+        <div class="pn">02</div>
+        <div>
+          <div class="pt">Privacy by construction</div>
+          <div class="pd">Reflections are private to their author by default. The rhythm view exposes timing and kind, never content — a property enforced at the data layer, not by restraint.</div>
+        </div>
+      </div>
+      <div class="pr">
+        <div class="pn">03</div>
+        <div>
+          <div class="pt">Censorship resistance</div>
+          <div class="pd">Entries are append-only. Corrections append rather than overwrite. A member's own record is theirs to export. The landing path is not a chokepoint on a person's own activity.</div>
+        </div>
+      </div>
+      <div class="pr">
+        <div class="pn">04</div>
+        <div>
+          <div class="pt">Cite-as-you-enforce</div>
+          <div class="pd">Every table and access rule carries the bylaw clause or CIS section that justifies it. Legibility is a product, not a byproduct — if you can't cite it, you can't enforce it.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="foot">
+    <p><b>Common Work &middot; Daybook &middot; placeholder &middot; June 2026</b><br>
+    RegenHub, LCA, operating as Techne &middot; Colorado Public Benefit Limited Cooperative Association &middot; Boulder, CO.<br>
+    Concepts in development. Not adopted policy. Grounds in Common Information System PRD v0.2 and the Techne Design System v4.<br>
+    <a href="https://techne.institute/legal/">Legal documents →</a> &ensp; <a href="https://techne.institute/">techne.institute →</a></p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement, btn=document.getElementById('toggle'), stored=null;
+  try{ stored=localStorage.getItem('cw-mode'); }catch(e){}
+  var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+  root.setAttribute('data-mode',m); btn.textContent=(m==='dark')?'light':'dark';
+  btn.addEventListener('click',function(){
+    var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
+    root.setAttribute('data-mode',next); btn.textContent=(next==='dark')?'light':'dark';
+    try{ localStorage.setItem('cw-mode',next); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

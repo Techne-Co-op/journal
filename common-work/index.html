@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Common Work MVP, an interface concept rendered in the Techne v4 design system: a peer commons across the full arc, parchment and ink, blue primary and ember secondary, the sunset sweep as the arc's atmosphere.">
+<title>Common Work &middot; MVP &middot; Techne v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+    --dur:.4s; --micro:.16s; --ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A; --sun-rose:#B45C7C; --sun-violet:#6E5494; --sun-blue:#5476B8;
+  }
+  html[data-mode="dark"]{
+    --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+    --line:#2A2A30; --rule:#3A3A42;
+    --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+    --blue:#6A8AC4; --blue-text:#97B5E8; --ember:#C4956A; --ember-text:#D4A57A;
+    --ok:#6A9A6A; --info:#6A8AC4; --warn:#C46A6A;
+    --heat-1:#6E5494; --heat-2:#B45C7C; --heat-3:#D1755A; --heat-4:#E09A52; --heat-5:#EAB668;
+    --sun-gold-t:#EAB668; --sun-amber-t:#E5A562; --sun-coral-t:#DE8872; --sun-rose-t:#CF7C9A; --sun-violet-t:#9E86C4; --sun-blue-t:#8FAEE0;
+  }
+  html[data-mode="light"]{
+    --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+    --line:#D8D3C8; --rule:#9A958A;
+    --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+    --blue:#4A6FB0; --blue-text:#39588F; --ember:#8A6A4A; --ember-text:#6F5436;
+    --ok:#4A7A4A; --info:#4A6FB0; --warn:#A84F4C;
+    --heat-1:#EAB668; --heat-2:#E09A52; --heat-3:#D1755A; --heat-4:#B45C7C; --heat-5:#6E5494;
+    --sun-gold-t:#87621F; --sun-amber-t:#8C581D; --sun-coral-t:#9C4636; --sun-rose-t:#8C3D58; --sun-violet-t:#4C3870; --sun-blue-t:#3A5694;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{color-scheme:dark light; height:100%}
+  body{height:100%; background:var(--bg); color:var(--text); font:400 15px/1.55 var(--serif); -webkit-font-smoothing:antialiased; overflow:hidden;
+    transition:background-color var(--dur) var(--ease), color var(--dur) var(--ease)}
+  button{font-family:inherit; cursor:pointer; color:inherit; background:none; border:none}
+  em{font-style:italic; color:var(--heading)}
+  .mono{font-family:var(--mono)}
+  .num{font-variant-numeric:tabular-nums}
+  :focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  ::-webkit-scrollbar{width:10px; height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--rule); border-radius:2px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  .app{height:100vh; display:flex; flex-direction:column; overflow:hidden}
+
+  /* topbar */
+  .topbar{display:flex; align-items:center; gap:var(--s4); height:52px; padding:0 var(--s4); border-bottom:1px solid var(--rule); background:var(--surface); flex:none}
+  .brand{display:flex; align-items:center; gap:var(--s2)}
+  .mark{width:20px; height:20px; color:var(--ember); flex:none}
+  .brand .nm{font:700 15px/1 var(--serif); color:var(--heading); letter-spacing:-.01em}
+  .brand .vr{font:500 10px/1 var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.12em; padding-left:var(--s2); border-left:1px solid var(--line)}
+  .status{display:flex; align-items:center; gap:var(--s3); margin-left:var(--s2); font:400 11px/1.5 var(--mono); color:var(--muted)}
+  .status .s-n{color:var(--heading); font-weight:500}
+  .status .bar{width:1px; height:12px; background:var(--line)}
+  .spacer{flex:1}
+  .peerchip{display:inline-flex; align-items:center; gap:6px; font:500 10.5px/1 var(--mono); color:var(--muted); padding:5px 9px; border:1px solid var(--line); border-radius:2px; background:var(--surface)}
+  .peerchip svg{width:13px; height:13px; color:var(--muted)}
+  .toggle{font:500 11px/1 var(--mono); color:var(--text); background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:8px 12px; cursor:pointer; transition:background-color var(--micro) var(--ease), border-color var(--micro) var(--ease)}
+  .toggle:hover{background:var(--raised); border-color:var(--heading)}
+
+  .body{flex:1; display:flex; min-height:0}
+
+  /* rail */
+  .rail{width:210px; flex:none; border-right:1px solid var(--line); display:flex; flex-direction:column; padding:var(--s4) var(--s3); gap:var(--s2); overflow-y:auto}
+  .btn{font:500 12px/1 var(--mono); color:var(--heading); background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:0 14px; height:32px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:background-color var(--micro) var(--ease), border-color var(--micro) var(--ease)}
+  .btn:hover{background:var(--raised); border-color:var(--heading)}
+  .btn.primary{border-color:var(--blue); color:var(--blue-text)}
+  .btn.secondary{border-color:var(--ember); color:var(--ember-text)}
+  .btn.primary:hover, .btn.secondary:hover{background:var(--raised)}
+  .btn svg{width:14px; height:14px}
+  .capture-btn{width:100%; height:36px; justify-content:flex-start}
+  .nav{margin-top:var(--s3); display:flex; flex-direction:column; gap:2px}
+  .nav-label{font:500 10px/1.6 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--faint); padding:0 8px 6px}
+  .nav-item{display:flex; align-items:center; gap:10px; padding:8px 9px; border-radius:2px; font:400 12.5px/1 var(--mono); color:var(--muted); transition:background-color var(--micro) var(--ease), color var(--micro) var(--ease)}
+  .nav-item svg{width:15px; height:15px; opacity:.85}
+  .nav-item:hover{background:var(--raised); color:var(--text)}
+  .nav-item.on{background:var(--raised); color:var(--heading)}
+  .nav-item.on svg{color:var(--blue); opacity:1}
+  .rail-spacer{flex:1}
+  .ground{border-top:1px solid var(--line); padding-top:var(--s3); margin-top:var(--s2)}
+  .ground .g-h{font:500 10px/1.6 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--ember-text); margin-bottom:8px}
+  .ground p{font:italic 400 13px/1.4 var(--serif); color:var(--muted); margin-bottom:6px}
+  .ground p:last-child{margin-bottom:0}
+
+  .main{flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden}
+  .main-head{padding:var(--s4) var(--s5) var(--s3); border-bottom:1px solid var(--line); flex:none; display:flex; align-items:flex-end; justify-content:space-between; gap:var(--s4)}
+  .main-head h1{font:700 22px/1.1 var(--serif); color:var(--heading); letter-spacing:-.01em}
+  .main-head .sub{font:400 13px/1.5 var(--serif); color:var(--muted); margin-top:3px; max-width:70ch}
+  .scrollhint{font:400 10px/1.5 var(--mono); color:var(--faint); display:flex; align-items:center; gap:5px; white-space:nowrap; padding-bottom:3px}
+  .scrollhint svg{width:12px; height:12px}
+  .view{flex:1; min-height:0; display:none; flex-direction:column}
+  .view.on{display:flex}
+
+  /* board */
+  .board{flex:1; min-height:0; display:flex; overflow-x:auto; overflow-y:hidden; padding:var(--s2) var(--s2) 0}
+  .col{flex:0 0 184px; display:flex; flex-direction:column; min-height:0; padding:var(--s3) 10px; border-right:1px solid var(--line)}
+  .col.compost{flex:0 0 196px; border-left:1px solid var(--rule); border-right:none; margin-left:10px}
+  .col-head{display:flex; align-items:center; gap:7px; padding:0 6px 4px}
+  .col-mark{width:8px; height:8px; flex:none}
+  .col-name{font:600 11px/1.4 var(--mono); color:var(--heading); text-transform:lowercase}
+  .col-num{font:500 9px/1 var(--mono); color:var(--faint)}
+  .col-count{font:500 11px/1 var(--mono); color:var(--muted); margin-left:auto; font-variant-numeric:tabular-nums}
+  .col-sub{font:400 10px/1.4 var(--mono); color:var(--faint); padding:0 6px 10px; display:flex; align-items:center; gap:5px; min-height:1.1em}
+  .col-sub svg{width:11px; height:11px; flex:none}
+  .col-cards{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:var(--s2); padding:2px 6px 10px}
+  .col.compost .col-name{color:var(--sun-gold-t)}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-left:2px solid var(--stg,var(--line)); padding:9px 11px; text-align:left; width:100%; transition:border-color var(--micro) var(--ease), background-color var(--micro) var(--ease)}
+  .card:hover{background:var(--raised); border-color:var(--rule); border-left-color:var(--stg,var(--rule))}
+  .card.sel{border-color:var(--blue); border-left-color:var(--blue)}
+  .card .c-id{font:400 9.5px/1 var(--mono); color:var(--faint); letter-spacing:.04em; display:flex; align-items:center; gap:5px; margin-bottom:5px}
+  .card .c-id svg{width:10px; height:10px; color:var(--muted)}
+  .card .c-title{font:700 13px/1.25 var(--serif); color:var(--heading); margin-bottom:4px}
+  .card .c-ess{font:400 12px/1.35 var(--serif); color:var(--text)}
+  .card .c-meta{font:400 9.5px/1.4 var(--mono); color:var(--muted); margin-top:7px; display:flex; align-items:center; gap:5px}
+  .card .c-meta svg{width:10px; height:10px; color:var(--muted)}
+  .card .c-meta.warn{color:var(--warn)} .card .c-meta.warn svg{color:var(--warn)}
+
+  .st-captured{--stg:var(--sun-gold)} .cm-captured{background:var(--sun-gold)}
+  .st-offered{--stg:var(--sun-amber)} .cm-offered{background:var(--sun-amber)}
+  .st-held{--stg:var(--sun-coral)} .cm-held{background:var(--sun-coral)}
+  .st-standing{--stg:var(--sun-rose)} .cm-standing{background:var(--sun-rose)}
+  .st-socialized{--stg:var(--sun-violet)} .cm-socialized{background:var(--sun-violet)}
+  .st-resolved{--stg:var(--sun-blue)} .cm-resolved{background:var(--sun-blue)}
+  .st-composted{--stg:var(--sun-gold)} .cm-composted{background:var(--sun-gold)}
+  .st-composted{opacity:.92}
+
+  .gapbar{flex:none; border-top:1px solid var(--line); padding:9px var(--s5); display:flex; align-items:center; gap:var(--s5); flex-wrap:wrap; font:400 11px/1.5 var(--mono)}
+  .gapitem{display:flex; align-items:center; gap:7px; color:var(--text)}
+  .gapitem .mk{width:7px; height:7px; flex:none}
+  .gapitem.hold .mk{background:var(--info)} .gapitem.person .mk{background:var(--ember)}
+  .gapitem .n{color:var(--heading); font-weight:500} .gapitem .muted{color:var(--muted)}
+
+  /* peers + signals */
+  .grid{flex:1; min-height:0; overflow-y:auto; padding:var(--s4) var(--s5); display:grid; grid-template-columns:repeat(auto-fill, minmax(228px,1fr)); gap:var(--s3); align-content:start}
+  .peer{background:var(--surface); border:1px solid var(--line); padding:12px 13px; text-align:left; transition:border-color var(--micro) var(--ease), background-color var(--micro) var(--ease)}
+  .peer:hover{background:var(--raised); border-color:var(--rule)}
+  .peer.sel{border-color:var(--blue)}
+  .peer .p-nm{display:flex; align-items:center; gap:7px; font:700 15px/1 var(--serif); color:var(--heading); margin-bottom:9px}
+  .peer .p-nm svg{width:14px; height:14px; color:var(--muted)}
+  .caps{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:9px}
+  .cap{font:400 10px/1 var(--mono); padding:3px 6px; border:1px solid var(--line); border-radius:2px; color:var(--muted)}
+  .peer .p-meta{font:400 10px/1 var(--mono); color:var(--faint); display:flex; gap:var(--s3)}
+  .signals{flex:1; min-height:0; overflow-y:auto; padding:var(--s4) var(--s5)}
+  .sig-row{display:flex; align-items:center; gap:var(--s4); padding:11px 3px; border-bottom:1px solid var(--line)}
+  .sig-title{flex:1; font:700 14px/1.3 var(--serif); color:var(--heading)}
+  .sig-title .sid{font:400 10px/1 var(--mono); color:var(--faint); margin-right:8px; font-weight:400}
+  .sense{display:flex; align-items:center; gap:8px}
+  .sense .label{font:400 10px/1 var(--mono); color:var(--muted); width:3.4em; text-align:right}
+  .heatdots{display:flex; gap:3px}
+  .heatdots i{width:11px; height:11px; border:1px solid var(--line); display:block; background:var(--inset)}
+  .heatdots i.l1{background:var(--heat-1)} .heatdots i.l2{background:var(--heat-3)} .heatdots i.l3{background:var(--heat-5)}
+  .sig-foot{margin-top:var(--s4); font:italic 400 12px/1.5 var(--serif); color:var(--muted); display:flex; align-items:center; gap:6px}
+  .sig-foot svg{width:13px; height:13px; color:var(--muted)}
+
+  /* detail */
+  .detail{width:376px; flex:none; border-left:1px solid var(--rule); background:var(--inset); overflow-y:auto; display:flex; flex-direction:column}
+  .detail-inner{padding:var(--s4) var(--s4) var(--s6)}
+  .d-close{display:none; width:30px; height:30px; border:1px solid var(--line); border-radius:2px; align-items:center; justify-content:center; color:var(--muted)}
+  .d-close svg{width:14px; height:14px}
+
+  .d-empty .de-h{font:500 10px/1.6 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:var(--s3)}
+  .arc-legend{border-top:1px solid var(--rule); margin-bottom:var(--s4)}
+  .leg{display:grid; grid-template-columns:26px 12px 1fr; gap:9px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line)}
+  .leg .ln{font:500 11px/1 var(--mono)}
+  .leg .lc{width:10px; height:10px}
+  .leg .lt{font:400 13px/1.3 var(--serif); color:var(--text)}
+  .de-hint{font:400 12.5px/1.5 var(--serif); color:var(--muted); padding-top:var(--s2)}
+
+  .d-id{font:400 10px/1 var(--mono); color:var(--faint); letter-spacing:.05em; margin-bottom:9px}
+  .stage-tag{display:inline-flex; align-items:center; gap:6px; font:500 10px/1 var(--mono); text-transform:lowercase; padding:4px 9px; border:1px solid var(--line); border-radius:2px; background:var(--surface); color:var(--heading); margin-bottom:11px}
+  .stage-tag .mk{width:7px; height:7px; background:var(--stg,var(--muted))}
+  .stage-tag .priv{display:inline-flex; align-items:center; gap:4px; color:var(--muted); padding-left:7px; margin-left:1px; border-left:1px solid var(--line)}
+  .stage-tag .priv svg{width:10px; height:10px}
+  .chip{display:inline-flex; align-items:center; gap:6px; font:500 10px/1 var(--mono); padding:4px 9px; border:1px solid var(--line); border-radius:2px; background:var(--surface); margin:0 0 11px 7px}
+  .chip .dot{width:6px; height:6px}
+  .chip.ok{color:var(--ok)} .chip.ok .dot{background:var(--ok)}
+  .chip.info{color:var(--info)} .chip.info .dot{background:var(--info)}
+  .chip.warn{color:var(--warn)} .chip.warn .dot{background:var(--warn)}
+  .d-title{font:700 19px/1.2 var(--serif); color:var(--heading); margin-bottom:7px}
+  .d-essence{font:italic 400 14px/1.4 var(--serif); color:var(--muted); margin-bottom:var(--s4)}
+
+  .d-block{margin-bottom:var(--s3)}
+  .d-k{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:6px}
+  .d-block p{font:400 13.5px/1.45 var(--serif); color:var(--text)}
+  .d-block.guessed{border:1px solid var(--line); border-left:2px solid var(--ember); padding:9px 11px}
+  .d-block.guessed .d-k{color:var(--ember-text)}
+  .d-block.guessed p{font-style:italic; color:var(--muted)}
+
+  .standing{border:1px solid var(--line); padding:11px 13px; margin:6px 0 var(--s4)}
+  .standing .st-h{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:9px}
+  .stline{font:400 13px/1.4 var(--serif); color:var(--text); margin-bottom:7px}
+  .stline:last-child{margin-bottom:0}
+  .stline .lab{font:400 10px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.06em; margin-right:6px}
+  .ev{display:inline-flex; align-items:center; gap:4px; font:400 10px/1 var(--mono); color:var(--muted); margin-left:6px}
+  .ev .dot{width:6px; height:6px; background:var(--ok)}
+
+  .collective{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:3px 0 4px}
+  .who{display:inline-flex; align-items:center; gap:5px; font:400 10.5px/1 var(--mono); color:var(--muted); border:1px solid var(--line); border-radius:2px; padding:4px 8px}
+  .who svg{width:11px; height:11px; color:var(--muted)}
+  .who.lead svg{color:var(--ember)}
+
+  .lens{border:1px solid var(--line); padding:9px 11px; margin-bottom:var(--s4)}
+  .lens-tabs{display:flex; gap:6px; margin-bottom:9px}
+  .lens-tab{font:400 10px/1 var(--mono); padding:4px 9px; border-radius:2px; border:1px solid var(--line); color:var(--muted)}
+  .lens-tab.on{color:var(--blue-text); border-color:var(--blue)}
+  .lens-body{font:400 13px/1.45 var(--serif); color:var(--text)}
+  .lens-pane{display:none} .lens-pane.on{display:block}
+
+  .invites{border:1px solid var(--line); border-left:2px solid var(--ember); padding:9px 11px; margin-bottom:var(--s4)}
+  .invites .iv-h{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ember-text); display:flex; align-items:center; gap:6px; margin-bottom:9px}
+  .invites .iv-h svg{width:11px; height:11px}
+  .invite{display:flex; align-items:center; justify-content:space-between; gap:var(--s2); font:400 13px/1.35 var(--serif); color:var(--text); padding:6px 0; border-top:1px solid var(--line)}
+  .invite:first-of-type{border-top:none}
+  .invite .join{font:500 10px/1 var(--mono); color:var(--blue-text); border:1px solid var(--blue); border-radius:2px; padding:4px 8px; white-space:nowrap; background:var(--surface)}
+  .invite .join:hover{background:var(--raised)}
+
+  .decided{margin:6px 0 var(--s4); padding:11px 0; border-top:1px solid var(--rule); border-bottom:4px double var(--heading)}
+  .decided .dc-h{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ember-text); display:flex; align-items:center; gap:6px; margin-bottom:9px}
+  .decided .dc-h svg{width:11px; height:11px}
+  .decided .dc-text{font:400 14px/1.45 var(--serif); color:var(--heading); margin-bottom:9px}
+  .dcrow{font:400 11px/1.5 var(--mono); color:var(--text); display:flex; gap:8px; margin-bottom:3px}
+  .dcrow .k{color:var(--faint); width:3.2em; flex:none; text-transform:uppercase; letter-spacing:.05em; font-size:9.5px; padding-top:2px}
+
+  .lesson{border:1px solid var(--line); padding:11px 13px; margin:6px 0 var(--s4)}
+  .lesson .ls-h{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:6px; margin-bottom:9px}
+  .lesson .ls-h svg{width:11px; height:11px}
+  .lesson p{font:400 13px/1.45 var(--serif); color:var(--text); margin-bottom:9px}
+  .feeds{font:400 11px/1.4 var(--mono); color:var(--muted); display:flex; align-items:center; gap:6px}
+  .feeds svg{width:11px; height:11px; color:var(--blue)}
+  .feeds .lnk{color:var(--blue-text); cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+
+  .contract{border:1px solid var(--line); margin:var(--s3) 0 var(--s4); font:400 11px/1.8 var(--mono)}
+  .contract .ct-h{color:var(--muted); padding:8px 11px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:6px; background:var(--surface)}
+  .contract .ct-h svg{width:11px; height:11px}
+  .contract .ct-body{padding:9px 11px}
+  .crow{display:flex; gap:10px}
+  .crow .ck{color:var(--faint); width:5.4em; flex:none}
+  .crow .cv{color:var(--text)} .crow .cv.gap{color:var(--faint)} .crow .cv.lnk{color:var(--blue-text); cursor:pointer; text-decoration:underline; text-underline-offset:2px}
+
+  .reserved{border:1px solid var(--line); border-left:2px solid var(--ember); padding:11px 13px; margin:6px 0 var(--s4)}
+  .reserved .r-h{font:500 9.5px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ember-text); display:flex; align-items:center; gap:6px; margin-bottom:9px}
+  .reserved .r-h svg{width:11px; height:11px}
+  .res-item{font:400 13px/1.4 var(--serif); color:var(--text); margin-bottom:7px}
+  .res-item .by{display:flex; align-items:center; gap:5px; font:400 10px/1.4 var(--mono); color:var(--muted); margin-top:4px}
+  .res-item .by svg{width:11px; height:11px}
+  .res-item .by.assist svg{color:var(--blue)}
+  .res-item .by.human svg{color:var(--ember)}
+  .res-item .by.done{color:var(--ok)} .res-item .by.done svg{color:var(--ok)}
+
+  .actions{display:flex; flex-direction:column; gap:7px; margin-top:6px}
+  .act{display:flex; align-items:center; justify-content:space-between; gap:8px; height:auto; padding:9px 11px}
+  .act .a-l{display:flex; align-items:center; gap:7px}
+  .act .a-l svg{width:14px; height:14px}
+  .act .human{font:400 9px/1 var(--mono); color:var(--muted); display:flex; align-items:center; gap:4px; letter-spacing:.03em; text-transform:lowercase}
+  .act .human svg{width:10px; height:10px; color:var(--ember)}
+  .settled-note{font:400 12px/1.4 var(--serif); color:var(--muted); display:flex; align-items:center; gap:7px; padding:7px 0}
+  .settled-note svg{width:13px; height:13px; color:var(--ok); flex:none}
+
+  .substrate{margin-top:var(--s4); border:1px solid var(--line); border-left:2px solid var(--ember); padding:9px 11px; font:400 10px/1.7 var(--mono); color:var(--muted)}
+  .substrate .ss-h{letter-spacing:.1em; text-transform:uppercase; color:var(--ember-text); margin-bottom:4px}
+  .substrate .rls{color:var(--muted)}
+
+  .capform input, .capform textarea{width:100%; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:9px 10px; color:var(--text); font:400 13px/1.4 var(--serif)}
+  .capform textarea.guess{background:var(--inset); font-style:italic; color:var(--muted)}
+  .capform input:focus, .capform textarea:focus{border-color:var(--blue)}
+
+  /* peer profile */
+  .d-title.pd-name{display:flex; align-items:center; gap:8px}
+  .pd-name svg{width:18px; height:18px; color:var(--muted)}
+  .cap.grow{border-style:dashed; color:var(--muted)}
+  .partof{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:var(--s4)}
+  .partof .po-k{font:500 9px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+  .partof .po-b{font:400 10px/1 var(--mono); color:var(--muted); border:1px solid var(--line); border-radius:2px; padding:3px 7px}
+  .pd-stack{display:flex; flex-direction:column; gap:7px}
+  .ph-with{font:400 9px/1.4 var(--mono); color:var(--muted); margin-top:5px}
+  .c-match{font:400 9px/1.4 var(--mono); color:var(--ember-text); margin-top:5px}
+  .stood{font:400 13px/1.45 var(--serif); color:var(--text); padding:6px 0; border-top:1px solid var(--line); cursor:pointer}
+  .stood:first-of-type{border-top:none}
+  .stood .sv{font:500 9px/1 var(--mono); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-right:6px}
+  .stood .sl{color:var(--heading); text-decoration:underline; text-underline-offset:2px}
+  .stood:hover .sl{color:var(--blue-text)}
+  .pd-empty{font:italic 400 12.5px/1.5 var(--serif); color:var(--faint)}
+
+  /* field (concentric) */
+  .fieldwrap{flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:var(--s3) var(--s4); overflow:hidden}
+  .fieldsvg{width:100%; height:100%; max-width:780px; display:block}
+  .ring{fill:none; stroke-width:1; opacity:.5}
+  .r-cap{stroke:var(--sun-gold)} .r-off{stroke:var(--sun-amber)} .r-held{stroke:var(--sun-coral)} .r-std{stroke:var(--sun-rose)} .r-soc{stroke:var(--sun-violet)} .r-res{stroke:var(--sun-blue)}
+  .core{fill:var(--ember)}
+  .node{fill:var(--surface); stroke-width:2; cursor:pointer; transition:opacity var(--micro) var(--ease), fill var(--micro) var(--ease)}
+  .node:hover{fill:var(--raised)}
+  .n-cap{stroke:var(--sun-gold)} .n-off{stroke:var(--sun-amber)} .n-held{stroke:var(--sun-coral)} .n-std{stroke:var(--sun-rose)} .n-soc{stroke:var(--sun-violet)} .n-res{stroke:var(--sun-blue)} .n-comp{stroke:var(--ember)}
+  .node.priv{stroke-dasharray:3 2}
+  .node.sel{stroke:var(--blue); stroke-width:3}
+  .node.dim,.flbl.dim,.emk.dim{opacity:.2}
+  .chord{stroke:var(--muted); stroke-width:1; fill:none; opacity:.55; transition:opacity var(--micro) var(--ease)}
+  .feed{stroke:var(--ember); stroke-width:1; fill:none; stroke-dasharray:3 3; opacity:.7}
+  .chord.on{stroke:var(--blue); opacity:1; stroke-width:1.5} .feed.on{opacity:1; stroke-width:1.5}
+  .chord.dim,.feed.dim{opacity:.12}
+  .emk{fill:var(--ember)}
+  .lbl{fill:var(--muted); font:400 9px var(--mono)}
+  .lbl-id{fill:var(--heading); font:500 9.5px var(--mono)}
+  .lbl-ring{fill:var(--faint); font:400 8.5px var(--mono)}
+  .lbl-body{fill:var(--faint); font:600 9px var(--mono); letter-spacing:.06em; text-transform:uppercase}
+  .fieldkey{flex:none; border-top:1px solid var(--line); padding:9px var(--s5); display:flex; align-items:center; gap:var(--s4) var(--s5); flex-wrap:wrap; font:400 10.5px/1.5 var(--mono); color:var(--muted)}
+  .fieldkey .ki{display:flex; align-items:center; gap:7px}
+  .fieldkey .ki b{color:var(--heading); font-weight:500}
+  .fieldkey svg{width:22px; height:14px; flex:none}
+
+  .samplebadge{position:fixed; bottom:9px; left:50%; transform:translateX(-50%); font:400 9.5px/1 var(--mono); letter-spacing:.05em; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:5px 11px; z-index:5; pointer-events:none}
+
+  @media (max-width:1180px){
+    .detail{position:fixed; top:0; right:0; height:100vh; width:min(384px,92vw); z-index:30; border-left:1px solid var(--heading); transform:translateX(105%); transition:transform var(--dur) var(--ease)}
+    .detail.open{transform:none}
+    .d-close{display:flex; position:absolute; top:13px; right:13px}
+  }
+  @media (max-width:760px){ .rail{width:170px} .ground{display:none} }
+  @media (max-width:560px){
+    .body{flex-direction:column}
+    .rail{width:100%; flex-direction:row; align-items:center; gap:var(--s2); padding:var(--s2); overflow-x:auto; border-right:none; border-bottom:1px solid var(--line)}
+    .capture-btn{width:auto; white-space:nowrap}
+    .nav{flex-direction:row; margin-top:0} .nav-label{display:none} .rail-spacer{display:none}
+    .status{display:none} .main-head{flex-direction:column; align-items:flex-start; gap:3px} .scrollhint{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-3.2-6.4"/><path d="M20 4v5h-5"/></svg>
+      <span class="nm">Common Work</span><span class="vr">v0.1 mvp</span>
+    </div>
+    <div class="status">
+      <span><span class="s-n num" id="cCommons">7</span> in the commons</span><span class="bar"></span>
+      <span><span class="s-n num" id="cSeeking">3</span> seeking a holder</span><span class="bar"></span>
+      <span><span class="s-n num" id="cCompost">1</span> composted</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="peerchip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>you</div>
+    <button class="toggle" id="modeBtn" aria-label="Switch color mode">light</button>
+  </header>
+
+  <div class="body">
+    <nav class="rail">
+      <button class="btn primary capture-btn" id="captureBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Capture</button>
+      <div class="nav" id="nav">
+        <span class="nav-label">Instrument</span>
+        <button class="nav-item on" data-view="commons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>The commons</button>
+        <button class="nav-item" data-view="field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>The field</button>
+        <button class="nav-item" data-view="peers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Peers</button>
+        <button class="nav-item" data-view="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Signals</button>
+      </div>
+      <div class="rail-spacer"></div>
+      <div class="ground">
+        <div class="g-h">The ground</div>
+        <p>The surface never flatters.</p>
+        <p>Some acts belong to people.</p>
+        <p>A gap is information, not an alarm.</p>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="view on" id="view-commons">
+        <div class="main-head">
+          <div>
+            <h1>The commons</h1>
+            <p class="sub">The full arc, from a private notion to work resolved or composted. The stage marks follow the sunset sweep, warm at the start, cooling toward twilight.</p>
+          </div>
+          <div class="scrollhint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>six stages, scroll the board</div>
+        </div>
+        <div class="board" id="board">
+          <div class="col"><div class="col-head"><span class="col-mark cm-captured"></span><span class="col-name">captured</span><span class="col-num">01</span><span class="col-count" id="n-captured">0</span></div><div class="col-sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>private to you</div><div class="col-cards" id="cards-captured"></div></div>
+          <div class="col"><div class="col-head"><span class="col-mark cm-offered"></span><span class="col-name">offered</span><span class="col-num">02</span><span class="col-count" id="n-offered">0</span></div><div class="col-sub">in the open, no holder</div><div class="col-cards" id="cards-offered"></div></div>
+          <div class="col"><div class="col-head"><span class="col-mark cm-held"></span><span class="col-name">held</span><span class="col-num">03</span><span class="col-count" id="n-held">0</span></div><div class="col-sub">a peer holds it</div><div class="col-cards" id="cards-held"></div></div>
+          <div class="col"><div class="col-head"><span class="col-mark cm-standing"></span><span class="col-name">standing</span><span class="col-num">04</span><span class="col-count" id="n-standing">0</span></div><div class="col-sub">legible, safe to depend on</div><div class="col-cards" id="cards-standing"></div></div>
+          <div class="col"><div class="col-head"><span class="col-mark cm-socialized"></span><span class="col-name">socialized</span><span class="col-num">05</span><span class="col-count" id="n-socialized">0</span></div><div class="col-sub">held by several</div><div class="col-cards" id="cards-socialized"></div></div>
+          <div class="col"><div class="col-head"><span class="col-mark cm-resolved"></span><span class="col-name">resolved</span><span class="col-num">06</span><span class="col-count" id="n-resolved">0</span></div><div class="col-sub">landed, decision recorded</div><div class="col-cards" id="cards-resolved"></div></div>
+          <div class="col compost"><div class="col-head"><span class="col-mark cm-composted"></span><span class="col-name">compost</span><span class="col-count" id="n-composted">0</span></div><div class="col-sub">let go, feeds the next notice</div><div class="col-cards" id="cards-composted"></div></div>
+        </div>
+        <div class="gapbar" id="gapbar"></div>
+      </section>
+
+      <section class="view" id="view-field">
+        <div class="main-head">
+          <div>
+            <h1>The field</h1>
+            <p class="sub">The same commons, drawn as concentric circles. The rings are pace and permanence, the fast rim to the settled core; each wedge is an emergent body; the lines are real dependencies. Select a piece to trace its relations.</p>
+          </div>
+        </div>
+        <div class="fieldwrap"><svg class="fieldsvg" id="fieldSvg" viewBox="0 0 660 620" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Concentric field of bodies of work"></svg></div>
+        <div class="fieldkey" id="fieldKey"></div>
+      </section>
+
+      <section class="view" id="view-peers">
+        <div class="main-head"><div><h1>Peers</h1><p class="sub">Who knows how to do what, kept by members themselves. Find work to join by what it needs.</p></div></div>
+        <div class="grid" id="peerGrid"></div>
+      </section>
+
+      <section class="view" id="view-signals">
+        <div class="main-head"><div><h1>Signals</h1><p class="sub">How offered work is landing, sensed without surveilling. The three steps read low, some, strong on a luminance-ordered scale.</p></div></div>
+        <div class="signals" id="sigList"></div>
+      </section>
+    </main>
+
+    <aside class="detail" id="detail">
+      <button class="d-close" id="detailClose" aria-label="Close panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <div class="detail-inner" id="detailBody"></div>
+    </aside>
+  </div>
+</div>
+<div class="samplebadge">illustrative sample data &middot; interface concept, not a working build</div>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement, btn=document.getElementById('modeBtn'), tkey='cw-mvp-mode', stored=null;
+  try{ stored=localStorage.getItem(tkey); }catch(e){}
+  var m = (stored==='light'||stored==='dark') ? stored : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  root.setAttribute('data-mode', m);
+  btn.textContent = m==='dark' ? 'light' : 'dark';
+  btn.addEventListener('click',function(){
+    var next = root.getAttribute('data-mode')==='dark' ? 'light' : 'dark';
+    root.setAttribute('data-mode', next); btn.textContent = next==='dark' ? 'light' : 'dark';
+    try{ localStorage.setItem(tkey,next); }catch(e){}
+  });
+
+  var works=[
+    { id:'cw-018', stage:'captured', title:"A shared calendar for the Hub open hours", group:'this season', kind:'step', owner:'you',
+      essence:'Noticed the open-hours information lives in three places and drifts.',
+      observed:'Three places list the Hub open hours, and they disagree with each other.',
+      guessed:'A single shared calendar might fix it. Not sure yet who would keep it.' },
+    { id:'cw-014', stage:'offered', title:'Vivero seed-inventory schema', group:'this season', kind:'step', owner:null,
+      essence:'A first schema for the garden seed inventory, open for anyone to shape.',
+      forWhom:'Anyone designing the Vivero Phase 01 data model.', needs:['data modeling','Supabase'], interest:2 },
+    { id:'cw-015', stage:'offered', title:'Onboarding path for new RegenHub members', group:'this season', kind:'step', owner:null,
+      essence:'A clear first-week path so new members are not left to guess.',
+      forWhom:'Facilitation-minded peers; anyone who has onboarded somewhere.', needs:['facilitation','low-code'], interest:3 },
+    { id:'cw-011', stage:'offered', title:'Compost Layer pattern-mining ritual', group:'next season', kind:'decision', owner:null,
+      essence:'A small recurring ritual to mine deprecated work for patterns.',
+      forWhom:'Anyone who has run a retro that actually changed something.', needs:['facilitation','governance'], interest:1 },
+    { id:'cw-007', stage:'held', title:'Field Notes privacy review', group:'this season', kind:'gate', owner:'Mara', state:'review',
+      essence:'Reviewing default-deny visibility before Field Notes ships.',
+      success_state:'A written review confirming no record is visible by default.', verification:null, depends_on:[],
+      reserved:[{ act:'Adopt the review', label:'a person adopts this', status:'pending' }] },
+    { id:'cw-009', stage:'standing', title:'Standing Book K-1 source rollup', group:'next season', kind:'step', owner:'Asa',
+      essence:'Rolling capital events into annual K-1 source data.',
+      success_state:'A demonstrated rollup matching a hand-checked sample.', verification:'ci:rollup-check', depends_on:['cw-007'],
+      standing:{ state:'Runs on one quarter of sample events.', state_ev:'pr #41', waiting:'A full-ledger pass, and sign-off on cw-007.', done:'Output matches a hand-checked sample.', done_ev:'sample-check.csv' },
+      decision:{ text:'Anchor the weekly Merkle roots to Base rather than another layer two.', drafted:true, status:'pending' } },
+    { id:'cw-006', stage:'socialized', title:'RegenHub CIS authorization model', group:'this season', kind:'gate', owner:'Devin',
+      essence:'The cite-as-you-enforce authorization model for the member portal.',
+      success_state:'Every read and write traces to a named rule, default deny.', verification:'ci:policy-tests', depends_on:['cw-007'],
+      coheld:['Mara','Asa'],
+      lenses:{ plain:'Members see only what a written rule lets them see, and nothing by default. Every door has a reason attached.', technical:'Row-level security with policy predicates that cite an authorization row; default deny, audit-by-design, and a policy-test suite in CI.' },
+      invites:['No one on the audit-log lens yet.','The default-deny test matrix is unwritten.'] },
+    { id:'cw-003', stage:'resolved', title:'Adopt Supabase as the shared substrate', group:'this season', kind:'decision', owner:'you',
+      essence:'One record beneath every instrument, rather than a patchwork.',
+      decided:{ text:'Adopt Supabase, a Postgres substrate, beneath all instruments.', by:'the group', on:'2026-05-12', why:'One record beneath every instrument, row-level enforcement of reserved acts, and a credible vendor-exit path.', status:'done' } },
+    { id:'cw-002', stage:'composted', title:'GlideApps as the primary application layer', group:'last season', kind:'decision', owner:'you',
+      essence:'An earlier bet on a low-code app builder as the main surface.',
+      lesson:'Low-code app builders could not enforce reserved acts at the row level. That gap is what pushed the substrate toward Postgres.',
+      feeds:'cw-003' }
+  ];
+
+  var peers=[
+    { name:'Mara', caps:['facilitation','privacy review','governance'], growing:['facilitation at federation scale'],
+      says:'Here for the governance and privacy work. Ask me before anything ships that touches member data.' },
+    { name:'Asa',  caps:['accounting','Supabase','Subchapter K'], growing:['Ethereum anchoring'],
+      says:'I keep the books honest. Happy to pair on anything Subchapter K or the substrate.' },
+    { name:'Wren', caps:['permaculture','data modeling'], growing:['row-level security'],
+      says:'Learning the land and the data both. Glad to be pulled into early schema work.' },
+    { name:'Devin',caps:['low-code','GlideApps','Make.com'], growing:['Postgres and Supabase'],
+      says:'I build the connective tissue, the automations and the glue between tools.' },
+    { name:'Sol',  caps:['cooperative law','bylaws'], growing:['token governance'],
+      says:'Cooperative law and bylaws. Bring me the governance questions before they become problems.' }
+  ];
+
+  var STAGES=['captured','offered','held','standing','socialized','resolved'];
+  var stageLabel={ captured:'captured', offered:'offered', held:'held', standing:'standing', socialized:'socialized', resolved:'resolved', composted:'composted' };
+  var sunStop={ captured:'--sun-gold', offered:'--sun-amber', held:'--sun-coral', standing:'--sun-rose', socialized:'--sun-violet', resolved:'--sun-blue', composted:'--sun-gold' };
+  var sunTint={ captured:'--sun-gold-t', offered:'--sun-amber-t', held:'--sun-coral-t', standing:'--sun-rose-t', socialized:'--sun-violet-t', resolved:'--sun-blue-t', composted:'--sun-gold-t' };
+
+  var bodyOf={ 'cw-003':'Substrate','cw-002':'Substrate','cw-009':'Standing Book','cw-007':'CIS / Field Notes','cw-006':'CIS / Field Notes','cw-014':'Vivero','cw-015':'Community / Hub','cw-011':'Community / Hub','cw-018':'Community / Hub' };
+  var shortOf={ 'cw-003':'Supabase substrate','cw-002':'GlideApps composted','cw-009':'Standing Book rollup','cw-007':'Field Notes review','cw-006':'CIS auth model','cw-014':'Vivero schema','cw-015':'Onboarding path','cw-011':'Compost ritual','cw-018':'Hub calendar' };
+  var bodyOrder=['Substrate','Standing Book','CIS / Field Notes','Vivero','Community / Hub'];
+  var bodyAngle={ 'Substrate':205,'Standing Book':62,'CIS / Field Notes':125,'Vivero':18,'Community / Hub':330 };
+  var FR={ captured:248, offered:200, held:152, standing:108, socialized:68, resolved:42, composted:16 };
+  var FCX=330, FCY=300;
+
+  var I={
+    lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+    db:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>',
+    hand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',
+    users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    gap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+    sprout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M12 20v-8"/><path d="M12 12c0-3 2-5 5-5 0 3-2 5-5 5Z"/><path d="M12 12c0-2.5-2-4.5-4.5-4.5C7.5 10 9.5 12 12 12Z"/></svg>'
+  };
+
+  function byId(i){ return document.getElementById(i); }
+  function el(h){ var d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; }
+  function workById(id){ for(var i=0;i<works.length;i++){ if(works[i].id===id) return works[i]; } return null; }
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function pendingReserved(w){ return (w.reserved||[]).some(function(r){return r.status!=='done';}) || (w.decision&&w.decision.status==='pending'); }
+  function stageStyle(w){ return 'style="--stg:var('+sunStop[w.stage]+')"'; }
+
+  var sel=null, currentView='commons';
+
+  function recount(){
+    var n={}; STAGES.concat(['composted']).forEach(function(s){n[s]=0;});
+    works.forEach(function(w){ if(n[w.stage]!=null) n[w.stage]++; });
+    STAGES.concat(['composted']).forEach(function(s){ var e=byId('n-'+s); if(e) e.textContent=n[s]; });
+    byId('cCommons').textContent=n.offered+n.held+n.standing+n.socialized+n.resolved;
+    byId('cSeeking').textContent=n.offered;
+    byId('cCompost').textContent=n.composted;
+    var decisions=works.filter(function(w){return w.decision&&w.decision.status==='pending';}).length;
+    var g='<div class="gapitem hold"><span class="mk"></span><span><span class="n num">'+n.offered+'</span> waiting on a holder</span><span class="muted">where you could join</span></div>';
+    if(decisions>0) g+='<div class="gapitem person"><span class="mk"></span><span><span class="n num">'+decisions+'</span> decision waiting on a person</span><span class="muted">a proposal cannot record itself</span></div>';
+    byId('gapbar').innerHTML=g;
+  }
+
+  function cardHTML(w){
+    var meta='';
+    if(w.stage==='held'||w.stage==='standing') meta='<div class="c-meta">'+I.user+'held by '+esc(w.owner)+'</div>';
+    else if(w.stage==='socialized') meta='<div class="c-meta">'+I.users+'held by '+esc(w.owner)+' and '+((w.coheld||[]).length)+' more</div>';
+    else if(w.stage==='resolved') meta='<div class="c-meta">'+I.check+'recorded</div>';
+    else if(w.stage==='composted') meta='<div class="c-meta">'+I.sprout+'feeds the next notice</div>';
+    if(pendingReserved(w)&&w.stage!=='resolved') meta='<div class="c-meta warn">'+I.user+'a person is needed</div>';
+    var idline=(w.stage==='captured')?('<div class="c-id">'+I.lock+esc(w.id)+'</div>'):('<div class="c-id">'+esc(w.id)+'</div>');
+    return '<button class="card st-'+w.stage+'" '+stageStyle(w)+' data-id="'+w.id+'">'+idline+'<div class="c-title">'+esc(w.title)+'</div><div class="c-ess">'+esc(w.essence)+'</div>'+meta+'</button>';
+  }
+  function renderBoard(){
+    STAGES.concat(['composted']).forEach(function(st){
+      var box=byId('cards-'+st); if(!box) return; box.innerHTML='';
+      works.filter(function(w){return w.stage===st;}).forEach(function(w){
+        var c=el(cardHTML(w));
+        if(sel&&sel.type==='work'&&sel.id===w.id) c.classList.add('sel');
+        c.addEventListener('click',function(){ openWork(w.id); });
+        box.appendChild(c);
+      });
+    });
+    recount();
+  }
+
+  function renderPeers(){
+    var g=byId('peerGrid'); g.innerHTML='';
+    peers.forEach(function(p){
+      var caps=p.caps.map(function(c){return '<span class="cap">'+esc(c)+'</span>';}).join('');
+      var nh=peerHolds(p.name).length, nj=peerJoin(p.name).length;
+      var node=el('<button class="peer" data-name="'+esc(p.name)+'"><div class="p-nm">'+I.user+esc(p.name)+'</div><div class="caps">'+caps+'</div><div class="p-meta"><span>holds '+nh+'</span><span>could join '+nj+'</span></div></button>');
+      if(sel&&sel.type==='peer'&&sel.id===p.name) node.classList.add('sel');
+      node.addEventListener('click',function(){ openPeer(p.name); });
+      g.appendChild(node);
+    });
+  }
+
+  function renderSignals(){
+    var list=byId('sigList'); list.innerHTML='';
+    var lab={1:'low',2:'some',3:'strong'};
+    works.filter(function(w){return w.stage==='offered';}).forEach(function(w){
+      var dots=''; for(var i=1;i<=3;i++){ dots+='<i class="'+(i<=w.interest?('l'+i):'')+'"></i>'; }
+      list.appendChild(el('<div class="sig-row"><div class="sig-title"><span class="sid">'+esc(w.id)+'</span>'+esc(w.title)+'</div><div class="sense"><span class="label">'+lab[w.interest]+'</span><div class="heatdots">'+dots+'</div></div></div>'));
+    });
+    list.appendChild(el('<div class="sig-foot">'+I.lock+'Sensed from anonymous signals. Who responded is never shown.</div>'));
+  }
+
+  function arcLeg(){
+    return STAGES.map(function(st,idx){
+      var num=('0'+(idx+1)).slice(-2);
+      return '<div class="leg"><span class="ln" style="color:var('+sunTint[st]+')">'+num+'</span><span class="lc" style="background:var('+sunStop[st]+')"></span><span class="lt">'+(st==='resolved'?'Resolve or compost':st.charAt(0).toUpperCase()+st.slice(1))+'</span></div>';
+    }).join('');
+  }
+  function relatedSet(id){
+    var w=workById(id); var s={}; s[id]=1;
+    if(w&&w.depends_on) w.depends_on.forEach(function(d){ s[d]=1; });
+    if(w&&w.feeds) s[w.feeds]=1;
+    works.forEach(function(x){ if(x.depends_on&&x.depends_on.indexOf(id)>=0) s[x.id]=1; if(x.feeds===id) s[x.id]=1; });
+    return s;
+  }
+  function fpt(r,deg){ var a=deg*Math.PI/180; return [FCX+r*Math.cos(a), FCY-r*Math.sin(a)]; }
+  function nodeAngle(w){
+    var body=bodyOf[w.id]||'Community / Hub';
+    var center=(bodyAngle[body]!=null)?bodyAngle[body]:0;
+    var mates=works.filter(function(x){return (bodyOf[x.id]||'Community / Hub')===body;});
+    var idx=mates.indexOf(w), n=mates.length;
+    if(n<=1) return center;
+    var W=Math.min(20, 7*(n-1));
+    return center+(idx-(n-1)/2)*(2*W/(n-1));
+  }
+  function shortTitle(w){ return shortOf[w.id] || (w.title.length>18 ? w.title.slice(0,17)+'...' : w.title); }
+  function renderFieldKey(){
+    var k=byId('fieldKey'); if(!k) return;
+    k.innerHTML=''
+      +'<span class="ki"><svg viewBox="0 0 22 14"><circle cx="11" cy="7" r="5" fill="var(--surface)" stroke="var(--sun-coral)" stroke-width="2"/></svg><span><b>node</b> a piece, edge is its stage</span></span>'
+      +'<span class="ki"><svg viewBox="0 0 22 14"><circle cx="11" cy="7" r="6" fill="none" stroke="var(--sun-amber)" stroke-width="1" opacity=".6"/></svg><span><b>ring</b> pace, rim fast to core settled</span></span>'
+      +'<span class="ki"><svg viewBox="0 0 22 14"><line x1="2" y1="11" x2="20" y2="3" stroke="var(--muted)" stroke-width="1"/></svg><span><b>line</b> a dependency</span></span>'
+      +'<span class="ki"><svg viewBox="0 0 22 14"><line x1="2" y1="7" x2="20" y2="7" stroke="var(--ember)" stroke-width="1" stroke-dasharray="3 3"/></svg><span><b>dashed</b> compost feeding back</span></span>'
+      +'<span class="ki"><span style="color:var(--faint)">select a piece to trace its relations</span></span>';
+  }
+  function renderField(){
+    var svg=byId('fieldSvg'); if(!svg) return;
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    var ns='http://www.w3.org/2000/svg';
+    var selId=(sel&&sel.type==='work')?sel.id:null;
+    var rel=selId?relatedSet(selId):null;
+    function add(tag,attrs,cls){ var e=document.createElementNS(ns,tag); if(cls)e.setAttribute('class',cls); for(var k in attrs)e.setAttribute(k,String(attrs[k])); svg.appendChild(e); return e; }
+    function txt(x,y,s,cls,anchor){ var e=document.createElementNS(ns,'text'); e.setAttribute('x',x); e.setAttribute('y',y); if(cls)e.setAttribute('class',cls); if(anchor)e.setAttribute('text-anchor',anchor); e.setAttribute('dominant-baseline','middle'); e.textContent=s; svg.appendChild(e); return e; }
+    function edge(cls,a,b){ if(!selId) return cls; return (rel[a]&&rel[b])?cls+' on':cls+' dim'; }
+    var ringCls={ captured:'r-cap', offered:'r-off', held:'r-held', standing:'r-std', socialized:'r-soc', resolved:'r-res' };
+    var nodeCls={ captured:'n-cap', offered:'n-off', held:'n-held', standing:'n-std', socialized:'n-soc', resolved:'n-res', composted:'n-comp' };
+    STAGES.forEach(function(st){ add('circle',{cx:FCX,cy:FCY,r:FR[st]},'ring '+ringCls[st]); });
+    add('circle',{cx:FCX,cy:FCY,r:7},'core');
+    STAGES.forEach(function(st){ var p=fpt(FR[st],93); txt(p[0]+5,p[1],st,'lbl-ring','start'); });
+    txt(FCX+5,FCY+15,'soil','lbl-ring','start');
+    txt(FCX,FCY-13,'settled core','lbl-ring','middle');
+    bodyOrder.forEach(function(name){ if(bodyAngle[name]==null) return; var p=fpt(258,bodyAngle[name]); txt(p[0],p[1],name,'lbl-body',p[0]>=FCX?'start':'end'); });
+    works.forEach(function(w){
+      var a=fpt(FR[w.stage],nodeAngle(w));
+      if(w.depends_on) w.depends_on.forEach(function(d){ var dw=workById(d); if(!dw)return; var b=fpt(FR[dw.stage],nodeAngle(dw)); add('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]},edge('chord',w.id,d)); });
+      if(w.feeds){ var fw=workById(w.feeds); if(fw){ var b=fpt(FR[fw.stage],nodeAngle(fw)); add('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]},edge('feed',w.id,w.feeds)); } }
+    });
+    works.forEach(function(w){
+      var ang=nodeAngle(w), p=fpt(FR[w.stage],ang), r=FR[w.stage], dimmed=(selId&&!rel[w.id]);
+      var cls='node '+nodeCls[w.stage]+(w.stage==='captured'?' priv':'')+(selId===w.id?' sel':'')+(dimmed?' dim':'');
+      var c=add('circle',{cx:p[0],cy:p[1],r:8},cls);
+      c.setAttribute('data-id',w.id);
+      c.addEventListener('click',function(){ openWork(w.id); });
+      if(pendingReserved(w)&&w.stage!=='resolved') add('rect',{x:p[0]+6,y:p[1]-10,width:5,height:5},'emk'+(dimmed?' dim':''));
+      var ux=Math.cos(ang*Math.PI/180), uy=-Math.sin(ang*Math.PI/180), off=(r<150)?15:-15;
+      var lx=p[0]+ux*off, ly=p[1]+uy*off, anc=(lx>=p[0])?'start':'end', dc=dimmed?' dim':'';
+      txt(lx,ly-4,w.id,'lbl-id flbl'+dc,anc);
+      txt(lx,ly+6,shortTitle(w),'lbl flbl'+dc,anc);
+    });
+    renderFieldKey();
+  }
+
+  function renderEmpty(){
+    byId('detailBody').innerHTML='<div class="d-empty"><div class="de-h">The arc &middot; the sunset sweep</div><div class="arc-legend">'+arcLeg()+'</div><div class="de-hint">Select a piece to see its standing. The six moves run warm to cool across the sweep; the sixth forks into resolved or composted, and what composts feeds the next notice.</div></div>';
+  }
+
+  function contractRow(k,v,kind){ return '<div class="crow"><span class="ck">'+k+'</span><span class="cv'+(kind?' '+kind:'')+'">'+v+'</span></div>'; }
+
+  function renderWork(w){
+    var lead=(w.stage==='captured')?I.lock:((w.stage==='held'||w.stage==='standing')?I.user:((w.stage==='socialized')?I.users:((w.stage==='resolved')?I.check:((w.stage==='composted')?I.sprout:''))));
+    var tag='<span class="stage-tag" '+stageStyle(w)+'><span class="mk"></span>'+stageLabel[w.stage]+(w.stage==='captured'?'<span class="priv">'+I.lock+'private to you</span>':'')+'</span>';
+    var stateChip='';
+    if(w.state==='review') stateChip='<span class="chip info"><span class="dot"></span>in review</span>';
+    else if(w.stage==='resolved') stateChip='<span class="chip ok"><span class="dot"></span>ratified</span>';
+
+    var blocks='';
+    if(w.stage==='captured'){
+      blocks+='<div class="d-block"><span class="d-k">What I noticed</span><p>'+esc(w.observed)+'</p></div>';
+      blocks+='<div class="d-block guessed"><span class="d-k">What I am guessing</span><p>'+esc(w.guessed)+'</p></div>';
+    } else if(w.stage==='offered'){
+      blocks+='<div class="d-block"><span class="d-k">For whom</span><p>'+esc(w.forWhom)+'</p></div>';
+    }
+
+    var standingSec='';
+    if(w.standing){ var s=w.standing;
+      standingSec='<div class="standing"><div class="st-h">Standing, with evidence</div>'
+        +'<div class="stline"><span class="lab">in state</span>'+esc(s.state)+(s.state_ev?'<span class="ev"><span class="dot"></span>'+esc(s.state_ev)+'</span>':'')+'</div>'
+        +'<div class="stline"><span class="lab">waiting on</span>'+esc(s.waiting)+'</div>'
+        +'<div class="stline"><span class="lab">done when</span>'+esc(s.done)+(s.done_ev?'<span class="ev"><span class="dot"></span>'+esc(s.done_ev)+'</span>':'')+'</div></div>';
+    }
+
+    var social='';
+    if(w.stage==='socialized'){
+      var who='<span class="who lead">'+I.user+esc(w.owner)+'</span>'+(w.coheld||[]).map(function(n){return '<span class="who">'+I.user+esc(n)+'</span>';}).join('');
+      social+='<div class="d-block"><span class="d-k">Held by several</span><div class="collective">'+who+'</div></div>';
+      if(w.lenses){
+        social+='<div class="d-block"><span class="d-k">Two lenses, one source</span><div class="lens" id="lensBox">'
+          +'<div class="lens-tabs"><button class="lens-tab on" data-act="lens" data-lens="plain">plain</button><button class="lens-tab" data-act="lens" data-lens="technical">technical</button></div>'
+          +'<div class="lens-body"><div class="lens-pane on" data-pane="plain">'+esc(w.lenses.plain)+'</div><div class="lens-pane" data-pane="technical">'+esc(w.lenses.technical)+'</div></div></div></div>';
+      }
+      if(w.invites&&w.invites.length){
+        var iv=w.invites.map(function(t){return '<div class="invite"><span>'+esc(t)+'</span><button class="join" data-act="noop">join this</button></div>';}).join('');
+        social+='<div class="invites"><div class="iv-h">'+I.gap+'Open gaps, read as invitations</div>'+iv+'</div>';
+      }
+    }
+
+    var resolvedSec='';
+    if(w.decided){ var d=w.decided;
+      resolvedSec='<div class="decided"><div class="dc-h">'+I.check+'Decided, and recorded</div><div class="dc-text">'+esc(d.text)+'</div>'
+        +'<div class="dcrow"><span class="k">by</span>'+esc(d.by)+'</div><div class="dcrow"><span class="k">on</span><span class="num">'+esc(d.on)+'</span></div><div class="dcrow"><span class="k">why</span>'+esc(d.why)+'</div></div>';
+    }
+
+    var compostSec='';
+    if(w.stage==='composted'){
+      var fw=w.feeds?workById(w.feeds):null;
+      compostSec='<div class="lesson"><div class="ls-h">'+I.sprout+'What it taught</div><p>'+esc(w.lesson||'Lesson not yet written.')+'</p>'
+        +(fw?'<div class="feeds">'+I.arrow+'fed <span class="lnk" data-act="goto" data-id="'+fw.id+'">'+esc(fw.title)+'</span></div>':'')+'</div>';
+    }
+
+    var ownerV=w.owner?esc(w.owner):'none yet'; var ownerKind=w.owner?'':'gap';
+    var dep=(w.depends_on&&w.depends_on.length)?w.depends_on.map(function(id){var dw=workById(id);return dw?'<span class="cv lnk" data-act="goto" data-id="'+id+'">'+esc(id)+'</span>':esc(id);}).join(', '):'(none)';
+    var succ=w.success_state?esc(w.success_state):'not set yet'; var succKind=w.success_state?'':'gap';
+    var ver=w.verification?esc(w.verification):((w.stage==='resolved'||w.stage==='composted')?'(closed)':'not set yet'); var verKind=w.verification?'':((w.stage==='resolved'||w.stage==='composted')?'':'gap');
+    var vis=(w.stage==='captured')?'private (owner only)':((w.stage==='composted')?'archived (readable)':'visible (in the commons)');
+    var contract='<div class="contract"><div class="ct-h">'+I.db+'work_items / '+esc(w.id)+'</div><div class="ct-body">'
+      +contractRow('owner',ownerV,ownerKind)+contractRow('group',esc(w.group),'')+contractRow('kind',esc(w.kind),'')
+      +contractRow('status',w.stage,'')+contractRow('depends_on',dep,'')+contractRow('success',succ,succKind)
+      +contractRow('verify',ver,verKind)+contractRow('visibility',vis,'')+'</div></div>';
+
+    var reserved='';
+    if(w.reserved&&w.reserved.length){
+      var items=w.reserved.map(function(r){
+        return r.status==='done'
+          ? '<div class="res-item">'+esc(r.act)+'<div class="by done">'+I.check+'recorded by you, a person</div></div>'
+          : '<div class="res-item">'+esc(r.act)+'<div class="by human">'+I.user+esc(r.label)+' \u00b7 pending</div></div><div class="actions"><button class="btn primary act" data-act="adopt" data-id="'+w.id+'"><span class="a-l">'+I.check+'Record '+esc(r.act.toLowerCase())+'</span><span class="human">'+I.user+'human only</span></button></div>';
+      }).join('');
+      reserved+='<div class="reserved"><div class="r-h">'+I.user+'Reserved acts \u00b7 these belong to people</div>'+items+'</div>';
+    }
+    if(w.decision){
+      reserved+= (w.decision.status==='done')
+        ? '<div class="reserved"><div class="r-h">'+I.user+'A decision \u00b7 reserved to a person</div><div class="res-item">'+esc(w.decision.text)+'<div class="by done">'+I.check+'recorded by you, a person</div></div></div>'
+        : '<div class="reserved"><div class="r-h">'+I.user+'A decision \u00b7 reserved to a person</div><div class="res-item">'+esc(w.decision.text)+'<div class="by assist">'+I.pen+'drafted by assist, a proposal only</div><div class="by human">'+I.user+'a person must record this</div></div><div class="actions"><button class="btn primary act" data-act="record-decision" data-id="'+w.id+'"><span class="a-l">'+I.check+'Record this decision</span><span class="human">'+I.user+'human only</span></button></div></div>';
+    }
+
+    var actions='<div class="actions">';
+    if(w.stage==='captured') actions+='<button class="btn primary act" data-act="offer" data-id="'+w.id+'"><span class="a-l">'+I.arrow+'Offer to the commons</span><span class="human">'+I.user+'a deliberate act</span></button>';
+    else if(w.stage==='offered') actions+='<button class="btn primary act" data-act="hold" data-id="'+w.id+'"><span class="a-l">'+I.hand+'Hold this</span><span class="human">'+I.user+'holding is human</span></button>';
+    else if(w.stage==='held'){ actions+='<button class="btn primary act" data-act="give-standing" data-id="'+w.id+'"><span class="a-l">'+I.arrow+'Give standing</span><span class="human">'+I.user+'human</span></button><button class="btn secondary act" data-act="compost" data-id="'+w.id+'"><span class="a-l">'+I.sprout+'Compost it</span><span class="human">'+I.user+'human</span></button>'; }
+    else if(w.stage==='standing'){ actions+='<button class="btn primary act" data-act="socialize" data-id="'+w.id+'"><span class="a-l">'+I.users+'Open the holding</span><span class="human">'+I.user+'human</span></button><button class="btn secondary act" data-act="compost" data-id="'+w.id+'"><span class="a-l">'+I.sprout+'Compost it</span><span class="human">'+I.user+'human</span></button>'; }
+    else if(w.stage==='socialized'){ actions+='<button class="btn primary act" data-act="resolve" data-id="'+w.id+'"><span class="a-l">'+I.check+'Resolve, record the decision</span><span class="human">'+I.user+'human</span></button><button class="btn secondary act" data-act="compost" data-id="'+w.id+'"><span class="a-l">'+I.sprout+'Compost it</span><span class="human">'+I.user+'human</span></button>'; }
+    else if(w.stage==='resolved') actions+='<div class="settled-note">'+I.check+'Settled. The decision is recorded in Institutional Memory.</div>';
+    else if(w.stage==='composted') actions+='<div class="settled-note">'+I.sprout+'Set down, not deleted. Mined for patterns, ready to feed the next notice.</div>';
+    actions+='</div>';
+
+    var rls=(w.stage==='captured')?'row-level security: only the owner can read a captured row.'
+      :(w.stage==='composted')?'row-level security: archived rows stay readable; nothing is deleted.'
+      :'row-level security: rows in the commons are readable by peers; reserved acts are enforced by trigger.';
+    var tbl=(w.stage==='resolved')?'work_items, plus a row in institutional_memory':(w.stage==='composted')?'work_items, archived into compost_layer':'work_items';
+    var substrate='<div class="substrate"><div class="ss-h">in supabase</div><div>table: '+tbl+'</div><div class="rls">'+rls+'</div></div>';
+
+    var captureNote=(w.stage==='captured')?'<div class="d-block"><p style="font-size:12px;color:var(--faint)">Offering is separate from capturing. Until you offer it, this is visible to no one but you.</p></div>':'';
+
+    byId('detailBody').innerHTML='<div class="d-id">'+esc(w.id)+'</div>'+tag+stateChip+'<div class="d-title">'+esc(w.title)+'</div><div class="d-essence">'+esc(w.essence)+'</div>'
+      +blocks+standingSec+social+resolvedSec+compostSec+contract+reserved+actions+captureNote+substrate;
+  }
+
+  function peerHolds(name){ return works.filter(function(w){ return w.owner===name && (w.stage==='held'||w.stage==='standing'||w.stage==='socialized'); }); }
+  function peerStood(name){ return works.filter(function(w){
+    var co=(w.coheld&&w.coheld.indexOf(name)>=0);
+    return co || (w.stage==='resolved' && (w.owner===name || co)); }); }
+  function peerJoin(name){
+    var p=null; peers.forEach(function(x){ if(x.name===name) p=x; }); if(!p) return [];
+    return works.filter(function(w){ return w.stage==='offered' && w.needs && w.needs.some(function(n){ return p.caps.indexOf(n)>=0; }); })
+      .map(function(w){ return { w:w, match:w.needs.filter(function(n){ return p.caps.indexOf(n)>=0; }) }; });
+  }
+  function peerBodies(name){
+    var seen={}, list=[];
+    peerHolds(name).concat(peerStood(name)).forEach(function(w){ var b=bodyOf[w.id]; if(b&&!seen[b]){ seen[b]=1; list.push(b); } });
+    return list;
+  }
+  function otherHolders(w,name){
+    var o=[]; if(w.owner&&w.owner!==name&&w.owner!=='you') o.push(w.owner);
+    (w.coheld||[]).forEach(function(n){ if(n!==name) o.push(n); });
+    return o;
+  }
+  function renderPeerDetail(p){
+    var caps=p.caps.map(function(c){return '<span class="cap">'+esc(c)+'</span>';}).join('');
+    var grow=(p.growing&&p.growing.length)?p.growing.map(function(c){return '<span class="cap grow">'+esc(c)+'</span>';}).join(''):'';
+    var bodies=peerBodies(p.name);
+    var partof=bodies.length?('<div class="partof"><span class="po-k">part of</span>'+bodies.map(function(b){return '<span class="po-b">'+esc(b)+'</span>';}).join('')+'</div>'):'';
+
+    var holdsArr=peerHolds(p.name);
+    var holds=holdsArr.length? holdsArr.map(function(w){
+      var oth=(w.stage==='socialized')?otherHolders(w,p.name):[];
+      var withr=oth.length?('<div class="ph-with">held with '+oth.map(esc).join(', ')+'</div>'):'';
+      return '<button class="card st-'+w.stage+'" '+stageStyle(w)+' data-id="'+w.id+'"><div class="c-id">'+esc(w.id)+'</div><div class="c-title">'+esc(w.title)+'</div><div class="c-meta">'+I.user+stageLabel[w.stage]+'</div>'+withr+'</button>';
+    }).join('') : '<p class="pd-empty">Holds nothing right now, and that is fine.</p>';
+
+    var stoodArr=peerStood(p.name);
+    var stood=stoodArr.length? stoodArr.map(function(w){
+      var oth=otherHolders(w,p.name);
+      var withtxt=oth.length?(', with '+oth.map(esc).join(' and ')):'';
+      var verb=(w.stage==='resolved')?'helped land':'co-held';
+      return '<div class="stood" data-id="'+w.id+'"><span class="sv">'+verb+'</span><span class="sl">'+esc(w.title)+'</span>'+esc(withtxt)+'</div>';
+    }).join('') : '<p class="pd-empty">No co-holdings on record yet.</p>';
+
+    var joinArr=peerJoin(p.name);
+    var join=joinArr.length? joinArr.map(function(j){ var w=j.w;
+      return '<button class="card st-'+w.stage+'" '+stageStyle(w)+' data-id="'+w.id+'"><div class="c-id">'+esc(w.id)+'</div><div class="c-title">'+esc(w.title)+'</div><div class="c-match">matches '+j.match.map(esc).join(', ')+'</div></button>';
+    }).join('') : '<p class="pd-empty">No open match to their capabilities right now.</p>';
+
+    byId('detailBody').innerHTML='<div class="d-id">peer</div><div class="d-title pd-name">'+I.user+esc(p.name)+'</div>'
+      +'<div class="d-essence">'+esc(p.says)+'</div>'
+      +partof
+      +'<div class="d-block"><span class="d-k">Capabilities, kept by '+esc(p.name)+'</span><div class="caps">'+caps+'</div></div>'
+      +(grow?'<div class="d-block"><span class="d-k">Growing into</span><div class="caps">'+grow+'</div></div>':'')
+      +'<div class="d-block"><span class="d-k">Holding now</span><div class="pd-stack">'+holds+'</div></div>'
+      +'<div class="d-block"><span class="d-k">Where they have stood with others</span>'+stood+'</div>'
+      +'<div class="d-block"><span class="d-k">Could join, by capability match</span><div class="pd-stack">'+join+'</div></div>'
+      +'<div class="substrate"><div class="ss-h">about this profile</div><div>A profile is what a member offers, not a measure of them. Capabilities are kept by the member.</div><div class="rls">No score, no rank, no record of when they were last here.</div></div>';
+    Array.prototype.forEach.call(byId('detailBody').querySelectorAll('.card[data-id], .stood[data-id]'),function(c){ c.addEventListener('click',function(){ setView('commons'); openWork(c.getAttribute('data-id')); }); });
+  }
+
+  function renderCapture(){
+    byId('detailBody').innerHTML='<div class="capform"><div class="d-id">new capture</div><div class="d-title">Capture a piece of work</div><div class="d-essence">Write it once, in plain language. It stays private to you.</div>'
+      +'<div class="d-block"><span class="d-k">Title</span><input id="capTitle" type="text" placeholder="What is it, in a phrase"></div>'
+      +'<div class="d-block"><span class="d-k">What you noticed</span><textarea id="capObs" rows="3" placeholder="The observation, as plainly as you can say it"></textarea></div>'
+      +'<div class="d-block guessed"><span class="d-k">What you are guessing</span><textarea id="capGuess" class="guess" rows="2" placeholder="Kept separate from what you noticed, and marked as a guess"></textarea></div>'
+      +'<div class="actions"><button class="btn primary act" data-act="do-capture"><span class="a-l">'+I.lock+'Capture, stays private</span><span class="human">'+I.user+'yours alone</span></button></div>'
+      +'<div class="substrate"><div class="ss-h">in supabase</div><div>inserts a work_items row with status = captured</div><div class="rls">row-level security: readable by you only until you offer it.</div></div></div>';
+  }
+
+  function clearSel(){ Array.prototype.forEach.call(document.querySelectorAll('.card.sel, .peer.sel'),function(n){ n.classList.remove('sel'); }); }
+  function openD(){ byId('detail').classList.add('open'); }
+  function openWork(id){ var w=workById(id); if(!w) return; sel={type:'work',id:id}; clearSel(); var c=document.querySelector('.card[data-id="'+id+'"]'); if(c) c.classList.add('sel'); renderWork(w); if(currentView==='field') renderField(); openD(); }
+  function openPeer(name){ sel={type:'peer',id:name}; clearSel(); var n=document.querySelector('.peer[data-name="'+name+'"]'); if(n) n.classList.add('sel'); var p=null; peers.forEach(function(x){if(x.name===name)p=x;}); if(p) renderPeerDetail(p); openD(); }
+  function openCapture(){ sel={type:'capture'}; clearSel(); renderCapture(); openD(); }
+
+  byId('detailBody').addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    var act=b.getAttribute('data-act'), id=b.getAttribute('data-id'), w=id?workById(id):null;
+    if(act==='lens'){ var box=byId('lensBox'); if(!box) return; var which=b.getAttribute('data-lens');
+      Array.prototype.forEach.call(box.querySelectorAll('.lens-tab'),function(t){ t.classList.toggle('on', t.getAttribute('data-lens')===which); });
+      Array.prototype.forEach.call(box.querySelectorAll('.lens-pane'),function(pn){ pn.classList.toggle('on', pn.getAttribute('data-pane')===which); }); return; }
+    if(act==='goto'){ openWork(id); return; }
+    if(act==='noop'){ return; }
+    if(act==='offer'){ w.stage='offered'; w.owner=null; renderBoard(); openWork(id); }
+    else if(act==='hold'){ w.stage='held'; w.owner='you'; renderBoard(); openWork(id); }
+    else if(act==='give-standing'){ w.stage='standing'; renderBoard(); openWork(id); }
+    else if(act==='socialize'){ w.stage='socialized'; if(!w.coheld) w.coheld=[]; renderBoard(); openWork(id); }
+    else if(act==='resolve'){ w.stage='resolved'; w.state=null; if(w.decision&&w.decision.status!=='done') w.decision.status='done'; if(!w.decided) w.decided={text:'Resolved by the group.', by:'you', on:'today', why:'Reached its success state.', status:'done'}; renderBoard(); openWork(id); }
+    else if(act==='compost'){ w.stage='composted'; w.state=null; if(!w.lesson) w.lesson=''; renderBoard(); openWork(id); }
+    else if(act==='record-decision'){ if(w.decision) w.decision.status='done'; renderWork(w); renderBoard(); if(currentView==='field') renderField(); }
+    else if(act==='adopt'){ if(w.reserved) w.reserved.forEach(function(r){ r.status='done'; }); w.state=null; renderWork(w); renderBoard(); if(currentView==='field') renderField(); }
+    else if(act==='do-capture'){
+      var t=(byId('capTitle').value||'').trim(); if(!t){ byId('capTitle').focus(); return; }
+      var cnt=works.filter(function(x){return x.id.indexOf('cw-0')===0;}).length;
+      var nid='cw-'+('00'+(19+cnt)).slice(-3);
+      works.unshift({ id:nid, stage:'captured', title:t, group:'this season', kind:'step', owner:'you',
+        essence:((byId('capObs').value||'A newly captured piece.').trim().slice(0,120))||'A newly captured piece.',
+        observed:(byId('capObs').value||'').trim()||'Not written yet.', guessed:(byId('capGuess').value||'').trim()||'Not written yet.' });
+      setView('commons'); renderBoard(); openWork(nid);
+    }
+  });
+
+  function setView(v){
+    currentView=v;
+    Array.prototype.forEach.call(document.querySelectorAll('.nav-item'),function(n){ n.classList.toggle('on', n.getAttribute('data-view')===v); });
+    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){ s.classList.toggle('on', s.id==='view-'+v); });
+    if(v==='peers') renderPeers(); else if(v==='signals') renderSignals(); else if(v==='field') renderField(); else renderBoard();
+  }
+  byId('nav').addEventListener('click',function(e){ var b=e.target.closest('.nav-item'); if(b) setView(b.getAttribute('data-view')); });
+  byId('captureBtn').addEventListener('click',openCapture);
+  byId('detailClose').addEventListener('click',function(){ byId('detail').classList.remove('open'); });
+
+  renderBoard(); renderEmpty();
+})();
+</script>
+</body>
+</html>

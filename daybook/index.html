@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="The Daybook — a CIS module specification. A member-facing surface where a day's activity becomes legible one entry at a time, and each entry waits in the open until a person lands it. Techne Design System v4.">
+<meta name="robots" content="noindex,nofollow">
+<title>The Daybook &middot; module specification &middot; RegenHub, LCA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;--sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
+  }
+  html[data-mode="dark"]{
+    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
+    --line:#2A2A30;--rule:#3A3A42;
+    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
+    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
+    --ok:#6A9A6A;--warn:#C46A6A;
+    --sun-gold-t:#EAB668;--sun-amber-t:#E5A562;--sun-coral-t:#DE8872;--sun-rose-t:#CF7C9A;--sun-violet-t:#9E86C4;--sun-blue-t:#8FAEE0;
+  }
+  html[data-mode="light"]{
+    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
+    --line:#D8D3C8;--rule:#9A958A;
+    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
+    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
+    --ok:#4A7A4A;--warn:#A84F4C;
+    --sun-gold-t:#87621F;--sun-amber-t:#8C581D;--sun-coral-t:#9C4636;--sun-rose-t:#8C3D58;--sun-violet-t:#4C3870;--sun-blue-t:#3A5694;
+  }
+  *{box-sizing:border-box;}
+  html{color-scheme:dark light;}
+  body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.72 var(--serif);
+    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);}
+  .wrap{max-width:860px;margin:0 auto;padding:0 var(--s5);}
+  em{font-style:italic;color:var(--heading);}
+  code{font:400 .85em/1 var(--mono);color:var(--ember-text);background:var(--inset);padding:2px 5px;border-radius:2px;}
+  .mono{font-family:var(--mono);}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+  ::selection{background:var(--blue);color:var(--bg);}
+
+  .toggle{position:fixed;top:16px;right:16px;z-index:100;font:500 11px/1 var(--mono);color:var(--text);background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:8px 13px;cursor:pointer;}
+  .toggle:hover{background:var(--raised);border-color:var(--heading);}
+
+  .mast{border-bottom:1px solid var(--rule);padding:var(--s8) 0 var(--s6);margin-bottom:var(--s5);}
+  .mast .kick{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;letter-spacing:.14em;}
+  .mast h1{font:700 38px/1.08 var(--serif);color:var(--heading);margin:var(--s3) 0 var(--s3);letter-spacing:-.015em;}
+  .mast .sub{font:400 17px/1.55 var(--serif);color:var(--text);margin:0;max-width:64ch;}
+  .mast .sub em{color:var(--heading);}
+  .mast .meta{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin-top:var(--s5);font:400 11px/1.6 var(--mono);color:var(--muted);}
+  .mast .meta b{color:var(--blue-text);font-weight:600;}
+  .mast .meta .em{color:var(--ember-text);}
+  .mast .band{display:flex;height:6px;margin-top:var(--s5);border:1px solid var(--line);}
+  .mast .band span{flex:1;}
+
+  .lede{font:400 16.5px/1.7 var(--serif);color:var(--text);max-width:70ch;margin:0 0 var(--s4);}
+  .lede em{color:var(--heading);}
+
+  .sec{padding:var(--s7) 0 0;scroll-margin-top:20px;}
+  .sec .addr{font:600 12px/1 var(--mono);color:var(--shue-t);margin-bottom:var(--s2);}
+  .sec h2{font:700 25px/1.18 var(--serif);color:var(--heading);margin:0 0 var(--s4);letter-spacing:-.01em;padding-left:14px;border-left:3px solid var(--shue);}
+  .sec h3{font:600 13px/1.5 var(--mono);color:var(--heading);text-transform:lowercase;letter-spacing:.02em;margin:var(--s6) 0 var(--s3);padding-bottom:6px;border-bottom:1px solid var(--shue);}
+  .sec p{margin:0 0 var(--s4);max-width:70ch;}
+  .sec p.tight{margin-bottom:var(--s3);}
+  #s0{--shue:var(--sun-gold);--shue-t:var(--sun-gold-t);}
+  #s1{--shue:var(--sun-amber);--shue-t:var(--sun-amber-t);}
+  #s2{--shue:var(--sun-coral);--shue-t:var(--sun-coral-t);}
+  #s3{--shue:var(--sun-rose);--shue-t:var(--sun-rose-t);}
+  #s4{--shue:var(--sun-violet);--shue-t:var(--sun-violet-t);}
+  #s5{--shue:var(--sun-blue);--shue-t:var(--sun-blue-t);}
+  #s6{--shue:var(--sun-gold);--shue-t:var(--sun-gold-t);}
+  #s7{--shue:var(--sun-amber);--shue-t:var(--sun-amber-t);}
+  #s8{--shue:var(--sun-coral);--shue-t:var(--sun-coral-t);}
+
+  /* tables — flat, ruled, no radius */
+  .tbl{width:100%;border-collapse:collapse;margin:var(--s3) 0 var(--s5);font-size:13px;}
+  .tbl th{font:600 10px/1.4 var(--mono);color:var(--shue-t);text-transform:uppercase;letter-spacing:.07em;text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--shue);vertical-align:bottom;}
+  .tbl td{font:400 13px/1.55 var(--serif);color:var(--text);padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+  .tbl td.k{font:500 12px/1.5 var(--mono);color:var(--heading);white-space:nowrap;}
+  .tbl td.c{font:400 11.5px/1.5 var(--mono);color:var(--ember-text);white-space:nowrap;}
+  .tbl td.n{font:400 11.5px/1.5 var(--mono);color:var(--muted);}
+  .tbl tr:last-child td{border-bottom:0;}
+  .tag{display:inline-block;font:500 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;padding:3px 6px;border:1px solid var(--line);border-radius:2px;}
+  .tag.new{color:var(--ember-text);border-color:var(--ember);}
+  .tag.derived{color:var(--blue-text);border-color:var(--blue);}
+
+  /* kind blocks — typed entries */
+  .kind{display:grid;grid-template-columns:150px 1fr;gap:var(--s4);padding:var(--s4) 0;border-bottom:1px solid var(--line);}
+  .kind:last-child{border-bottom:0;}
+  .kind .kk{font:600 12px/1.5 var(--mono);color:var(--heading);text-transform:uppercase;letter-spacing:.05em;}
+  .kind .kk small{display:block;font:400 10px/1.4 var(--mono);color:var(--shue-t);text-transform:none;letter-spacing:.02em;margin-top:4px;}
+  .kind .kd{font:400 13.5px/1.62 var(--serif);color:var(--text);}
+  .kind .kd em{color:var(--heading);}
+
+  /* statement / rule callout */
+  .rule{font:500 13.5px/1.7 var(--serif);color:var(--heading);background:var(--inset);border:1px solid var(--line);border-left:2px solid var(--shue);padding:13px 17px;margin:var(--s4) 0;}
+  .rule b{font:500 9px/1.5 var(--mono);color:var(--shue-t);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px;font-weight:500;}
+
+  /* status chips inline */
+  .st{font:500 9.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:2px 5px;border-radius:2px;border:1px solid var(--line);}
+  .st.commit{color:var(--ok);border-color:var(--ok);}
+  .st.prop{color:var(--ember-text);border-color:var(--ember);}
+  .st.open{color:var(--warn);border-color:var(--warn);}
+
+  /* numbered open questions */
+  .q{display:grid;grid-template-columns:26px 1fr;gap:var(--s3);padding:var(--s4) 0;border-bottom:1px solid var(--line);}
+  .q:last-child{border-bottom:0;}
+  .q .no{font:600 12px/1.6 var(--mono);color:var(--shue-t);}
+  .q .qt{font:600 13px/1.5 var(--serif);color:var(--heading);margin:0 0 5px;}
+  .q .qt .who{font:500 9px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-left:8px;border:1px solid var(--line);border-radius:2px;padding:2px 5px;}
+  .q .qd{font:400 12.5px/1.6 var(--serif);color:var(--text);margin:0;}
+
+  .foot{border-top:1px solid var(--rule);margin-top:var(--s8);padding:var(--s5) 0 var(--s8);font:400 11px/1.7 var(--mono);color:var(--faint);}
+  .foot b{color:var(--muted);font-weight:500;}
+
+  @media (max-width:620px){
+    .mast h1{font-size:31px;}
+    .kind{grid-template-columns:1fr;gap:var(--s2);}
+    .tbl{font-size:12px;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<button class="toggle" id="toggle">light</button>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="kick">RegenHub, LCA &middot; Common Information System &middot; Module Specification</div>
+    <h1>The Daybook</h1>
+    <p class="sub">A member-facing surface where a day's activity becomes legible one entry at a time, and each entry waits in the open until a <em>person lands it</em>.</p>
+    <div class="meta">
+      <span>version <b>0.1</b></span>
+      <span class="em">draft &middot; proposed module</span>
+      <span>grounds in <b>CIS PRD v0.2</b></span>
+      <span>REA &middot; cite-as-you-enforce</span>
+      <span>Techne v4</span>
+    </div>
+    <div class="band">
+      <span style="background:var(--sun-gold)"></span><span style="background:var(--sun-amber)"></span><span style="background:var(--sun-coral)"></span><span style="background:var(--sun-rose)"></span><span style="background:var(--sun-violet)"></span><span style="background:var(--sun-blue)"></span>
+    </div>
+  </header>
+
+  <!-- 0 -->
+  <section class="sec" id="s0">
+    <div class="addr">&sect;0</div>
+    <h2>What this is, and what it is not</h2>
+    <p class="lede">The Daybook is the surface where a member's lived activity enters the cooperative's record. It captures four kinds of entry, holds each one in an open, ripening state until a person decides to land it, and renders the settled result as a rhythm: a bloom of the hours at which the cooperative tends to do each kind of thing.</p>
+    <p>It is <em>not</em> a new book of record. The authoritative ledger already holds contributions, allocations, and settlements as economic events under the existing modules. The Daybook adds three things to that ledger and nothing else: one new entity for narrative that never touches the books, one lifecycle for the interval between a thing happening and its becoming an immutable event, and one derived lens onto both. Everything economic it shows is a view of events the CIS already defines.</p>
+    <p>The reason it earns a module rather than living as a screen is that the interval it governs, the <em>ripening</em>, and the entity it adds, <em>reflection</em>, are genuinely absent from the current specification. Naming them as a module keeps the addition legible and bounded, which is the same logic by which the thirteen cooperative modules were drawn: a map of the capabilities the bylaws demand, not the territory itself <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;08)</span>.</p>
+  </section>
+
+  <!-- 1 -->
+  <section class="sec" id="s1">
+    <div class="addr">&sect;1</div>
+    <h2>Where it sits: the four kinds, and what each one composes</h2>
+    <p>Three of the four kinds are capture-points and views onto economic events the CIS already holds. The fourth, reflection, is the one new thing. Read across the table, the boundary it draws is the patron line in miniature: reflection sits outside the books, the other three inside them.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Kind</th><th>What it is</th><th>Relation to the CIS</th><th>Primitive</th><th>Surface</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Reflection</td><td>narrative, non-valued</td><td><span class="tag new">new entity</span> <code>reflections</code></td><td class="n">near PRESENCE,<br>kept non-economic</td><td class="n">private by default</td></tr>
+        <tr><td class="k">Contribution</td><td>labor logged</td><td><span class="tag derived">composes</span> Capital Account</td><td class="n">HOURS</td><td class="n">emits <code>capital_events</code></td></tr>
+        <tr><td class="k">Exchange</td><td>transfer or allocation of value</td><td><span class="tag derived">composes</span> Capital Account, Treasury</td><td class="n">REVENUE / CASH</td><td class="n">emits allocation</td></tr>
+        <tr><td class="k">Clearing</td><td>settlement between vaults</td><td><span class="tag derived">composes</span> Treasury &amp; Distributions</td><td class="n">CASH</td><td class="n">emits settlement</td></tr>
+      </tbody>
+    </table>
+
+    <p>The value vocabulary the four kinds express is the proposed Program Stack: HOURS, REVENUE, CASH, OUTPUT, PRESENCE, PROPERTY. The Daybook does not invent a new taxonomy of value; it gives the existing one a daily-rhythm surface. That mapping inherits a status, however. The Program Stack Patronage Plan is a board recommendation pending ratification, not adopted policy, so the column above is proposed rather than settled <span class="st prop">proposed</span>.</p>
+
+    <h3>one state, three faces</h3>
+    <p>In the CIS frame of one authoritative state with three views <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;05)</span>, the Daybook is primarily a member-portal surface. It writes to the authoritative ledger only at the moment of landing. It leans on Nou, the agent surface, for preparation: drafting a reflection, confirming a reading, assembling a contribution for posting. It never lets Nou land anything. The work it does is to move a thing from a member's life into the book, and to keep that move in the member's hands.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="s2">
+    <div class="addr">&sect;2</div>
+    <h2>Information model: what the schema gains</h2>
+    <p>Two new tables and one new derived view. Each names the authority that governs it, in the cooperative's cite-as-you-enforce discipline, where every table and access rule carries the clause that justifies it <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;06)</span>.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Table / view</th><th>Primitive</th><th>What it holds</th><th>Anchor</th></tr></thead>
+      <tbody>
+        <tr><td class="k">daybook_entries</td><td class="c">Event</td><td>a staging row for an entry through its lifecycle; mutable until landed, sealed after</td><td class="c">per kind &middot; TBR &sect;8</td></tr>
+        <tr><td class="k">reflections</td><td class="c">Resource</td><td>narrative authored by an agent; never a valued event; visibility private by default</td><td class="c">&sect;18.1, &sect;18.2</td></tr>
+        <tr><td class="k">daybook_rhythm_as_of</td><td class="c">derived</td><td>a pure function of landed and open entries, grouped by hour-of-day and kind; exposes counts and timing, never content</td><td class="c">inherits source access</td></tr>
+      </tbody>
+    </table>
+
+    <h3>the emission rule</h3>
+    <p>When a person lands an entry, the <code>daybook_entries</code> row does one of two things by kind. A reflection persists as its terminal record in <code>reflections</code> and emits nothing to the ledger. A contribution, exchange, or clearing emits the corresponding economic event into the existing tables, and the <code>daybook_entries</code> row seals as the provenance of that event: the place a later auditor reads to see how the event was composed and who landed it.</p>
+    <p>Conservation, multi-sig, and the existing treasury controls apply to the emitted event exactly as they would to one entered directly. The Daybook adds a capture path, not an exemption. What enters a balance must leave another, and the schema enforces that before any petal renders <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;02, principle 05)</span>.</p>
+
+    <h3>the rhythm view as legibility</h3>
+    <p>The bloom is the legibility-is-product principle turned on a member's own day and on the cooperative's public rhythm. It answers <em>when</em> and <em>how often</em>, and is built so it cannot answer <em>what</em>. That property is structural, not a matter of restraint: the view selects timing and kind columns and never the content column.</p>
+    <div class="rule"><b>committed</b>The rhythm view exposes the hour and the kind of an entry, never its content. A future change that surfaced content through this view would be a regression, not a feature.</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="s3">
+    <div class="addr">&sect;3</div>
+    <h2>The ripening lifecycle: the heart of the module</h2>
+    <p>Every entry moves through a small state machine: <em>composing</em>, then <em>ripening</em>, then <em>ready</em>, then <em>landed</em> and sealed. A member may withdraw an entry from any state before landing, and a withdrawn entry leaves no economic trace.</p>
+
+    <h3>ripeness is derived, not stored</h3>
+    <p>This is a recommended change from the working prototype, where the fill is a stored number. Each kind carries a typed set of preconditions defined by its governing clause. Ripeness is the fraction of those preconditions met, computed on read. The change matters because it keeps the signal honest: the fill becomes auditable, it cannot be inflated by hand, and a member can always see which preconditions remain. It is the audit-by-design principle applied to a member's own pending work <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;02, principle 09)</span>.</p>
+
+    <h3>the four kinds and their preconditions</h3>
+    <div class="kind">
+      <div class="kk">Reflection<small>no assent &middot; touches no balance</small></div>
+      <div class="kd">Authored, then optionally made public. Landing a private reflection is simply saving it; landing a public one opens a settled petal of the hour's colour. It asks no one's assent because it moves no one's value.</div>
+    </div>
+    <div class="kind">
+      <div class="kk">Contribution<small>self-confirmed</small></div>
+      <div class="kd">Drafted, then <em>read and confirmed</em> by the member, then ready. The confirm step is the member affirming that the record reads them right. Landing emits a <code>capital_event</code> against the program budget.</div>
+    </div>
+    <div class="kind">
+      <div class="kk">Exchange<small>circle's assent</small></div>
+      <div class="kd">Drafted, then <em>brought to the circle</em>, then the circle's assent recorded, then ready. The precondition bar is higher because the entry moves shared value. Landing emits the allocation.</div>
+    </div>
+    <div class="kind">
+      <div class="kk">Clearing<small>both peers</small></div>
+      <div class="kd">Drafted, then <em>both peers confirm</em> the line, then ready. Landing records the settlement between vaults at day's end.</div>
+    </div>
+
+    <h3>the load-bearing rule</h3>
+    <div class="rule"><b>the bloom does not fill itself</b>A precondition set can reach one hundred percent, and the petal can signal that it is ready, but only a person's landing action writes the authoritative event. This is principle 01, augmentation over automation, expressed as a mechanism rather than a slogan: every economic write in the Daybook has a named human author at the moment of commit.</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="s4">
+    <div class="addr">&sect;4</div>
+    <h2>Identity, access, and one deliberate departure</h2>
+    <p>For its economic kinds the Daybook inherits the CIS access model unchanged. A contribution, exchange, or clearing entry is visible to exactly whoever may see the event it emits, no more and no less <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;07)</span>.</p>
+    <p>The departure is reflection. The house default is democratic-by-default: disclosure to members unless a bylaw reason restricts it. A journaling surface cannot carry that default. A reflection is private to its author from the moment it is written, and becomes visible to others only by the author's explicit act of making it public. This inverts the house default for one entity, and it should be ratified as such, with a note under &sect;18.2 recording the reason: narrative self-observation is humane only when the member controls its disclosure.</p>
+    <p>Two consequences follow and are worth stating plainly. A member's own reflections are theirs to export, and are append-only rather than silently deletable, which is the censorship-resistance posture applied to a person's own record. And Nou, when a member invokes it, can read that member's private reflections but can disclose them to no one, since it inherits the member's permissions and never more.</p>
+    <div class="rule"><b>flagged departure &middot; for ratification</b>Reflection reverses the disclosure default from member-visible to private-by-author. Everything else in the Daybook keeps the house default. This single inversion is the one access decision in the module that needs an explicit yes.</div>
+  </section>
+
+  <!-- 5 -->
+  <section class="sec" id="s5">
+    <div class="addr">&sect;5</div>
+    <h2>CROPS for the Daybook</h2>
+    <p>The four properties of the design discipline, read at the level of this module. Privacy is the load-bearing one here, and augmentation is the property the module demonstrates more plainly than any other surface, because its central rule is enforced in code rather than promised in prose.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Present commitment in the Daybook</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Privacy</td><td>Private-by-default reflections, row-level security at the data layer, content excluded from the rhythm view by construction.</td><td><span class="st commit">committed</span> at the data layer; the default inversion is <span class="st prop">proposed</span></td></tr>
+        <tr><td class="k">Censorship resistance</td><td>Reflections exportable, append-only, corrections appended. The landing path does not become a chokepoint on a member's own record.</td><td><span class="st commit">committed</span> for the entity</td></tr>
+        <tr><td class="k">Open source</td><td>The entry schema, the lifecycle, and the rhythm lens are open. The public bloom is the inspectable surface.</td><td>readily defaulted</td></tr>
+        <tr><td class="k">Security</td><td>Emitted events obey conservation and the existing treasury controls. The staging row seals on landing into a tamper-evident provenance record.</td><td><span class="st commit">committed</span> for the emission path</td></tr>
+      </tbody>
+    </table>
+
+    <p>The cross-cutting property is augmentation. The whole module is the clearest place the cooperative can show principle 01 at work, because the human-landing rule is structural. A member reading their own Daybook can see that nothing economic was written without a person putting their name to it at the moment of commit.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="sec" id="s6">
+    <div class="addr">&sect;6</div>
+    <h2>Nou's part</h2>
+    <p>Nou may draft a reflection from a member's notes, assemble a contribution from logged hours and present it for the member's read-and-confirm, surface a ripening entry that is close to ready, show which preconditions remain, and cite the clause that governs each entry. It may not land anything. It cannot post a contribution, record an allocation, or settle a clearing on its own, and it cannot make a reflection public. It prepares; the member lands.</p>
+    <p>Every preparation is logged with its prompt, its citation set, and its response, so the cooperative can audit its own augmentation layer, under the retention and redaction policy of the privacy pathway <span class="mono" style="color:var(--shue-t);font-size:11px">(CIS PRD &sect;11)</span>. This is the standard Nou constraint applied here without exception: it inherits the permissions of the user who invokes it, never more, and it never takes authoritative action on its own.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="sec" id="s7">
+    <div class="addr">&sect;7</div>
+    <h2>Interface</h2>
+    <p>This specification is a document, and follows document grammar: a single reading column, continuous, in the parchment-and-ink v4 system. The member surface it specifies is an instrument, and follows instrument grammar: a heads-up surface, widescreen, with the rhythm at its center. The working prototype of that surface is the shared Daybook artifact; this PRD is its written counterpart, not a replacement for it.</p>
+    <p>The surface has three elements. The <em>bloom</em> is the rhythm lens: two petal layers, the settled and the ripening, on a diurnal clock where each petal wears the colour of the hour it tends to happen. The <em>matter</em> is an open entry's detail: its face, what it awaits, its citation, its ripeness, and its landing action. The <em>composer</em> is where a member makes an entry, choosing its kind. The rule that the petals say when and how often but never what holds in the interface exactly as it holds in the view beneath it.</p>
+    <p>The surface follows the v4 grammar in full: Libre Baskerville for the human voice and IBM Plex Mono for the system voice, blue for reader action and selection, ember for cooperative marks and provenance, the sunset range reserved for the hours, and a light and dark toggle that remembers a member's choice and respects a reduced-motion preference.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="sec" id="s8">
+    <div class="addr">&sect;8</div>
+    <h2>Status, and the questions still open</h2>
+    <p>This is a proposed module. Nothing in it is adopted. It depends on the CIS PRD v0.2, which is itself a draft, and on the Program Stack Patronage Plan, which is a board recommendation pending ratification. The mapping of kinds to Primitives inherits that pending status. The honest read of every claim above is: this is the shape the module would take, offered for ratification or redirection, not a description of a thing that exists.</p>
+
+    <div class="q"><div class="no">1</div><div><p class="qt">Citation reconciliation <span class="who">Pote &middot; bylaws</span></p><p class="qd">The shared artifact cites Bylaws &sect;4 for contribution and &sect;6 for allocation. The CIS information model anchors these same economic events to &sect;5.1, &sect;5.3, and &sect;5.4. The ratified bylaws govern, and the clause numbers must be reconciled before any rule is enforced. This document does not assert which numbering is canonical.</p></div></div>
+
+    <div class="q"><div class="no">2</div><div><p class="qt">Reflection in the schema, or in the portal <span class="who">board &middot; architecture</span></p><p class="qd">If reflections are private and never touch the books, they could live in a portal-local store rather than the authoritative schema. Portability by construction and the single-state principle argue for keeping them in the schema under strict row-level security. The recommendation here leans to in-schema; the choice is yours.</p></div></div>
+
+    <div class="q"><div class="no">3</div><div><p class="qt">The two-store split <span class="who">architecture</span></p><p class="qd">Drafts that ripen are pre-authoritative and must not enter the immutable event log. The proposal keeps a mutable <code>daybook_entries</code> staging table that seals on landing and emits an immutable event, so the event log stays append-only. This split needs a deliberate yes, since it places mutable rows beside the authoritative ledger.</p></div></div>
+
+    <div class="q"><div class="no">4</div><div><p class="qt">Vaults and clearing <span class="who">treasury</span></p><p class="qd">The clearing kind assumes settlement between vaults. Whether vaults map to the existing single-treasury, multi-sig structure or imply sub-accounts needs definition against the Treasury &amp; Distributions module before the kind can be specified fully.</p></div></div>
+
+    <div class="q"><div class="no">5</div><div><p class="qt">Phase placement <span class="who">sequencing</span></p><p class="qd">Reflection is low-risk greenfield and could ship early at a higher CROPS stage, in the way Hub Operations does. The economic kinds depend on Capital Account and Treasury being live. The natural sequence is reflection first, then the economic kinds as those modules mature.</p></div></div>
+  </section>
+
+  <div class="foot">
+    <p><b>The Daybook &middot; Module Specification v0.1 &middot; DRAFT</b><br>
+    RegenHub, LCA, operating as Techne &middot; grounds in Common Information System PRD v0.2 &middot; Techne Design System v4.<br>
+    A proposal for ratification, not adopted policy. Legal and tax questions route to Pote Law Firm and Yev Muchnik as research informing counsel. Structural and sequencing questions route to the board. Agency stays with the member.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement, btn=document.getElementById('toggle'), stored=null;
+  try{ stored=localStorage.getItem('daybook-prd-mode'); }catch(e){}
+  var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+  root.setAttribute('data-mode',m); btn.textContent=(m==='dark')?'light':'dark';
+  btn.addEventListener('click',function(){
+    var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
+    root.setAttribute('data-mode',next); btn.textContent=(next==='dark')?'light':'dark';
+    try{ localStorage.setItem('daybook-prd-mode',next); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
