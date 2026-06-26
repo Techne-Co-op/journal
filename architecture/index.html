@@ -513,9 +513,125 @@ td code { background: var(--inset); padding: .1em .35em; border-radius: 2px; fon
 }
 .site-footer a { color: var(--faint); text-decoration: none; }
 .site-footer a:hover { color: var(--heading); }
+
+/* ── Mobile nav button ──────────────────────────────────── */
+.rail-btn {
+  display: none;
+  position: fixed;
+  top: .85rem;
+  left: .85rem;
+  z-index: 200;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  color: var(--heading);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 2px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.rail-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 150;
+  display: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.rail-back.open { display: block; }
+
+/* ── Breakpoints ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .rail-btn { display: flex; }
+
+  .rail {
+    position: fixed;
+    left: calc(-1 * var(--rail-w) - 4px);
+    top: 0;
+    height: 100%;
+    z-index: 160;
+    transition: left .22s cubic-bezier(.4,0,.2,1);
+    box-shadow: none;
+  }
+  .rail.open {
+    left: 0;
+    box-shadow: 6px 0 32px rgba(0,0,0,.45);
+  }
+
+  body { display: block; }
+  .main {
+    max-width: 100%;
+    padding: 4.5rem 1.25rem 4rem;
+  }
+
+  h1 { font-size: clamp(1.35rem, 5vw, 2rem); }
+  h2 { font-size: clamp(1.1rem, 4vw, 1.4rem); padding-left: 10px; }
+
+  .binding-grid {
+    grid-template-columns: 1fr;
+  }
+  .bind-arrows {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 0;
+    padding: .5rem 0;
+    gap: .5rem;
+  }
+  .bind-link { white-space: normal; text-align: left; }
+
+  .kind-grid { grid-template-columns: 1fr; }
+
+  .stage-strip { flex-wrap: wrap; }
+  .stage-cell { flex: 1 1 calc(33.33% - 2px); min-width: 70px; }
+
+  .sm-flow { gap: .35rem; }
+  .sm-label { min-width: 72px; }
+
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  pre { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  .mode-btn { top: .85rem; right: .85rem; }
+}
+
+@media (max-width: 480px) {
+  .main { padding: 4.5rem .875rem 4rem; }
+
+  h2 { padding-left: 8px; border-left-width: 2px; }
+  h3 { font-size: .78rem; }
+
+  pre {
+    font-size: .7rem;
+    padding: .875rem 1rem;
+  }
+  .rule-block { font-size: .7rem; padding: .875rem 1rem; }
+  table { font-size: .68rem; }
+  th, td { padding: .4rem .5rem; }
+
+  .sm-label { min-width: 60px; font-size: .58rem; }
+  .sm-node  { font-size: .65rem; padding: .3rem .55rem; }
+  .sm-arrow { font-size: .75rem; }
+
+  .stage-cell { flex: 1 1 calc(50% - 1px); }
+  .stage-strip { font-size: .6rem; }
+
+  .invariant { padding: .85rem 1rem; }
+  .bind-system { padding: .85rem .875rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail { transition: none; }
+}
+
 </style>
 </head>
 <body>
+
+<button id="railBtn" class="rail-btn" aria-label="Open navigation">☰</button>
+<div id="railBack" class="rail-back"></div>
 
 <!-- Rail -->
 <nav class="rail">
@@ -1310,6 +1426,37 @@ document.getElementById('modeBtn').addEventListener('click', function() {
   document.documentElement.dataset.mode = next;
   localStorage.setItem('commons-mode', next);
 });
+
+// Mobile rail drawer
+(function() {
+  var rail    = document.querySelector('.rail');
+  var railBtn = document.getElementById('railBtn');
+  var railBack = document.getElementById('railBack');
+  function closeRail() {
+    rail.classList.remove('open');
+    railBack.classList.remove('open');
+    railBtn.setAttribute('aria-expanded', 'false');
+    railBtn.textContent = '☰';
+  }
+  function openRail() {
+    rail.classList.add('open');
+    railBack.classList.add('open');
+    railBtn.setAttribute('aria-expanded', 'true');
+    railBtn.textContent = '✕';
+  }
+  if (railBtn) {
+    railBtn.addEventListener('click', function() {
+      rail.classList.contains('open') ? closeRail() : openRail();
+    });
+    railBack.addEventListener('click', closeRail);
+    // Close rail on nav link tap (mobile UX)
+    document.querySelectorAll('.rail a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        if (window.innerWidth <= 768) closeRail();
+      });
+    });
+  }
+})();
 
 // Highlight active rail link on scroll
 const sections = document.querySelectorAll('[id]');

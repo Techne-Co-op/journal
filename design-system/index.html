@@ -190,8 +190,44 @@
   footer { border-top:1px solid var(--rule); margin-top:var(--s8); padding:var(--s5) 0 var(--s8); font:400 11px/1.7 var(--mono); color:var(--muted); }
   footer .row { display:flex; flex-wrap:wrap; gap:6px var(--s5); }
 
-  @media (max-width:760px){ .grid3,.board { grid-template-columns:1fr 1fr; } .mast h1 { font-size:30px; } }
-  @media (prefers-reduced-motion: reduce){ * { transition:none !important; } }
+  /* ── Tables: always scrollable ─── */
+  .tbl-wrap, table { max-width:100%; }
+  .tbl-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  pre, .agent { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* ── 760px — tablet ─────────────────────────────────── */
+  @media (max-width:760px) {
+    .grid3, .board { grid-template-columns:1fr 1fr; }
+    .mast h1 { font-size:30px; }
+    .mast { padding:var(--s7) 0 var(--s5); }
+    .sec h2 { font-size:22px; }
+    .wrap { padding:0 var(--s4); }
+    .toggle { top:var(--s4); right:var(--s4); }
+  }
+
+  /* ── 480px — mobile ─────────────────────────────────── */
+  @media (max-width:480px) {
+    .wrap { padding:0 var(--s3); }
+    .mast { padding:var(--s6) 0 var(--s4); margin-bottom:var(--s6); }
+    .mast h1 { font-size:clamp(1.4rem, 6vw, 1.875rem); letter-spacing:-.01em; }
+    .mast p  { font-size:15px; }
+    .mast .band { height:4px; }
+    .grid3, .board { grid-template-columns:1fr; }
+    .sec h2 { font-size:20px; }
+    .sec h3 { font-size:12px; }
+    .sec p  { font-size:15px; max-width:100%; }
+    pre, .agent { font-size:.7rem; padding:var(--s4) var(--s3); }
+    code { font-size:.8em; }
+    table { font-size:.72rem; }
+    th, td { padding:var(--s2) var(--s3); }
+    .toggle { top:var(--s3); right:var(--s3); min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center; }
+    .reg-row { flex-direction:column; gap:var(--s2); }
+    .reg-row .no { min-width:auto; }
+    footer { padding:var(--s5) 0 var(--s6); }
+    footer .row { gap:var(--s2); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
 </style>
 </head>
 <body>
