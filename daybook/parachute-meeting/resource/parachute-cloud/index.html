@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Parachute Cloud — keep a daybook. Write as you work, keep it private, share what's ready with your peer group. Pay only for what you use.">
+<meta name="description" content="Parachute Cloud — keep a daybook. Write as you work, keep it private, share what's ready with your peer group.">
 <title>Parachute Cloud &middot; Techne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,20 +13,21 @@
 :root{
   --serif:"Libre Baskerville",Georgia,serif;
   --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
   --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
   --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;
   --sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
+  --app-w:440px;
 }
 html[data-mode="dark"]{
-  --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
+  --bg:#0F0F12;--inset:#08080A;--surface:#16161B;
   --line:#2A2A30;--rule:#3A3A42;
   --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
   --blue:#6A8AC4;--blue-text:#97B5E8;--blue-dim:rgba(106,138,196,.14);
   --ember:#C4956A;--ember-text:#D4A57A;--ember-dim:rgba(196,149,106,.12);
 }
 html[data-mode="light"]{
-  --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
+  --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;
   --line:#D8D3C8;--rule:#9A958A;
   --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
   --blue:#4A6FB0;--blue-text:#39588F;--blue-dim:rgba(74,111,176,.10);
@@ -36,9 +37,12 @@ html[data-mode="light"]{
 html{color-scheme:dark light;scroll-behavior:smooth;}
 body{
   background:var(--bg);color:var(--text);
-  font:400 17px/1.72 var(--serif);
+  font:400 16px/1.7 var(--serif);
   transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);
-  overflow-x:hidden;
+  /* Narrow, centered — mobile-first by default */
+  max-width:var(--app-w);
+  margin:0 auto;
+  min-height:100vh;
 }
 em{font-style:italic;color:var(--heading);}
 a{color:var(--blue-text);text-decoration:none;}
@@ -50,56 +54,49 @@ a:hover{text-decoration:underline;}
 /* ── Topbar ── */
 .topbar{
   position:sticky;top:0;z-index:40;
-  display:flex;align-items:center;gap:var(--s4);
-  padding:0 clamp(16px,5vw,48px);height:54px;
-  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  display:flex;align-items:center;
+  padding:0 var(--s4);height:50px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--line);
 }
 .brand{
-  font:700 17px/1 var(--serif);color:var(--heading);
-  letter-spacing:-.01em;text-decoration:none;flex-shrink:0;white-space:nowrap;
+  font:700 16px/1 var(--serif);color:var(--heading);
+  letter-spacing:-.01em;text-decoration:none;flex:1;
 }
-.brand sub{font:400 10px/1 var(--mono);color:var(--faint);letter-spacing:.05em;vertical-align:baseline;margin-left:6px;}
-.site-nav{display:flex;align-items:center;gap:var(--s5);flex:1;}
-.site-nav a{font:400 12px/1 var(--mono);color:var(--muted);letter-spacing:.05em;white-space:nowrap;transition:color var(--micro) var(--ease);}
-.site-nav a:hover{color:var(--text);text-decoration:none;}
+.brand sub{font:400 10px/1 var(--mono);color:var(--faint);letter-spacing:.05em;vertical-align:baseline;margin-left:5px;}
 .modebtn{
-  margin-left:auto;flex-shrink:0;font:500 11px/1 var(--mono);color:var(--muted);
+  font:500 11px/1 var(--mono);color:var(--muted);
   background:var(--surface);border:1px solid var(--line);border-radius:2px;
-  padding:0 12px;height:34px;cursor:pointer;
+  padding:0 11px;height:32px;cursor:pointer;flex-shrink:0;
   transition:border-color var(--micro) var(--ease),color var(--micro) var(--ease);
 }
 .modebtn:hover{border-color:var(--blue);color:var(--blue-text);}
-@media(max-width:600px){.site-nav{display:none;}}
 
 /* ── Band ── */
 .band{display:flex;height:3px;}
 .band span{flex:1;}
 
-/* ── Wrap ── */
-.wrap{max-width:900px;margin:0 auto;padding:0 clamp(16px,5vw,48px);}
-
 /* ── Hero ── */
-.hero{padding:clamp(48px,10vw,96px) 0 clamp(36px,7vw,64px);}
+.hero{padding:var(--s7) var(--s4) var(--s6);}
 .eyebrow{
-  font:600 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.15em;color:var(--ember-text);
-  display:flex;align-items:center;gap:10px;margin-bottom:var(--s5);
+  font:600 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.15em;color:var(--ember-text);
+  display:flex;align-items:center;gap:8px;margin-bottom:var(--s4);
 }
-.eyebrow .tk{width:14px;height:2px;background:var(--ember);flex:none;}
+.eyebrow .tk{width:12px;height:2px;background:var(--ember);flex:none;}
 .hero h1{
-  font:700 clamp(38px,7vw,68px)/1.03 var(--serif);
-  color:var(--heading);letter-spacing:-.025em;margin-bottom:var(--s4);max-width:18ch;
+  font:700 40px/1.04 var(--serif);
+  color:var(--heading);letter-spacing:-.022em;margin-bottom:var(--s3);
 }
 .hero-sub{
-  font:400 clamp(15px,2.2vw,19px)/1.65 var(--serif);
-  color:var(--text);max-width:46ch;margin-bottom:var(--s6);
+  font:400 16px/1.65 var(--serif);
+  color:var(--text);margin-bottom:var(--s5);
 }
-.cta-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;}
+.cta-row{display:flex;gap:var(--s2);flex-wrap:wrap;}
 .btn{
   display:inline-flex;align-items:center;gap:8px;
   font:500 13px/1 var(--mono);letter-spacing:.04em;
-  border-radius:2px;padding:0 22px;height:44px;cursor:pointer;text-decoration:none;
+  border-radius:2px;padding:0 20px;height:44px;cursor:pointer;text-decoration:none;
   transition:background-color var(--micro) var(--ease),border-color var(--micro) var(--ease),color var(--micro) var(--ease);
 }
 .btn.primary{background:var(--blue);color:var(--bg);border:1px solid var(--blue);}
@@ -108,19 +105,25 @@ a:hover{text-decoration:underline;}
 .btn.ghost:hover{border-color:var(--text);text-decoration:none;}
 
 /* ── Section ── */
-.section{padding:clamp(28px,5vw,56px) 0;border-top:1px solid var(--line);}
+.section{padding:var(--s6) var(--s4);border-top:1px solid var(--line);}
 .section-label{
-  font:600 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;
-  color:var(--muted);margin-bottom:var(--s5);
+  font:600 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;
+  color:var(--muted);margin-bottom:var(--s4);
   display:flex;align-items:center;gap:10px;
 }
 .section-label::after{content:'';flex:1;height:1px;background:var(--line);}
 
 /* ── Daybook app ── */
 .db-app{
+  margin:0 var(--s4);
   background:var(--inset);border:1px solid var(--line);
-  border-radius:4px;overflow:hidden;
+  border-radius:12px;overflow:hidden;
+  /* Subtle shadow for app-card feel */
+  box-shadow:0 2px 24px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.12);
 }
+html[data-mode="light"] .db-app{box-shadow:0 2px 20px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.06);}
+
+/* Titlebar */
 .db-titlebar{
   display:flex;align-items:center;gap:var(--s3);
   padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line);
@@ -134,157 +137,105 @@ a:hover{text-decoration:underline;}
 .db-date{font:400 11px/1 var(--mono);color:var(--faint);margin-left:2px;}
 .db-clock{margin-left:auto;font:400 11px/1 var(--mono);color:var(--faint);}
 
-/* Composer — full width above the two-panel split */
-.db-composer{padding:var(--s4);border-bottom:1px solid var(--line);}
+/* Bloom panel — top of the app */
+.db-bloom-panel{
+  display:flex;flex-direction:column;align-items:center;
+  padding:var(--s5) var(--s4) var(--s4);
+  background:var(--surface);border-bottom:1px solid var(--line);
+  gap:var(--s3);
+}
+.bloom-svg{width:100%;max-width:260px;height:auto;display:block;overflow:visible;}
+.bloom-ring{stroke:var(--line);fill:none;}
+.bloom-dashed{stroke:var(--line);fill:none;opacity:.45;}
+.bloom-label-txt{fill:var(--faint);font-family:"IBM Plex Mono",monospace;font-size:7.5px;letter-spacing:1.2px;}
+.bloom-center-main{fill:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:9px;}
+.bloom-center-sub{fill:var(--faint);font-family:"IBM Plex Mono",monospace;font-size:6.5px;letter-spacing:1.5px;}
+.bloom-legend{
+  display:flex;gap:var(--s4);align-items:center;
+  font:400 10px/1 var(--mono);color:var(--faint);
+}
+.bloom-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+@keyframes petalIn{from{opacity:0;transform:scale(0.2);}to{opacity:1;transform:scale(1);}}
+.bloom-petal--new path{animation:petalIn .35s var(--ease) forwards;}
+
+/* Composer */
+.db-composer{padding:var(--s3) var(--s4) var(--s4);border-bottom:1px solid var(--line);}
+.db-composer-label{font:600 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:var(--s2);display:block;}
 .db-textarea{
-  width:100%;background:var(--bg);border:1px solid var(--line);border-radius:2px;
-  padding:10px var(--s4);font:400 15px/1.55 var(--serif);color:var(--text);
-  resize:none;outline:none;min-height:72px;display:block;
+  width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;
+  padding:10px 12px;font:400 14px/1.55 var(--serif);color:var(--text);
+  resize:none;outline:none;min-height:68px;display:block;
   transition:border-color var(--micro) var(--ease);
 }
 .db-textarea::placeholder{color:var(--faint);}
 .db-textarea:focus{border-color:var(--blue);}
-.db-actions{display:flex;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap;}
+.db-actions{display:flex;gap:var(--s2);margin-top:var(--s3);}
 .db-btn{
-  font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;
-  padding:0 16px;height:38px;border-radius:2px;cursor:pointer;border:1px solid;
+  flex:1;font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  padding:0 var(--s3);height:40px;border-radius:6px;cursor:pointer;border:1px solid;
   transition:background var(--micro) var(--ease),border-color var(--micro) var(--ease);
 }
 .db-btn--private{color:var(--ember-text);border-color:var(--line);background:transparent;}
 .db-btn--private:hover{border-color:var(--ember);background:var(--ember-dim);}
 .db-btn--group{color:var(--blue-text);border-color:var(--blue);background:transparent;}
 .db-btn--group:hover{background:var(--blue-dim);}
-.db-hint{font:400 10px/1 var(--mono);color:var(--faint);margin-top:var(--s2);}
+.db-hint{font:400 10px/1 var(--mono);color:var(--faint);margin-top:var(--s2);text-align:center;}
 
-/* Two-panel: feed left, bloom right */
-.db-body{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  min-height:340px;
-}
-.db-feed{
-  overflow-y:auto;max-height:340px;
-  border-right:1px solid var(--line);
-}
+/* Feed */
+.db-feed{max-height:220px;overflow-y:auto;}
 .db-entry{
   display:flex;align-items:baseline;gap:var(--s3);
-  padding:10px 14px;border-bottom:1px solid var(--line);
+  padding:9px 14px;border-bottom:1px solid var(--line);
 }
 .db-entry:last-child{border-bottom:0;}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
 .db-entry--new{animation:fadeSlide .2s var(--ease);}
 .db-time{font:400 10px/1 var(--mono);color:var(--faint);flex-shrink:0;width:34px;}
-.db-text{font:400 13px/1.55 var(--serif);color:var(--text);flex:1;min-width:0;word-break:break-word;}
+.db-text{font:400 13px/1.5 var(--serif);color:var(--text);flex:1;min-width:0;word-break:break-word;}
 .db-scope{
   flex-shrink:0;font:500 9px/1 var(--mono);text-transform:uppercase;
-  letter-spacing:.1em;padding:3px 7px;border-radius:2px;margin-left:var(--s2);
+  letter-spacing:.1em;padding:3px 6px;border-radius:3px;margin-left:var(--s2);
 }
 .db-scope.priv{color:var(--ember-text);background:var(--ember-dim);}
 .db-scope.pub{color:var(--blue-text);background:var(--blue-dim);}
 
-/* Bloom panel */
-.db-bloom-panel{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:var(--s4) var(--s3);background:var(--surface);
-  gap:var(--s3);
-}
-.bloom-legend{
-  display:flex;gap:var(--s4);align-items:center;
-  font:400 10px/1 var(--mono);color:var(--faint);
-}
-.bloom-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-
-/* SVG bloom */
-.bloom-svg{
-  width:100%;max-width:240px;height:auto;display:block;
-  overflow:visible;
-}
-/* SVG element styles via CSS */
-.bloom-ring{stroke:var(--line);fill:none;}
-.bloom-dashed{stroke:var(--line);fill:none;opacity:.45;}
-.bloom-label-txt{
-  fill:var(--faint);
-  font-family:"IBM Plex Mono",monospace;
-  font-size:7.5px;
-  letter-spacing:1.2px;
-}
-.bloom-center-main{
-  fill:var(--muted);
-  font-family:"IBM Plex Mono",monospace;
-  font-size:9px;
-}
-.bloom-center-sub{
-  fill:var(--faint);
-  font-family:"IBM Plex Mono",monospace;
-  font-size:6.5px;
-  letter-spacing:1.5px;
-}
-@keyframes petalIn{from{opacity:0;transform:scale(0.3);}to{opacity:1;transform:scale(1);}}
-.bloom-petal--new path{animation:petalIn .35s var(--ease) forwards;}
-
-/* Mobile: stack panels */
-@media(max-width:640px){
-  .db-body{grid-template-columns:1fr;}
-  .db-feed{border-right:none;border-top:1px solid var(--line);order:1;max-height:220px;}
-  .db-bloom-panel{order:0;border-bottom:1px solid var(--line);padding:var(--s5);}
-  .bloom-svg{max-width:220px;}
-}
-
-/* ── Two column grid ── */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);}
-@media(max-width:640px){.two{grid-template-columns:1fr;}}
-
-/* ── Feature cards ── */
-.feat{padding:var(--s5);background:var(--surface);border:1px solid var(--line);border-radius:2px;}
-.feat-icon{width:32px;height:32px;border-radius:2px;display:flex;align-items:center;justify-content:center;margin-bottom:var(--s4);}
-.feat-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
-.feat h3{font:700 16px/1.25 var(--serif);color:var(--heading);margin-bottom:var(--s3);}
+/* ── How it works (single col) ── */
+.how-grid{display:flex;flex-direction:column;gap:var(--s4);}
+.feat{padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:6px;}
+.feat h3{font:700 15px/1.25 var(--serif);color:var(--heading);margin-bottom:var(--s2);}
 .feat p{font:400 13px/1.65 var(--mono);color:var(--muted);}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:var(--s4);}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:var(--s3);border-radius:4px;overflow:hidden;}
 .mode{padding:var(--s3) var(--s4);background:var(--inset);}
-.mode-lbl{font:600 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
-.mode-title{font:700 13px/1.2 var(--serif);color:var(--heading);margin-bottom:4px;}
-.mode-desc{font:400 11px/1.55 var(--mono);color:var(--faint);}
+.mode-lbl{font:600 9px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.mode-title{font:700 13px/1.2 var(--serif);color:var(--heading);margin-bottom:3px;}
+.mode-desc{font:400 11px/1.5 var(--mono);color:var(--faint);}
 .mode[data-scope="private"] .mode-lbl{color:var(--ember-text);}
 .mode[data-scope="group"] .mode-lbl{color:var(--blue-text);}
 
 /* ── Credits ── */
-.credit-box{
-  background:var(--inset);border:1px solid var(--line);border-radius:2px;
-  padding:clamp(16px,3vw,32px);
-  display:grid;grid-template-columns:auto 1fr;
-  gap:var(--s4) clamp(16px,4vw,40px);align-items:start;
-}
-@media(max-width:520px){.credit-box{grid-template-columns:1fr;}}
-.credit-num{font:700 clamp(40px,8vw,56px)/1 var(--serif);color:var(--heading);letter-spacing:-.02em;white-space:nowrap;}
+.credit-num{font:700 48px/1 var(--serif);color:var(--heading);letter-spacing:-.02em;}
 .credit-num sub{font:400 13px/1 var(--mono);color:var(--faint);vertical-align:baseline;margin-left:2px;}
-.credit-detail h3{font:700 16px/1.25 var(--serif);color:var(--heading);margin-bottom:var(--s3);}
-.credit-detail p{font:400 13px/1.65 var(--mono);color:var(--muted);margin-bottom:var(--s3);}
-.credit-detail p:last-child{margin-bottom:0;}
-.rate-row{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s4);padding-top:var(--s4);border-top:1px solid var(--line);}
+.rate-row{
+  display:flex;flex-direction:column;gap:4px;
+  margin-top:var(--s4);padding-top:var(--s4);border-top:1px solid var(--line);
+}
 .rate{font:600 11px/1 var(--mono);color:var(--ember-text);letter-spacing:.04em;}
-.rate-sep{color:var(--line);}
 
 /* ── Notify ── */
-.notify-box{margin-top:var(--s5);padding:clamp(16px,3vw,28px);background:var(--surface);border:1px solid var(--line);border-radius:2px;}
-.notify-box p{font:400 13px/1.6 var(--mono);color:var(--muted);margin-bottom:var(--s4);}
-.notify-form{display:flex;gap:var(--s2);flex-wrap:wrap;}
+.notify-box{margin-top:var(--s4);padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:6px;}
+.notify-box p{font:400 13px/1.6 var(--mono);color:var(--muted);margin-bottom:var(--s3);}
 .notify-input{
-  flex:1;min-width:200px;font:400 14px/1 var(--mono);color:var(--text);
-  background:var(--inset);border:1px solid var(--rule);border-radius:2px;
-  padding:11px 14px;outline:none;height:44px;
+  width:100%;font:400 14px/1 var(--mono);color:var(--text);
+  background:var(--inset);border:1px solid var(--rule);border-radius:6px;
+  padding:11px 14px;outline:none;height:44px;display:block;margin-bottom:var(--s2);
   transition:border-color var(--micro) var(--ease);
 }
 .notify-input:focus{border-color:var(--blue);}
 .notify-confirm{display:none;margin-top:var(--s3);font:400 12px/1.5 var(--mono);color:var(--ember-text);}
 
 /* ── Footer ── */
-footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-top:clamp(32px,6vw,56px);}
-.footer-inner{
-  max-width:900px;margin:0 auto;padding:0 clamp(16px,5vw,48px);
-  display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:var(--s4);
-}
-.footer-brand{font:700 15px/1 var(--serif);color:var(--heading);}
+footer{border-top:1px solid var(--line);padding:var(--s6) var(--s4);margin-top:var(--s5);}
+.footer-brand{font:700 14px/1 var(--serif);color:var(--heading);margin-bottom:var(--s2);}
 .footer-legal{font:400 11px/1.6 var(--mono);color:var(--faint);}
 .footer-legal a{color:var(--faint);}
 .footer-legal a:hover{color:var(--muted);}
@@ -300,16 +251,13 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
 })();
 </script>
 
+<!-- Topbar -->
 <header class="topbar">
   <a class="brand" href="/">Techne<sub>daybook</sub></a>
-  <nav class="site-nav" aria-label="Page sections">
-    <a href="#try">Try it</a>
-    <a href="#how">How it works</a>
-    <a href="#credits">Credits</a>
-  </nav>
   <button class="modebtn" id="modeBtn" aria-label="Toggle colour mode">light</button>
 </header>
 
+<!-- Band -->
 <div class="band" aria-hidden="true">
   <span style="background:var(--sun-gold)"></span>
   <span style="background:var(--sun-amber)"></span>
@@ -321,207 +269,161 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
 
 <!-- Hero -->
 <section class="hero">
-  <div class="wrap">
-    <div class="eyebrow"><span class="tk"></span>Early access &middot; July 2026</div>
-    <h1>Keep a daybook.</h1>
-    <p class="hero-sub">
-      A running log of your work, private by default.
-      Post entries to your peer group when they&rsquo;re ready to share.
-    </p>
-    <div class="cta-row">
-      <a class="btn primary" href="#credits">
-        Start for $3
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-      <a class="btn ghost" href="#try">Try the daybook</a>
-    </div>
+  <div class="eyebrow"><span class="tk"></span>Early access &middot; July 2026</div>
+  <h1>Keep a daybook.</h1>
+  <p class="hero-sub">
+    A running log of your work, private by default.
+    Post entries to your peer group when they&rsquo;re ready.
+  </p>
+  <div class="cta-row">
+    <a class="btn primary" href="#credits">Start for $3 &rarr;</a>
+    <a class="btn ghost" href="#try">Try it</a>
   </div>
 </section>
 
 <!-- Daybook prototype -->
 <section class="section" id="try">
-  <div class="wrap">
-    <div class="section-label">The daybook</div>
+  <div class="section-label">The daybook</div>
 
-    <div class="db-app" role="application" aria-label="Interactive daybook prototype">
+  <div class="db-app" role="application" aria-label="Interactive daybook prototype">
 
-      <!-- Titlebar -->
-      <div class="db-titlebar">
-        <div class="db-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-        <span class="db-appname">Daybook</span>
-        <span class="db-date" id="dbDate"></span>
-        <span class="db-clock" id="dbClock"></span>
-      </div>
-
-      <!-- Composer (full width) -->
-      <div class="db-composer">
-        <label for="dbCompose" style="display:block;font:600 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:var(--s2);">Write your entry</label>
-        <textarea
-          class="db-textarea"
-          id="dbCompose"
-          placeholder="What are you doing right now&#x2026;"
-          rows="3"
-          aria-label="Write a daybook entry"
-        ></textarea>
-        <div class="db-actions">
-          <button class="db-btn db-btn--private" id="dbPrivateBtn">Keep private</button>
-          <button class="db-btn db-btn--group" id="dbGroupBtn">Post to group &rarr;</button>
-        </div>
-        <p class="db-hint">&#8984;&#8617; keeps private &nbsp;&middot;&nbsp; entries are local to this session</p>
-      </div>
-
-      <!-- Two-panel: feed + bloom -->
-      <div class="db-body">
-
-        <!-- Left: entry feed -->
-        <div class="db-feed" id="dbFeed" role="log" aria-live="polite" aria-label="Daybook entries"></div>
-
-        <!-- Right: bloom -->
-        <div class="db-bloom-panel">
-
-          <!-- SVG bloom visualization -->
-          <svg
-            id="bloomSVG"
-            class="bloom-svg"
-            viewBox="0 0 240 264"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby="bloomTitle"
-          >
-            <title id="bloomTitle">Bloom — group entries placed by hour on a 24-hour clock</title>
-
-            <!-- Cardinal labels -->
-            <text x="120" y="16" text-anchor="middle" class="bloom-label-txt">NOON</text>
-            <text x="120" y="258" text-anchor="middle" class="bloom-label-txt">MIDNIGHT</text>
-            <text x="10" y="135" text-anchor="start" class="bloom-label-txt">SUNRISE</text>
-            <text x="230" y="135" text-anchor="end" class="bloom-label-txt">SUNSET</text>
-
-            <!-- Main circle: radius 88, centered at (120, 132) -->
-            <circle cx="120" cy="132" r="88" class="bloom-ring" stroke-width="0.75"/>
-
-            <!-- Dashed equator (sunrise to sunset) -->
-            <line x1="32" y1="132" x2="208" y2="132"
-              class="bloom-dashed" stroke-width="0.5" stroke-dasharray="3,5"/>
-
-            <!-- Center text (updated dynamically) -->
-            <text id="bloomCountText" x="120" y="127" text-anchor="middle" class="bloom-center-main">the day</text>
-            <text x="120" y="143" text-anchor="middle" class="bloom-center-sub">MADE PUBLIC</text>
-
-            <!-- Petals appended here by JS -->
-          </svg>
-
-          <!-- Legend -->
-          <div class="bloom-legend" aria-hidden="true">
-            <span class="bloom-legend-dot" style="background:var(--sun-gold)"></span>noon
-            <span class="bloom-legend-dot" style="background:var(--sun-violet)"></span>dusk
-          </div>
-
-        </div>
-      </div>
-
+    <!-- Titlebar -->
+    <div class="db-titlebar">
+      <div class="db-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      <span class="db-appname">Daybook</span>
+      <span class="db-date" id="dbDate"></span>
+      <span class="db-clock" id="dbClock"></span>
     </div>
 
-    <p style="margin-top:var(--s3);font:400 11px/1.5 var(--mono);color:var(--faint);">
-      Live prototype &mdash; entries are local to this session. Post to group to see petals bloom.
-    </p>
+    <!-- Bloom — top of the app -->
+    <div class="db-bloom-panel">
+      <svg
+        id="bloomSVG"
+        class="bloom-svg"
+        viewBox="0 0 240 264"
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-labelledby="bloomTitle"
+      >
+        <title id="bloomTitle">Bloom — group entries placed by hour on a 24-hour clock</title>
+        <text x="120" y="16" text-anchor="middle" class="bloom-label-txt">NOON</text>
+        <text x="120" y="258" text-anchor="middle" class="bloom-label-txt">MIDNIGHT</text>
+        <text x="10" y="135" text-anchor="start" class="bloom-label-txt">SUNRISE</text>
+        <text x="230" y="135" text-anchor="end" class="bloom-label-txt">SUNSET</text>
+        <circle cx="120" cy="132" r="88" class="bloom-ring" stroke-width="0.75"/>
+        <line x1="32" y1="132" x2="208" y2="132"
+          class="bloom-dashed" stroke-width="0.5" stroke-dasharray="3,5"/>
+        <text id="bloomCountText" x="120" y="127" text-anchor="middle" class="bloom-center-main">the day</text>
+        <text x="120" y="143" text-anchor="middle" class="bloom-center-sub">MADE PUBLIC</text>
+      </svg>
+      <div class="bloom-legend" aria-hidden="true">
+        <span class="bloom-legend-dot" style="background:var(--sun-gold)"></span>noon
+        <span class="bloom-legend-dot" style="background:var(--sun-violet)"></span>dusk
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="db-composer">
+      <label for="dbCompose" class="db-composer-label">Write your entry</label>
+      <textarea
+        class="db-textarea"
+        id="dbCompose"
+        placeholder="What are you doing right now&#x2026;"
+        rows="3"
+        aria-label="Write a daybook entry"
+      ></textarea>
+      <div class="db-actions">
+        <button class="db-btn db-btn--private" id="dbPrivateBtn">Keep private</button>
+        <button class="db-btn db-btn--group" id="dbGroupBtn">Post to group &rarr;</button>
+      </div>
+      <p class="db-hint">&#8984;&#8617; keeps private &middot; local to this session</p>
+    </div>
+
+    <!-- Feed -->
+    <div class="db-feed" id="dbFeed" role="log" aria-live="polite" aria-label="Daybook entries"></div>
 
   </div>
+
+  <p style="margin-top:var(--s3);padding:0 var(--s4);font:400 11px/1.5 var(--mono);color:var(--faint);">
+    Post to group to see petals bloom. Private entries are yours alone.
+  </p>
+
 </section>
 
 <!-- How it works -->
 <section class="section" id="how">
-  <div class="wrap">
-    <div class="section-label">How it works</div>
-    <div class="two">
+  <div class="section-label">How it works</div>
+  <div class="how-grid">
 
-      <div class="feat">
-        <div class="feat-icon" style="background:var(--ember-dim);color:var(--ember-text);">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <div class="feat">
+      <h3>Private by default</h3>
+      <p>Every entry sits in your vault first. Nothing reaches the group until you decide it&rsquo;s ready.</p>
+      <div class="modes">
+        <div class="mode" data-scope="private">
+          <div class="mode-lbl">Private</div>
+          <div class="mode-title">Yours alone</div>
+          <div class="mode-desc">Drafts, reflections, unfinished thinking.</div>
         </div>
-        <h3>Private by default</h3>
-        <p>Every entry you write lives in your vault first. Nothing is shared until you choose to post it. Draft, revise, or just observe — the record is yours.</p>
-        <div class="modes">
-          <div class="mode" data-scope="private">
-            <div class="mode-lbl">Private</div>
-            <div class="mode-title">Yours alone</div>
-            <div class="mode-desc">Drafts, reflections, unfinished thinking. Visible only to you.</div>
-          </div>
-          <div class="mode" data-scope="group">
-            <div class="mode-lbl">Peer group</div>
-            <div class="mode-title">Held in common</div>
-            <div class="mode-desc">Settled entries you choose to post. Visible to all group members.</div>
-          </div>
+        <div class="mode" data-scope="group">
+          <div class="mode-lbl">Peer group</div>
+          <div class="mode-title">Held in common</div>
+          <div class="mode-desc">Settled entries visible to all members.</div>
         </div>
       </div>
-
-      <div class="feat">
-        <div class="feat-icon" style="background:var(--blue-dim);color:var(--blue-text);">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/></svg>
-        </div>
-        <h3>The bloom tells you <em>when</em></h3>
-        <p>Each petal is something a member made public, placed at the hour it happened, in the colour of that hour. The bloom tells you <em>when</em> and <em>how often</em> — and never <em>what</em>.</p>
-        <p style="margin-top:var(--s3);">You are looking at the cooperative&rsquo;s rhythm. No account required to observe it.</p>
-      </div>
-
     </div>
+
+    <div class="feat">
+      <h3>The bloom tells you <em>when</em></h3>
+      <p>Each petal is something a member made public, placed at the hour it happened, in the colour of that hour. The bloom tells you <em>when</em> and <em>how often</em> &mdash; never <em>what</em>.</p>
+    </div>
+
   </div>
 </section>
 
 <!-- Credits -->
 <section class="section" id="credits">
-  <div class="wrap">
-    <div class="section-label">Service credits</div>
+  <div class="section-label">Service credits</div>
 
-    <div class="credit-box">
-      <div>
-        <div class="credit-num">$3<sub>&nbsp;to start</sub></div>
-      </div>
-      <div class="credit-detail">
-        <h3>Pay only for what you use</h3>
-        <p>Parachute Cloud runs on a service credit model. One credit covers ten cents of compute, storage, and vault operations. No subscription, no seat pricing — top up when you need to.</p>
-        <p>The $3 opening balance is thirty credits: enough to use the daybook actively for a month and understand your own usage before adding more. Credits never expire.</p>
-        <div class="rate-row">
-          <span class="rate">1 credit = $0.10</span>
-          <span class="rate-sep">&middot;</span>
-          <span class="rate">$3 minimum = 30 credits</span>
-          <span class="rate-sep">&middot;</span>
-          <span class="rate">Never expire</span>
-        </div>
-      </div>
-    </div>
+  <div class="credit-num">$3<sub>&nbsp;to start</sub></div>
 
-    <div class="notify-box">
-      <p>Parachute Cloud is in early access. Add your email to be notified when accounts open.</p>
-      <div class="notify-form">
-        <input
-          type="email"
-          class="notify-input"
-          id="emailInput"
-          placeholder="your@email.com"
-          autocomplete="email"
-          aria-label="Email address for early access notification"
-        >
-        <button class="btn primary" onclick="handleNotify()" style="flex-shrink:0;">
-          Notify me
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
-      </div>
-      <div class="notify-confirm" id="notifyConfirm" role="status">
-        Noted &mdash; we&rsquo;ll reach you when accounts open.
-      </div>
-    </div>
+  <p style="margin-top:var(--s4);font:400 13px/1.65 var(--mono);color:var(--muted);">
+    One credit covers ten cents of compute, storage, and vault operations.
+    No subscription, no seat pricing &mdash; top up when you need to.
+    Credits never expire.
+  </p>
 
+  <div class="rate-row">
+    <span class="rate">1 credit = $0.10</span>
+    <span class="rate">$3 minimum = 30 credits</span>
+    <span class="rate">Credits never expire</span>
   </div>
+
+  <div class="notify-box">
+    <p>In early access. Get notified when accounts open.</p>
+    <input
+      type="email"
+      class="notify-input"
+      id="emailInput"
+      placeholder="your@email.com"
+      autocomplete="email"
+      aria-label="Email for early access"
+    >
+    <button class="btn primary" onclick="handleNotify()" style="width:100%;">
+      Notify me &rarr;
+    </button>
+    <div class="notify-confirm" id="notifyConfirm" role="status">
+      Noted &mdash; we&rsquo;ll reach you when accounts open.
+    </div>
+  </div>
+
 </section>
 
 <footer>
-  <div class="footer-inner">
-    <span class="footer-brand">Techne &middot; Parachute Cloud</span>
-    <span class="footer-legal">
-      RegenHub, LCA &mdash; Boulder, Colorado &middot; 2026<br>
-      <a href="https://techne.coop/legal/">Legal</a> &middot;
-      <a href="https://techne.coop/design-system/">Design system</a>
-    </span>
+  <div class="footer-brand">Techne &middot; Parachute Cloud</div>
+  <div class="footer-legal">
+    RegenHub, LCA &mdash; Boulder, Colorado &middot; 2026<br>
+    <a href="https://techne.coop/legal/">Legal</a> &middot;
+    <a href="https://techne.coop/design-system/">Design system</a>
   </div>
 </footer>
 
@@ -541,71 +443,56 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
 
 // ── Daybook prototype ──
 (function(){
-  // Seed entries — spread across the day to show a lush bloom
-  var entries = [
+  var entries=[
     {time:'07:45',text:'Morning intentions: surface architecture for the LCA vault.',scope:'group'},
-    {time:'09:00',text:'Kicked off weekly sync — three members present.',scope:'group'},
+    {time:'09:00',text:'Weekly sync — three members present.',scope:'group'},
     {time:'09:14',text:'Reading the Surface Starter note. The vault ships headless intentionally.',scope:'private'},
     {time:'10:30',text:'Contribution: 2h \u2192 architecture work, Parachute surface concept.',scope:'group'},
     {time:'11:45',text:'Design review complete. Moving to implementation.',scope:'group'},
     {time:'12:30',text:'Still working through the credits model \u2014 not ready to share.',scope:'private'},
-    {time:'13:00',text:'The surface we build should reflect the LCA\u2019s actual governance structure.',scope:'group'},
-    {time:'14:00',text:'Thinking about what \u201cprivate\u201d really means in a cooperative context.',scope:'private'},
-    {time:'15:30',text:'Parachute meeting notes published to the journal.',scope:'group'},
+    {time:'13:00',text:'The surface should reflect the LCA\u2019s actual governance structure.',scope:'group'},
+    {time:'14:00',text:'What does \u201cprivate\u201d really mean in a cooperative context?',scope:'private'},
+    {time:'15:30',text:'Meeting notes published to the journal.',scope:'group'},
     {time:'17:15',text:'Day\u2019s public entries settled. Good rhythm today.',scope:'group'},
   ];
 
-  // Bloom constants (SVG viewBox: 240 × 264, circle at cx=120 cy=132 r=88)
-  var CX=120, CY=132, R=88;
+  var CX=120,CY=132,R=88;
+  var NS='http://www.w3.org/2000/svg';
 
   function pad(n){return n<10?'0'+n:''+n;}
   function nowTime(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());}
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-  // Map hour to sunset-range color
   function hourColor(h){
-    if(h>=5&&h<8)  return '#7E64A4';  // pre-dawn — violet
-    if(h>=8&&h<10) return '#B45C7C';  // morning — rose
-    if(h>=10&&h<12)return '#D1755A';  // late morning — coral
-    if(h>=12&&h<15)return '#EAB668';  // noon/early afternoon — gold
-    if(h>=15&&h<18)return '#E09A52';  // afternoon — amber
-    if(h>=18&&h<21)return '#C45A7A';  // evening — rose-violet
-    if(h>=21||h<5) return '#5476B8';  // night — blue
-    return '#8A857E';
+    if(h>=5&&h<8)  return '#7E64A4';
+    if(h>=8&&h<10) return '#B45C7C';
+    if(h>=10&&h<12)return '#D1755A';
+    if(h>=12&&h<15)return '#EAB668';
+    if(h>=15&&h<18)return '#E09A52';
+    if(h>=18&&h<21)return '#C45A7A';
+    return '#5476B8';
   }
 
-  // Convert HH:MM to angle (degrees, 0° = noon/top, clockwise)
-  function timeToAngle(timeStr){
-    var p=timeStr.split(':');
-    var totalMin=parseInt(p[0],10)*60+parseInt(p[1],10);
-    return ((totalMin/1440)*360+180)%360;
+  function timeToAngle(t){
+    var p=t.split(':');
+    var m=parseInt(p[0],10)*60+parseInt(p[1],10);
+    return((m/1440)*360+180)%360;
   }
-
-  // Petal position on the circle
-  function petalPos(theta){
-    var rad=theta*Math.PI/180;
-    return {
-      x:(CX+R*Math.sin(rad)).toFixed(2),
-      y:(CY-R*Math.cos(rad)).toFixed(2),
-      rot:theta.toFixed(1)
-    };
-  }
-
-  var NS='http://www.w3.org/2000/svg';
 
   function makePetal(e,animate){
     var h=parseInt(e.time.split(':')[0],10);
     var theta=timeToAngle(e.time);
-    var pos=petalPos(theta);
+    var rad=theta*Math.PI/180;
+    var px=(CX+R*Math.sin(rad)).toFixed(2);
+    var py=(CY-R*Math.cos(rad)).toFixed(2);
     var color=hourColor(h);
 
     var g=document.createElementNS(NS,'g');
     g.setAttribute('class','bloom-petal'+(animate?' bloom-petal--new':''));
-    g.setAttribute('transform','translate('+pos.x+','+pos.y+') rotate('+pos.rot+')');
+    g.setAttribute('transform','translate('+px+','+py+') rotate('+theta.toFixed(1)+')');
     g.setAttribute('aria-hidden','true');
 
     var path=document.createElementNS(NS,'path');
-    // Leaf shape: base at (0,0), curves to tip at (0,-19), max width ~7px at midpoint
     path.setAttribute('d','M0,0 C5,-4,5,-13,0,-19 C-5,-13,-5,-4,0,0');
     path.setAttribute('fill',color);
     path.setAttribute('opacity','0.85');
@@ -632,7 +519,7 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
     feed.appendChild(frag);
   }
 
-  function updateBloomCount(){
+  function updateCount(){
     var el=document.getElementById('bloomCountText');
     if(!el)return;
     var n=entries.filter(function(e){return e.scope==='group';}).length;
@@ -642,16 +529,12 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
   function renderBloom(){
     var svg=document.getElementById('bloomSVG');
     if(!svg)return;
-    // Remove existing petals
-    var old=svg.querySelectorAll('.bloom-petal');
-    old.forEach(function(el){el.remove();});
-    // Re-render group entries (insert before center text so petals sit behind it)
-    var centerGroup=svg.querySelector('#bloomCountText');
+    svg.querySelectorAll('.bloom-petal').forEach(function(el){el.remove();});
+    var anchor=svg.querySelector('#bloomCountText');
     entries.filter(function(e){return e.scope==='group';}).forEach(function(e){
-      var petal=makePetal(e,false);
-      svg.insertBefore(petal,centerGroup);
+      svg.insertBefore(makePetal(e,false),anchor);
     });
-    updateBloomCount();
+    updateCount();
   }
 
   function addEntry(scope){
@@ -662,7 +545,6 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
     entries.push(entry);
     ta.value='';
 
-    // Update feed — prepend newest
     var feed=document.getElementById('dbFeed');
     if(feed){
       var div=document.createElement('div');
@@ -674,17 +556,14 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
       feed.insertBefore(div,feed.firstChild);
     }
 
-    // Bloom: add petal if group entry
     if(scope==='group'){
       var svg=document.getElementById('bloomSVG');
       if(svg){
-        var petal=makePetal(entry,true);
-        var centerGroup=svg.querySelector('#bloomCountText');
-        svg.insertBefore(petal,centerGroup);
+        var anchor=svg.querySelector('#bloomCountText');
+        svg.insertBefore(makePetal(entry,true),anchor);
       }
-      updateBloomCount();
+      updateCount();
     }
-
     ta.focus();
   }
 
@@ -697,8 +576,8 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
     var el=document.getElementById('dbDate');
     if(!el)return;
     var d=new Date();
-    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    el.textContent='\u00b7 '+months[d.getMonth()]+' '+d.getDate();
+    var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    el.textContent='\u00b7 '+mo[d.getMonth()]+' '+d.getDate();
   }
 
   document.addEventListener('DOMContentLoaded',function(){
@@ -707,7 +586,6 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
     updateClock();
     updateDate();
     setInterval(updateClock,60000);
-
     document.getElementById('dbPrivateBtn').addEventListener('click',function(){addEntry('private');});
     document.getElementById('dbGroupBtn').addEventListener('click',function(){addEntry('group');});
     document.getElementById('dbCompose').addEventListener('keydown',function(e){
@@ -716,7 +594,6 @@ footer{border-top:1px solid var(--line);padding:clamp(28px,5vw,52px) 0;margin-to
   });
 })();
 
-// ── Notify form ──
 function handleNotify(){
   var v=document.getElementById('emailInput').value.trim();
   if(!v)return;
