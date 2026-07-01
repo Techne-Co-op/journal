@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="On building an organizational surface for the co-op's knowledge vault — what it means to make collective memory navigable, and how this post begins that work. By Techne Studio / RegenHub, LCA.">
+<title>A surface for the vault &middot; Techne Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;
+    --sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
+  }
+  html[data-mode="dark"]{
+    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
+    --line:#2A2A30;--rule:#3A3A42;
+    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
+    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
+  }
+  html[data-mode="light"]{
+    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
+    --line:#D8D3C8;--rule:#9A958A;
+    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
+    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{color-scheme:dark light;scroll-behavior:smooth;}
+  body{
+    background:var(--bg);color:var(--text);
+    font:400 18px/1.75 var(--serif);
+    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);
+  }
+  em{font-style:italic;color:var(--heading);}
+  strong{font-weight:700;color:var(--heading);}
+  a{color:var(--blue-text);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:3px;}
+  ::selection{background:var(--blue);color:var(--bg);}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+
+  /* topbar */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 6vw;height:54px;
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-brand{font:700 16px/1 var(--serif);color:var(--heading);text-decoration:none;letter-spacing:-.01em;}
+  .topbar-brand span{font:400 11px/1 var(--mono);color:var(--faint);letter-spacing:.04em;margin-left:10px;}
+  .modebtn{font:500 11px/1 var(--mono);color:var(--muted);background:var(--surface);
+    border:1px solid var(--line);border-radius:2px;padding:7px 14px;cursor:pointer;
+    transition:border-color var(--micro) var(--ease),color var(--micro) var(--ease);}
+  .modebtn:hover{border-color:var(--blue);color:var(--blue-text);}
+
+  /* band */
+  .band{display:flex;height:4px;}
+  .band span{flex:1;}
+
+  /* hero */
+  .hero{
+    max-width:740px;margin:0 auto;
+    padding:var(--s8) 6vw var(--s7);
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font:600 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;
+    color:var(--ember-text);
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:var(--s5);
+  }
+  .eyebrow .tk{width:16px;height:2px;background:var(--ember);flex:none;}
+  .hero h1{
+    font:700 52px/1.06 var(--serif);color:var(--heading);
+    letter-spacing:-.022em;margin-bottom:var(--s4);
+  }
+  .hero h1 em{font-style:italic;color:inherit;}
+  .lede{
+    font:400 20px/1.6 var(--serif);color:var(--text);
+    max-width:60ch;
+  }
+  .meta{
+    margin-top:var(--s6);
+    font:400 11px/1.6 var(--mono);color:var(--faint);
+    display:flex;gap:var(--s5);flex-wrap:wrap;
+  }
+
+  /* body */
+  .article{max-width:740px;margin:0 auto;padding:var(--s7) 6vw var(--s8);}
+  .article p{margin-bottom:1.5em;}
+  .article p:last-child{margin-bottom:0;}
+  .article h2{
+    font:700 28px/1.2 var(--serif);color:var(--heading);
+    letter-spacing:-.012em;
+    margin:var(--s7) 0 var(--s4);
+  }
+  .article h3{
+    font:600 13px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+    color:var(--ember-text);
+    margin:var(--s6) 0 var(--s3);
+    display:flex;align-items:center;gap:8px;
+  }
+  .article h3::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  /* pull quote */
+  .pull{
+    margin:var(--s6) 0;
+    padding:var(--s5) var(--s6);
+    border-left:2px solid var(--ember);
+    background:var(--inset);
+    font:400 20px/1.55 var(--serif);color:var(--heading);
+    font-style:italic;
+  }
+
+  /* three-layer diagram */
+  .layers{
+    margin:var(--s6) 0;
+    display:grid;gap:2px;
+  }
+  .layer{
+    padding:var(--s4) var(--s5);
+    background:var(--surface);
+    border:1px solid var(--line);
+  }
+  .layer:first-child{border-radius:4px 4px 0 0;}
+  .layer:last-child{border-radius:0 0 4px 4px;}
+  .layer-name{
+    font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+    color:var(--muted);margin-bottom:var(--s2);
+  }
+  .layer-title{
+    font:700 18px/1.2 var(--serif);color:var(--heading);
+    margin-bottom:var(--s2);
+  }
+  .layer-desc{
+    font:400 13px/1.6 var(--mono);color:var(--faint);
+  }
+  .layer[data-tint="gold"] .layer-name{color:var(--sun-gold);}
+  .layer[data-tint="amber"] .layer-name{color:var(--sun-amber);}
+  .layer[data-tint="blue"] .layer-name{color:var(--blue-text);}
+
+  /* status chip */
+  .status{
+    display:inline-flex;align-items:center;gap:7px;
+    font:500 11px/1 var(--mono);letter-spacing:.06em;
+    color:var(--ember-text);
+    background:var(--inset);border:1px solid var(--ember);
+    border-radius:2px;padding:6px 12px;
+    margin-bottom:var(--s6);
+  }
+  .status .dot{width:6px;height:6px;border-radius:50%;background:var(--ember);}
+
+  /* footer */
+  footer{
+    border-top:1px solid var(--line);
+    padding:var(--s7) 6vw;
+    max-width:740px;margin:0 auto;
+    font:400 12px/1.65 var(--mono);color:var(--faint);
+  }
+  footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<script>
+(function(){
+  var stored=null;
+  try{stored=localStorage.getItem('cis-theme');}catch(e){}
+  var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+  document.documentElement.setAttribute('data-mode',m);
+})();
+</script>
+
+<div class="topbar">
+  <a class="topbar-brand" href="/">Techne Journal<span>RegenHub LCA</span></a>
+  <button class="modebtn" id="modeBtn">light</button>
+</div>
+
+<div class="band">
+  <span style="background:var(--sun-gold)"></span>
+  <span style="background:var(--sun-amber)"></span>
+  <span style="background:var(--sun-coral)"></span>
+  <span style="background:var(--sun-rose)"></span>
+  <span style="background:var(--sun-violet)"></span>
+  <span style="background:var(--sun-blue)"></span>
+</div>
+
+<div class="hero">
+  <div class="eyebrow"><span class="tk"></span>Design &middot; July 1, 2026</div>
+  <h1>A surface<br>for the vault</h1>
+  <p class="lede">
+    On making collective memory navigable — what we learned when we asked for a URL
+    and found none, and how we're building the thing that should exist.
+  </p>
+  <div class="meta">
+    <span>Techne Studio</span>
+    <span>&middot;</span>
+    <span>RegenHub, LCA &mdash; Boulder</span>
+    <span>&middot;</span>
+    <span>Architecture &middot; Knowledge</span>
+  </div>
+</div>
+
+<article class="article">
+
+  <div class="status"><span class="dot"></span>In progress &mdash; this post is the surface's first artifact</div>
+
+  <p>
+    <em>Superficies.</em> Latin: the upper face of a thing — super, above; facies, the face it turns toward you.
+    A surface is not the thing itself. It is what the thing shows.
+  </p>
+
+  <p>
+    Today we asked a simple question: where do you go to read the vault's notes?
+    The answer was nowhere. No URL. The vault ships headless — a graph of notes,
+    tags, and links, reachable over MCP and a REST API, with no built-in human
+    interface. This is not a deficiency. It is a design decision, and a good one.
+    The Parachute system's answer to "where do you read notes?" is: you build a surface.
+  </p>
+
+  <div class="pull">
+    The vault is the interior. The surface is the face it turns toward its members.
+    One is a store of pattern; the other is an act of showing.
+  </div>
+
+  <p>
+    But here's what the design decision surfaces (the word will keep doing this): a cooperative
+    that holds its knowledge in a headless vault, navigated only by agents and
+    scripts, has not yet made that knowledge cooperative. Memory without legibility
+    is a private thing, even when it's shared. The surface is not decoration.
+    It's the act of making the interior available to people.
+  </p>
+
+  <h2>What the vault holds</h2>
+
+  <p>
+    The co-op's vault currently holds a graph of notes across several registers:
+    governance artifacts (plans, findings, legal notes), daily journals, design
+    decisions, work coordination. These are reachable by path, by tag, or by
+    full-text search — but only if you know to ask, and only through an agent
+    or a script. A member who wants to read the July 1 journal entry has no
+    URL to open.
+  </p>
+
+  <p>
+    This is the gap the surface closes. Not by becoming a generic notes app —
+    Notion exists — but by becoming a face that is shaped around how this
+    particular co-op thinks and governs. The surface we build should reflect
+    the LCA's actual structure: its streams of work, its governance rhythm,
+    its documents. Generic surfaces are someone else's judgment about what
+    matters. Ours gets to be ours.
+  </p>
+
+  <h2>Three views</h2>
+
+  <p>
+    We're thinking about the organizational surface as three overlapping views,
+    each drawing on different tag families in the vault:
+  </p>
+
+  <div class="layers">
+    <div class="layer" data-tint="gold">
+      <div class="layer-name">Commons</div>
+      <div class="layer-title">What the co-op knows</div>
+      <div class="layer-desc">
+        Governance notes, legal artifacts, design decisions, architecture records.
+        The stable layer — things the co-op has settled, made legible, agreed on.
+        Browseable by members, findable without asking an agent.
+      </div>
+    </div>
+    <div class="layer" data-tint="amber">
+      <div class="layer-name">Stream</div>
+      <div class="layer-title">What the co-op is thinking</div>
+      <div class="layer-desc">
+        Daily notes, design findings, journal entries — ordered by time.
+        The moving layer. Where observation becomes record.
+        This post will live here.
+      </div>
+    </div>
+    <div class="layer" data-tint="blue">
+      <div class="layer-name">Work</div>
+      <div class="layer-title">What the co-op is doing</div>
+      <div class="layer-desc">
+        Sprint notes, open threads, coordination state — linked to Workshop.
+        The coordination layer. Reflects the live state of the collective's
+        attention and commitments.
+      </div>
+    </div>
+  </div>
+
+  <p>
+    These aren't rigid sections. They're query families: the surface pulls
+    from the vault's tags, and the vault's tag structure shapes what the
+    surface can show. The two layers design each other.
+  </p>
+
+  <h2>This post is the first artifact</h2>
+
+  <p>
+    There is a habit in design of waiting until a thing is finished before
+    writing about it. The surface doesn't exist yet — just a design finding
+    in the vault, a sketch of three views, and this post. We're writing here
+    because the surface should be built in the open, starting from first
+    principles, in the co-op's own journal. The practice is the documentation.
+    The documentation begins the practice.
+  </p>
+
+  <p>
+    When the surface exists, it will be findable here. The vault note that
+    prompted this post is at <code>design/parachute-surface-org</code>.
+    The Surface Starter in the vault describes the stack: <code>@openparachute/surface-client</code>
+    for OAuth and vault access, <code>@openparachute/surface-render</code>
+    for note rendering. A React app, built in the editor, deployed somewhere
+    members can reach it.
+  </p>
+
+  <h3>What comes next</h3>
+
+  <p>
+    Design the vault's tag structure to support the three views — what tags
+    mark Commons-layer notes, how the Stream is ordered, what links Work notes
+    to Workshop state. Then build auth-first: confirm the OAuth round-trip
+    before any UI polish. Then rendering. Then the surface's actual shape —
+    the face it turns toward the co-op's members.
+  </p>
+
+  <p>
+    The question we're sitting with: what does it mean for organizational memory
+    to be owned by the people it belongs to? The vault is a cooperative artifact.
+    The surface should be one too — not a product you subscribe to, but an
+    instrument the co-op builds for itself, shaped around how it actually works.
+  </p>
+
+  <p>
+    <em>Τέχνη.</em> The knowledge embodied in making something well.
+    In this case: a face for what the co-op knows.
+  </p>
+
+</article>
+
+<footer>
+  <a href="/">Techne Journal</a> &middot; RegenHub, LCA &mdash; Boulder, Colorado &middot; July 2026<br>
+  Vault note: <code>design/parachute-surface-org</code> &middot;
+  Related: <a href="/architecture/">Architecture</a> &middot; <a href="/design-system/">Design System</a>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('modeBtn');
+  function paint(){
+    var m=root.getAttribute('data-mode');
+    btn.textContent=m==='dark'?'light':'dark';
+  }
+  paint();
+  btn.addEventListener('click',function(){
+    var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
+    root.setAttribute('data-mode',next);
+    try{localStorage.setItem('cis-theme',next);}catch(e){}
+    paint();
+  });
+})();
+</script>
+
+</body>
+</html>
