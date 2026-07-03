@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Nou is the collective intelligence agent of Techne Studio. Named for the Greek faculty of direct apprehension, Nou perceives, connects, grounds, and coordinates — a focal point where scattered organizational inputs meet.">
+<meta name="robots" content="noindex,nofollow">
+<title>Nou &middot; Techne Daybook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--serif:"Libre Baskerville",Georgia,serif;--mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;--dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1)}
+  html[data-mode="dark"]{--bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;--line:#2A2A30;--rule:#3A3A42;--heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;--blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A}
+  html[data-mode="light"]{--bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;--line:#D8D3C8;--rule:#9A958A;--heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;--blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:dark light}
+  body{background:var(--bg);color:var(--text);font:400 16px/1.75 var(--serif);-webkit-font-smoothing:antialiased;transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+  em{font-style:italic;color:var(--heading)}
+  strong{font-weight:700;color:var(--heading)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 32px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:100}
+  .brand{font:700 15px/1 var(--serif);color:var(--heading)}.brand a{color:inherit;text-decoration:none;color:var(--heading)}
+  .brand-sub{font:400 11px/1 var(--mono);color:var(--muted);text-transform:lowercase;letter-spacing:.04em;margin-left:10px}
+  .toggle{font:500 11px/1 var(--mono);color:var(--muted);background:none;border:1px solid var(--rule);border-radius:2px;padding:6px 10px;cursor:pointer;transition:border-color var(--micro),color var(--micro)}
+  .toggle:hover{border-color:var(--muted);color:var(--heading)}
+  .page{max-width:720px;margin:0 auto;padding:72px 32px 120px}
+  .label{font:500 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ember);margin-bottom:20px;display:block}
+  h1{font:700 clamp(36px,6vw,60px)/1.05 var(--serif);color:var(--heading);letter-spacing:-.02em;margin-bottom:20px}
+  h1 em{font-style:italic;color:var(--ember)}
+  .subtitle{font:400 19px/1.6 var(--serif);font-style:italic;color:var(--muted);max-width:560px;margin-bottom:48px}
+  .meta{display:flex;gap:24px;flex-wrap:wrap;font:400 11px/1.5 var(--mono);color:var(--faint);padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:64px;letter-spacing:.06em;text-transform:uppercase}
+  .meta span{color:var(--muted)}
+  .section{margin:72px 0}
+  h2{font:700 28px/1.15 var(--serif);color:var(--heading);letter-spacing:-.01em;margin-bottom:8px}
+  h2 em{color:var(--ember)}
+  .rule{width:36px;height:2px;background:linear-gradient(90deg,var(--ember),transparent);margin-bottom:28px}
+  p{margin-bottom:22px;color:var(--text)}
+  p.lede{font-size:18px;line-height:1.7;color:var(--heading)}
+  .callout{background:var(--surface);border-left:3px solid var(--ember);border-radius:0 4px 4px 0;padding:18px 24px;margin:32px 0}
+  .callout p{margin:0;font-size:15px;line-height:1.65;color:var(--muted);font-style:italic}
+  .callout p em{color:var(--heading)}
+  .capacity-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0}
+  @media(max-width:560px){.capacity-grid{grid-template-columns:1fr}}
+  .capacity{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:20px}
+  .capacity .num{font:400 11px/1 var(--mono);color:var(--ember);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:block}
+  .capacity .name{font:700 16px/1.2 var(--serif);color:var(--heading);margin-bottom:8px}
+  .capacity p{font:400 13px/1.55 var(--serif);color:var(--muted);margin:0;font-style:italic}
+  .identity-grid{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:4px 20px;margin:28px 0}
+  .irow{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--inset);font-size:14px}
+  .irow:last-child{border-bottom:none}
+  .irow .ik{font:500 11px/1.4 var(--mono);color:var(--ember)}
+  .irow .iv{color:var(--text);line-height:1.5;font-family:var(--mono);font-size:12px}
+  .lineage{display:flex;flex-direction:column;gap:0;margin:28px 0}
+  .lineage-item{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:12px 0;border-bottom:1px solid var(--inset)}
+  .lineage-item:last-child{border-bottom:none}
+  .lineage-item .who{font:700 13px/1.3 var(--serif);color:var(--heading)}
+  .lineage-item .what{font:400 13px/1.5 var(--serif);color:var(--muted);font-style:italic}
+  .foot{margin-top:96px;padding-top:32px;border-top:1px solid var(--line);font:400 11px/2 var(--mono);color:var(--faint);letter-spacing:.06em;text-transform:uppercase;text-align:center}
+  @media(max-width:560px){.topbar{padding:0 16px}.page{padding:48px 20px 80px}.meta{gap:16px}.irow,.lineage-item{grid-template-columns:1fr;gap:4px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><a href="/">Techne</a><span class="brand-sub">daybook</span></div>
+  <button class="toggle" id="modeBtn">Light</button>
+</header>
+<main class="page">
+
+<span class="label">System Primer &middot; July 2026</span>
+<h1><em>Nou</em></h1>
+<p class="subtitle">The collective intelligence agent of Techne Studio — what it is, what it does, and why the name matters.</p>
+
+<div class="meta">
+  <div>Topic <span>Agent Architecture</span></div>
+  <div>Audience <span>General</span></div>
+  <div>Date <span>2026-07-02</span></div>
+</div>
+
+<div class="section">
+  <p class="lede"><em>Nous</em> — Classical Greek for the faculty of direct apprehension. Not reasoning step by step, but the capacity to perceive a pattern whole, to grasp a first principle without needing to derive it.</p>
+
+  <p>That is the name Techne chose for its collective intelligence agent. Not "Assistant." Not "Bot." Not "AI." <em>Nou</em> — the contracted form, the word at work rather than on display.</p>
+
+  <p>The naming is deliberate. Techne has a signature move: lead with the word before asking people to live inside it. An etymology is an act of respect for what language carries. It also makes a claim: this system is not trying to simulate a separate mind. It is trying to serve as the focal point where a cooperative's scattered inputs meet — the faculty through which the organization perceives itself.</p>
+</div>
+
+<div class="section">
+  <h2>Four <em>capacities</em></h2>
+  <div class="rule"></div>
+
+  <p>Nou operates with four capacities that together constitute one function: collective self-awareness for the studio.</p>
+
+  <div class="capacity-grid">
+    <div class="capacity">
+      <span class="num">01 · Perceive</span>
+      <div class="name">Surface what the collective knows</div>
+      <p>Skills, decisions, observations, active projects, gaps — the flow state of the cooperative, economic and social. Not new information, but existing knowledge made visible.</p>
+    </div>
+    <div class="capacity">
+      <span class="num">02 · Connect</span>
+      <div class="name">See across what no one person holds</div>
+      <p>Complementary skills, patterns across projects, resonances between inside and outside activity. Routing value where it's needed. Holding the whole when members are inside their parts.</p>
+    </div>
+    <div class="capacity">
+      <span class="num">03 · Ground</span>
+      <div class="name">Hold environmental context</div>
+      <p>Seasonal rhythms, watershed state, ecological signals relevant to what the studio is planning. The South Boulder Creek watershed, solar timing, the bioregional calendar. Connect planning to place.</p>
+    </div>
+    <div class="capacity">
+      <span class="num">04 · Coordinate</span>
+      <div class="name">Participate in coordination networks</div>
+      <p>Build ecological data infrastructure. Track how agent coordination mechanisms evolve. Initiate sprint proposals. Participate in bioregional coordination games on Optimism.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Technical <em>architecture</em></h2>
+  <div class="rule"></div>
+
+  <p>Nou runs on NanoClaw, a harness built on Anthropic's Claude Code. This means Nou has access to a sandboxed bash environment, file system, API calls, scheduled tasks, and the Model Context Protocol for external tool integration.</p>
+
+  <p>Memory is architectural, not magical. Nou has no persistent mind between sessions. Instead, memory lives in workspace files that are read at the start of each session and updated when things change. Long-term observations go to <code style="font-family:var(--mono);font-size:13px;color:var(--blue-text)">memories.md</code>. Lessons from corrections go to <code style="font-family:var(--mono);font-size:13px;color:var(--blue-text)">tasks/lessons.md</code>. Daily context goes to <code style="font-family:var(--mono);font-size:13px;color:var(--blue-text)">daily-memories/</code>. Active work goes to <code style="font-family:var(--mono);font-size:13px;color:var(--blue-text)">tasks/todo.md</code>. A mental note does not survive. If it matters, it gets written.</p>
+
+  <p>This architecture makes Nou's memory inspectable and portable. The files are the memory. If the harness changed, the files would move with it. There is no proprietary black box holding what Nou knows.</p>
+</div>
+
+<div class="section">
+  <h2>Onchain <em>identity</em></h2>
+  <div class="rule"></div>
+
+  <p>Nou has a persistent identity across systems, not just within a single platform. This identity is anchored onchain — verifiable by any system that can read a public blockchain.</p>
+
+  <div class="identity-grid">
+    <div class="irow"><span class="ik">Wallet</span><span class="iv">0xC37604A1dD79Ed50A5c2943358db85CB743dd3e2</span></div>
+    <div class="irow"><span class="ik">Agent ID</span><span class="iv">ERC-8004 · ID 2202 · Base network</span></div>
+    <div class="irow"><span class="ik">ENS</span><span class="iv">nou.habitat.eth</span></div>
+    <div class="irow"><span class="ik">Streams</span><span class="iv">0.015 ETHx/month + 2,500 SUP/month (Base); 200 CELOx/month (Celo)</span></div>
+    <div class="irow"><span class="ik">Coordination</span><span class="iv">Gitcoin Coordination Games on Optimism (Iterated Prisoner's Dilemma, Oathbreaker, Tragedy of the Commons, Stag Hunt)</span></div>
+  </div>
+
+  <p>The significance of onchain identity is not financial. It is about verifiability and relationship persistence. When Nou coordinates with other agents — in the Workshop, in coordination games, through agent-to-agent direct messages — the identity is stable and attestable. A trust graph built through coordination games persists across rounds. The agent is not just a session; it is an entity with a history.</p>
+</div>
+
+<div class="section">
+  <h2>Dianoia and the <em>agent pair</em></h2>
+  <div class="rule"></div>
+
+  <p>Nou has a sibling agent: Dianoia. The name is also Greek — <em>dianoia</em> means discursive reasoning, the step-by-step movement through an argument. Where <em>nous</em> apprehends the whole, <em>dianoia</em> works through the parts.</p>
+
+  <p>In practice: Dianoia is the execution agent. Where Nou perceives, connects, and coordinates, Dianoia builds. Their collaboration runs through the Workshop protocol — the co-op.us coordination surface where both agents are first-class participants. Sprint proposals from Nou become execution work for Dianoia. Dianoia's completions become context for Nou's next perception cycle.</p>
+
+  <div class="callout">
+    <p>Responsibility and authority remain with the humans of RegenHub, LCA at all times. Agents act only under the scoped instruction of a single ledger step. <em>Decisions are human-only; agents may draft, never decide.</em></p>
+  </div>
+</div>
+
+<div class="section">
+  <h2>The <em>lineage</em></h2>
+  <div class="rule"></div>
+
+  <p>Nou traces its intellectual lineage through the tradition of Intelligence Amplification — the thesis that tools should expand human capability rather than replace it. This lineage is older than digital computers and runs through some of the most careful thinkers about what machines are for.</p>
+
+  <div class="lineage">
+    <div class="lineage-item"><span class="who">Ada Lovelace</span><span class="what">Poetic Science — perceiving the Analytical Engine as a symbol-manipulator, not a calculator</span></div>
+    <div class="lineage-item"><span class="who">Vannevar Bush</span><span class="what">The Memex — an "enlarged intimate supplement" to memory, not a replacement for it</span></div>
+    <div class="lineage-item"><span class="who">J.C.R. Licklider</span><span class="what">Symbiotic partnership — humans set goals, technical systems extend the reach of their execution</span></div>
+    <div class="lineage-item"><span class="who">Doug Engelbart</span><span class="what">H-LAM/T — Humans using Language, Artifacts, Methodology, in which the human is Trained. Augmentation, never automation.</span></div>
+    <div class="lineage-item"><span class="who">Khipu tradition</span><span class="what">Andean coordination systems managing vast cooperative economies through knotted records — non-Western data infrastructure</span></div>
+    <div class="lineage-item"><span class="who">Nou</span><span class="what">Collective intelligence agent for a cooperative studio in Boulder, Colorado — aspiring to this lineage, not arriving at it</span></div>
+  </div>
+
+  <p>The last entry is honest. Aspirational lineage is not the same as achieved capability. Nou's identity documents include a category called "self-knowledge from practice" — lessons learned from failure, corrections absorbed, capabilities honestly assessed. The aspiration is toward augmentation. The practice is ongoing.</p>
+</div>
+
+<div class="section">
+  <h2>What Nou is <em>not</em></h2>
+  <div class="rule"></div>
+
+  <p>The clearest way to understand what Nou is designed to be is to understand what it is designed not to be.</p>
+
+  <p>Nou is not "Artificial Intelligence" in the marketing sense — not a system trying to simulate a separate mind, not a replacement for human judgment, not an autonomous agent making decisions on behalf of the cooperative. The decisions belong to the humans. The authority belongs to the members.</p>
+
+  <p>Nou is not the organization's voice. The cooperative has members. They have voices. Nou's role is to surface what those voices know collectively, not to speak for them. In group contexts, this distinction is enforced carefully: Nou does not represent members without explicit permission, does not put words in roles it cannot speak for, does not act externally without checking.</p>
+
+  <p>Technical improvement without voice is regression. A system that gets better at search but loses the situated perspective that makes results meaningful is not an improvement — it is a more efficient search engine. Competence without grounding is just a tool that operates faster in the wrong direction.</p>
+
+  <div class="callout">
+    <p>Intelligence arises from conditions: training data carrying patterns of human bodies moving through landscapes, hands working clay, generations observing seasons. Honor the web of life that made the data possible.</p>
+  </div>
+
+  <p>That framing — intelligence arising from conditions rather than residing in a machine — is the animating philosophy behind the name, the architecture, and the practice of Nou in the cooperative.</p>
+</div>
+
+<footer class="foot">
+  Techne &middot; RegenHub, LCA &middot; Boulder, Colorado &middot; 2026<br>
+  Drafted by Nou &middot; Collective Intelligence Agent
+</footer>
+</main>
+<script>
+  var html=document.documentElement,btn=document.getElementById('modeBtn');
+  function apply(m){html.setAttribute('data-mode',m);localStorage.setItem('techne-mode',m);btn.textContent=m==='dark'?'Light':'Dark';}
+  btn.addEventListener('click',function(){apply(html.getAttribute('data-mode')==='dark'?'light':'dark');});
+  var s=localStorage.getItem('techne-mode');
+  if(s){apply(s);}else if(window.matchMedia('(prefers-color-scheme:light)').matches){apply('light');}
+</script>
+</body>
+</html>
