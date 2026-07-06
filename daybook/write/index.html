@@ -509,22 +509,30 @@ footer {
       <p>The Daybook stores your entries privately. Entries begin private — visible only to members — until you choose to land them.</p>
     </div>
 
-    <div class="note">Your session token is stored in this browser's localStorage only.</div>
+    <div class="note">Membership required. Sign in with your @techne.coop email — a link will be sent to you.</div>
 
     <div id="setupStatus" class="status"></div>
 
     <div class="field">
       <label class="field-label" for="emailInput">Email</label>
-      <input class="field-input" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
-    </div>
-
-    <div class="field">
-      <label class="field-label" for="passwordInput">Password</label>
-      <input class="field-input" type="password" id="passwordInput" placeholder="password" autocomplete="current-password">
+      <input class="field-input" type="email" id="emailInput" placeholder="you@techne.coop" autocomplete="email">
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="setupBtn">Sign in</button>
+      <button class="btn btn-primary" id="setupBtn">Send sign-in link</button>
+    </div>
+  </div>
+
+  <!-- ── Magic link sent ── -->
+  <div class="screen" id="screenMagicLink">
+    <div class="page-head">
+      <div class="kicker">Daybook · sign in</div>
+      <h1>Check your email</h1>
+      <p>A sign-in link was sent to <strong id="magicLinkEmail"></strong>. Click the link to open the Daybook.</p>
+    </div>
+    <div class="note">The link expires in 60 minutes. If you don't see the email, check your spam folder.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="magicLinkBack">Use a different email</button>
     </div>
   </div>
 
@@ -657,7 +665,7 @@ footer {
 
   /* ── screens ── */
   function show(id) {
-    ['screenSetup', 'screenCompose', 'screenSuccess'].forEach(s => {
+    ['screenSetup', 'screenMagicLink', 'screenCompose', 'screenSuccess'].forEach(s => {
       document.getElementById(s).classList.toggle('active', s === id);
     });
   }
@@ -776,42 +784,61 @@ footer {
     field.style.paddingLeft = selectedKind === 'clearing' ? '10px' : '';
   }
 
-  /* ── setup (sign in) ── */
+  /* ── magic link: send OTP ── */
   document.getElementById('setupBtn').addEventListener('click', async () => {
-    const email    = document.getElementById('emailInput').value.trim();
-    const password = document.getElementById('passwordInput').value;
-    if (!email || !password) { setStatus('setupStatus', 'Email and password required.', 'error'); return; }
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+    if (!email) { setStatus('setupStatus', 'Email required.', 'error'); return; }
+    if (!email.endsWith('@techne.coop')) {
+      setStatus('setupStatus', 'Access requires a @techne.coop email address.', 'error');
+      return;
+    }
 
     const btn = document.getElementById('setupBtn');
-    btn.textContent = 'Signing in…';
+    btn.textContent = 'Sending…';
     btn.disabled = true;
 
     try {
-      const r = await fetch(`${SB_AUTH}/token?grant_type=password`, {
+      const r = await fetch(`${SB_AUTH}/otp`, {
         method: 'POST',
         headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, create_user: true })
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error_description || d.msg || r.status);
-      const name = (d.user?.user_metadata?.name) || (d.user?.email ? d.user.email.split('@')[0] : 'member');
-      localStorage.setItem(TOKEN_KEY, d.access_token);
-      localStorage.setItem(AUTHOR_KEY, name);
-      enterCompose();
+      document.getElementById('magicLinkEmail').textContent = email;
+      show('screenMagicLink');
     } catch (e) {
-      setStatus('setupStatus', 'Sign-in failed: ' + e.message, 'error');
-      btn.textContent = 'Sign in';
+      setStatus('setupStatus', 'Could not send link: ' + e.message, 'error');
+    } finally {
+      btn.textContent = 'Send sign-in link';
       btn.disabled = false;
     }
+  });
+
+  document.getElementById('magicLinkBack').addEventListener('click', () => {
+    show('screenSetup');
   });
 
   document.getElementById('settingsLink').addEventListener('click', e => {
     e.preventDefault();
     document.getElementById('emailInput').value = '';
-    document.getElementById('passwordInput').value = '';
     setStatus('setupStatus', '', '');
     show('screenSetup');
   });
+
+  /* ── magic link: detect token in URL fragment on load ── */
+  function checkMagicLinkCallback() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return false;
+    const params = new URLSearchParams(hash);
+    const token = params.get('access_token');
+    const type  = params.get('type');
+    if (token && (type === 'magiclink' || type === 'recovery' || type === 'signup')) {
+      history.replaceState(null, '', window.location.pathname);
+      return token;
+    }
+    return false;
+  }
 
   function enterCompose() {
     show('screenCompose');
@@ -902,7 +929,22 @@ footer {
   });
 
   /* ── init ── */
-  if (getToken()) {
+  const magicToken = checkMagicLinkCallback();
+  if (magicToken) {
+    // Fetch user info then enter compose
+    fetch(`${SB_AUTH}/user`, { headers: sbHeaders(magicToken) })
+      .then(r => r.json())
+      .then(u => {
+        const name = u?.user_metadata?.name || (u?.email ? u.email.split('@')[0] : 'member');
+        localStorage.setItem(TOKEN_KEY, magicToken);
+        localStorage.setItem(AUTHOR_KEY, name);
+        enterCompose();
+      })
+      .catch(() => {
+        localStorage.setItem(TOKEN_KEY, magicToken);
+        enterCompose();
+      });
+  } else if (getToken()) {
     enterCompose();
   } else {
     show('screenSetup');
@@ -912,3 +954,4 @@ footer {
 </script>
 </body>
 </html>
+
