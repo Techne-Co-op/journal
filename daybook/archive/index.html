@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Daybook archive — browse entries by date.">
+<title>Daybook · archive · Techne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --serif: "Libre Baskerville", Georgia, serif;
+  --mono:  "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:.4s; --micro:.15s; --ease:cubic-bezier(.4,0,.2,1);
+  --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A;
+  --sun-rose:#B45C7C; --sun-violet:#6E5494;
+}
+html[data-mode="dark"] {
+  --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+  --line:#2A2A30; --rule:#3A3A42;
+  --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+  --blue:#6A8AC4; --blue-t:#97B5E8; --ember:#C4956A; --ember-t:#D4A57A;
+  --ok:#6A9A6A; --warn:#C46A6A;
+  --petal:.5;
+}
+html[data-mode="light"] {
+  --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+  --line:#D8D3C8; --rule:#9A958A;
+  --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+  --blue:#4A6FB0; --blue-t:#39588F; --ember:#8A6A4A; --ember-t:#6F5436;
+  --ok:#4A7A4A; --warn:#A84F4C;
+  --petal:.62;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark light; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.72 var(--serif);
+  min-height: 100vh;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+a { color: var(--blue-t); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+::selection { background: var(--blue); color: var(--bg); }
+
+/* topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--s5); height: 52px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: var(--bg); z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: var(--s3); }
+.brand { font: 500 12px/1 var(--mono); color: var(--heading); text-decoration: none; }
+.brand:hover { color: var(--ember-t); text-decoration: none; }
+.sep { font: 400 12px/1 var(--mono); color: var(--faint); }
+.topbar-sub { font: 400 12px/1 var(--mono); color: var(--muted); }
+.topbar-right { display: flex; align-items: center; gap: var(--s3); }
+.nav-link { font: 500 11px/1 var(--mono); color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 2px; }
+.nav-link:hover { color: var(--heading); text-decoration: none; }
+.mode-btn {
+  font: 500 11px/1 var(--mono); color: var(--muted); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 7px 14px; cursor: pointer;
+}
+.mode-btn:hover { background: var(--raised); color: var(--heading); }
+
+/* date nav bar */
+.date-nav-bar {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s5); border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.date-arrow {
+  font: 400 13px/1 var(--mono); color: var(--muted); background: none;
+  border: 1px solid var(--line); border-radius: 2px; padding: 6px 12px; cursor: pointer;
+  transition: color var(--micro), border-color var(--micro);
+}
+.date-arrow:hover:not(:disabled) { color: var(--heading); border-color: var(--rule); }
+.date-arrow:disabled { opacity: .35; cursor: not-allowed; }
+.date-display {
+  font: 500 13px/1 var(--mono); color: var(--heading);
+  flex: 1; text-align: center;
+}
+.today-link {
+  font: 500 11px/1 var(--mono); color: var(--ember-t); text-decoration: none;
+  border: 1px solid var(--ember); border-radius: 2px; padding: 6px 12px;
+  white-space: nowrap;
+}
+.today-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
+.today-link.dim { border-color: var(--line); color: var(--faint); pointer-events: none; }
+
+/* date chips — dates with entries */
+.date-chips {
+  display: flex; align-items: center; gap: var(--s2); padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: thin;
+}
+.date-chip {
+  font: 400 11px/1 var(--mono); color: var(--muted); background: none;
+  border: 1px solid var(--line); border-radius: 2px; padding: 5px 10px; cursor: pointer;
+  white-space: nowrap; flex: none; transition: color var(--micro), border-color var(--micro), background var(--micro);
+}
+.date-chip:hover { color: var(--heading); border-color: var(--rule); }
+.date-chip.active { color: var(--ember-t); border-color: var(--ember); background: transparent; }
+.chips-label { font: 400 10px/1 var(--mono); color: var(--faint); white-space: nowrap; flex: none; }
+.chips-empty { font: 400 11px/1 var(--mono); color: var(--faint); }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* no-token */
+.no-token-wrap { text-align: center; padding: var(--s8) 0; }
+.no-token-wrap h2 { font: 700 24px/1.1 var(--serif); color: var(--heading); margin-bottom: var(--s4); }
+.no-token-wrap p { font: 400 15px/1.72 var(--serif); color: var(--text); max-width: 44ch; margin: 0 auto var(--s5); }
+.cta-link {
+  display: inline-block; font: 600 12px/1 var(--mono); color: var(--ember-t);
+  border: 1px solid var(--ember); border-radius: 2px; padding: 12px 22px;
+  text-decoration: none; text-transform: uppercase; letter-spacing: .06em;
+}
+.cta-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
+
+/* day head */
+.day-head { padding-bottom: var(--s5); margin-bottom: var(--s5); border-bottom: 1px solid var(--rule); }
+.kicker { font: 500 11px/1.6 var(--mono); color: var(--ember-t); text-transform: uppercase; letter-spacing: .14em; margin-bottom: var(--s3); }
+.day-head h1 { font: 700 30px/1.1 var(--serif); color: var(--heading); letter-spacing: -.012em; margin-bottom: var(--s3); }
+.day-meta { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.day-count { font: 400 12px/1 var(--mono); color: var(--muted); }
+.write-link {
+  font: 600 11px/1 var(--mono); color: var(--ember-t);
+  border: 1px solid var(--ember); border-radius: 2px;
+  padding: 7px 14px; text-decoration: none; text-transform: uppercase; letter-spacing: .06em;
+}
+.write-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
+
+/* bloom */
+.bloom-wrap { display: flex; justify-content: center; padding: var(--s5) 0 var(--s6); }
+#dial { width: 480px; height: 480px; max-width: 100%; overflow: visible; }
+
+/* bloom SVG classes */
+.ring   { fill: none; stroke: var(--line); stroke-width: 1; }
+.arcseg { fill: none; stroke-width: 2.5; stroke-linecap: round; opacity: .6; }
+.horizon { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 5; opacity: .5; }
+.cardlbl { fill: var(--muted); font: 400 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.nowline { stroke: var(--heading); stroke-width: 1; opacity: .4; }
+.nowlbl  { fill: var(--muted); font: 400 9px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.c-time  { fill: var(--heading); font: 700 14px/1 var(--serif); }
+.c-mer   { fill: var(--muted); font: 400 11px/1 var(--mono); }
+.petal   { transition: opacity var(--micro) var(--ease); }
+.petal .lobe { opacity: var(--petal); }
+.matter .edge { fill: none; stroke-width: 1.2; opacity: .7; }
+.matter .fillp { stroke: none; }
+
+/* legend */
+.legend { display: flex; gap: var(--s4); justify-content: center; flex-wrap: wrap; margin-bottom: var(--s6); }
+.legend-item { display: flex; align-items: center; gap: 6px; font: 400 11px/1 var(--mono); color: var(--muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.legend-dot.open { background: transparent; border: 1.5px solid var(--muted); }
+
+/* status */
+.status {
+  display: none; font: 400 13px/1.5 var(--mono); padding: var(--s3) var(--s4);
+  border-radius: 2px; margin-bottom: var(--s4); border: 1px solid transparent;
+}
+.status.error { display: block; color: var(--warn); background: #2a1010; border-color: #5a2020; }
+.status.ok    { display: block; color: var(--ok);   background: #101a10; border-color: #204020; }
+
+/* entry list */
+.entry-list { display: flex; flex-direction: column; gap: var(--s3); }
+.entry-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 2px;
+  padding: var(--s4) var(--s5);
+}
+.entry-card.public { border-left: 3px solid var(--ok); }
+.entry-top {
+  display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); flex-wrap: wrap;
+}
+.entry-kind {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em;
+  padding: 3px 9px; border-radius: 2px; border: 1px solid currentColor;
+}
+.entry-kind.reflection   { color: #EAB668; }
+.entry-kind.contribution { color: #E09A52; }
+.entry-kind.exchange     { color: #D1755A; }
+.entry-kind.clearing     { color: #6A9A6A; }
+html[data-mode="light"] .entry-kind.reflection   { color: #87621F; }
+html[data-mode="light"] .entry-kind.contribution { color: #8C581D; }
+html[data-mode="light"] .entry-kind.exchange     { color: #9C4636; }
+html[data-mode="light"] .entry-kind.clearing     { color: #4A7A4A; }
+.entry-time { font: 400 11px/1 var(--mono); color: var(--muted); }
+.entry-author { font: 400 11px/1 var(--mono); color: var(--faint); }
+.entry-vis  { font: 400 10px/1 var(--mono); color: var(--faint); margin-left: auto; }
+.entry-vis.public { color: var(--ok); }
+.entry-body { font: 400 15px/1.72 var(--serif); color: var(--text); margin-bottom: var(--s3); }
+.entry-body.clamped { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.entry-actions { display: flex; align-items: center; gap: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.work-ref { font: 400 11px/1 var(--mono); color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expand-btn { font: 400 11px/1 var(--mono); color: var(--faint); background: none; border: none; cursor: pointer; padding: 4px 0; }
+.expand-btn:hover { color: var(--muted); }
+.land-btn {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  background: transparent; color: var(--ok); border: 1px solid var(--ok);
+  border-radius: 2px; padding: 6px 12px; cursor: pointer;
+}
+.land-btn:hover:not(:disabled) { background: var(--ok); color: var(--bg); }
+.land-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* empty / loading */
+.empty { text-align: center; padding: var(--s7) 0; color: var(--muted); }
+.empty p { font: 400 15px/1.72 var(--serif); margin-bottom: var(--s4); }
+.loading { text-align: center; padding: var(--s7) 0; font: 400 13px/1 var(--mono); color: var(--faint); }
+
+footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: var(--s8); }
+.footer-note { font: 400 12px/1.6 var(--mono); color: var(--faint); text-align: center; }
+.footer-note a { color: var(--faint); }
+.footer-note a:hover { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="/" class="brand">Techne</a>
+    <span class="sep">·</span>
+    <span class="topbar-sub">daybook</span>
+    <span class="sep">·</span>
+    <span class="topbar-sub">archive</span>
+  </div>
+  <div class="topbar-right">
+    <a href="/daybook/write/" class="nav-link">write</a>
+    <a href="/daybook/today/" class="nav-link">today</a>
+    <a href="/daybook/" class="nav-link">daybook</a>
+    <button class="mode-btn" id="modeBtn">light</button>
+  </div>
+</header>
+
+<!-- date navigation bar — hidden until entries load -->
+<div class="date-nav-bar" id="dateNavBar" style="display:none">
+  <button class="date-arrow" id="btnPrev" title="Previous day with entries">← prev</button>
+  <span class="date-display" id="dateDisplay"></span>
+  <button class="date-arrow" id="btnNext" title="Next day with entries">next →</button>
+  <a href="/daybook/today/" class="today-link" id="todayLink">today</a>
+</div>
+
+<!-- date chips — compact list of all dates with entries -->
+<div class="date-chips" id="dateChips" style="display:none">
+  <span class="chips-label">all dates:</span>
+</div>
+
+<div class="wrap">
+
+  <!-- no token -->
+  <div class="screen" id="screenNoToken">
+    <div class="no-token-wrap">
+      <h2>No vault connected</h2>
+      <p>Set up your vault token in the write surface to start your daybook.</p>
+      <a href="/daybook/write/" class="cta-link">Connect vault →</a>
+    </div>
+  </div>
+
+  <!-- loading -->
+  <div class="screen" id="screenLoading">
+    <div class="loading">Loading entries…</div>
+  </div>
+
+  <!-- main -->
+  <div class="screen" id="screenMain">
+
+    <div class="day-head">
+      <div class="kicker">Daybook · Archive</div>
+      <h1 id="dayHeading"></h1>
+      <div class="day-meta">
+        <span class="day-count" id="dayCount"></span>
+        <a href="/daybook/write/" class="write-link">+ write</a>
+      </div>
+    </div>
+
+    <div id="globalStatus" class="status"></div>
+
+    <!-- Bloom -->
+    <div class="bloom-wrap">
+      <svg id="dial" viewBox="0 0 480 480" aria-label="Bloom — entries for selected date on a 24-hour dial"></svg>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#E09A52"></div> Contribution
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#EAB668"></div> Reflection
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#D1755A"></div> Exchange
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#6A9A6A"></div> Clearing
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot open"></div> Private
+      </div>
+    </div>
+
+    <!-- Entry list -->
+    <div class="entry-list" id="entryList"></div>
+    <div class="empty" id="emptyMsg" style="display:none">
+      <p>No entries on this date.</p>
+      <a href="/daybook/write/" style="font:500 11px/1 var(--mono);color:var(--ember-t)">Write an entry →</a>
+    </div>
+
+  </div>
+
+  <!-- no entries at all -->
+  <div class="screen" id="screenEmpty">
+    <div class="no-token-wrap">
+      <h2>No entries yet</h2>
+      <p>Your daybook is empty. Write your first entry to begin the practice.</p>
+      <a href="/daybook/write/" class="cta-link">Write first entry →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p class="footer-note">
+      <a href="https://journal.techne.coop">journal.techne.coop</a> ·
+      <a href="https://techne.coop">techne.coop</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
+  var TOKEN_KEY = 'daybook-vault-token';
+
+  /* ── mode toggle ── */
+  var root = document.documentElement;
+  var modeBtn = document.getElementById('modeBtn');
+  var initMode = localStorage.getItem('techne-mode') || 'dark';
+  root.setAttribute('data-mode', initMode);
+  modeBtn.textContent = initMode === 'dark' ? 'light' : 'dark';
+  modeBtn.addEventListener('click', function () {
+    var next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-mode', next);
+    localStorage.setItem('techne-mode', next);
+    modeBtn.textContent = next === 'dark' ? 'light' : 'dark';
+    renderForDate(selectedDate);
+  });
+
+  /* ── screens ── */
+  function show(id) {
+    ['screenNoToken', 'screenLoading', 'screenMain', 'screenEmpty'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function setStatus(msg, type) {
+    var el = document.getElementById('globalStatus');
+    el.textContent = msg;
+    el.className = 'status' + (msg ? ' ' + (type || '') : '');
+  }
+
+  /* ── bloom constants (canonical from reference) ── */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var cx = 240, cy = 240, R = 148, H = 50, LBL = R + 54;
+  var dxh = Math.sqrt(R * R - H * H);
+  var thR = Math.atan2(dxh / R, -H / R);
+  var sunset  = 12 + thR / (Math.PI / 12);
+  var sunrise = 12 - thR / (Math.PI / 12);
+
+  function thOf(t)  { return (t - 12) * Math.PI / 12; }
+  function ptA(r, a){ return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) }; }
+  function ptT(r, t){ var a = thOf(t); return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) }; }
+
+  var GOLD=[234,182,104], AMBER=[224,154,82], CORAL=[209,117,90], ROSE=[180,92,124], VIOLET=[110,84,148];
+  var ramp=[
+    [0,VIOLET],[sunrise,ROSE],[7,CORAL],[10.5,AMBER],[12.5,GOLD],
+    [15,AMBER],[18,CORAL],[sunset,ROSE],[21.5,VIOLET],[24,VIOLET]
+  ];
+  function colorAt(t) {
+    t = ((t % 24) + 24) % 24;
+    var a = ramp[0], b = ramp[ramp.length - 1];
+    for (var i = 0; i < ramp.length - 1; i++) {
+      if (t >= ramp[i][0] && t <= ramp[i+1][0]) { a = ramp[i]; b = ramp[i+1]; break; }
+    }
+    var f = (b[0] === a[0]) ? 0 : (t - a[0]) / (b[0] - a[0]);
+    var c = [0, 1, 2].map(function (k) { return Math.round(a[1][k] + (b[1][k] - a[1][k]) * f); });
+    return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+  }
+
+  var KIND_OFF = { reflection: -0.04, contribution: -0.014, exchange: 0.014, clearing: 0.04 };
+
+  function petalPath(a, L, W) {
+    var ax = Math.sin(a), ay = -Math.cos(a), px = Math.cos(a), py = Math.sin(a);
+    var B = ptA(R, a);
+    function P(al, pe) { return { x: B.x + ax * al + px * pe, y: B.y + ay * al + py * pe }; }
+    var T   = P(L, 0);
+    var cA1 = P(L * 0.30,  W);
+    var cA2 = P(L * 0.86,  W * 0.42);
+    var cB1 = P(L * 0.86, -W * 0.42);
+    var cB2 = P(L * 0.30, -W);
+    return 'M '  + B.x.toFixed(1)   + ' ' + B.y.toFixed(1) +
+      ' C ' + cA1.x.toFixed(1) + ' ' + cA1.y.toFixed(1) +
+      ' '   + cA2.x.toFixed(1) + ' ' + cA2.y.toFixed(1) +
+      ' '   + T.x.toFixed(1)   + ' ' + T.y.toFixed(1) +
+      ' C ' + cB1.x.toFixed(1) + ' ' + cB1.y.toFixed(1) +
+      ' '   + cB2.x.toFixed(1) + ' ' + cB2.y.toFixed(1) +
+      ' '   + B.x.toFixed(1)   + ' ' + B.y.toFixed(1) + ' Z';
+  }
+
+  function mkEl(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* ── render bloom ── */
+  function renderBloom(entries, showNow) {
+    var svg = document.getElementById('dial');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    svg.appendChild(mkEl('circle', { class: 'ring', cx: cx, cy: cy, r: R }));
+
+    var arcStops = ['var(--sun-rose)','var(--sun-coral)','var(--sun-amber)','var(--sun-amber)','var(--sun-coral)','var(--sun-rose)'];
+    for (var i = 0; i < 6; i++) {
+      var s  = -thR + (2 * thR) * i / 6;
+      var e2 = -thR + (2 * thR) * (i + 1) / 6;
+      var p0 = ptA(R, s), p1 = ptA(R, e2);
+      var arc = mkEl('path', {
+        class: 'arcseg',
+        d: 'M ' + p0.x.toFixed(1) + ' ' + p0.y.toFixed(1) +
+           ' A ' + R + ' ' + R + ' 0 0 1 ' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1)
+      });
+      arc.style.stroke = arcStops[i];
+      svg.appendChild(arc);
+    }
+
+    svg.appendChild(mkEl('line', { class: 'horizon', x1: cx - dxh, y1: cy + H, x2: cx + dxh, y2: cy + H }));
+
+    function card(t, label, dy) {
+      var lp = ptA(LBL, thOf(t));
+      var tx = mkEl('text', { class: 'cardlbl', x: lp.x.toFixed(1), y: (lp.y + (dy || 0)).toFixed(1), 'text-anchor': 'middle' });
+      tx.textContent = label;
+      svg.appendChild(tx);
+    }
+    card(12, 'noon', -2);
+    card(sunrise, 'sunrise', 3);
+    card(sunset, 'sunset', 3);
+    card(0, 'midnight', 9);
+
+    /* settled (public) entries */
+    entries.filter(function (e) { return e.metadata && e.metadata.visibility === 'public'; })
+      .forEach(function (e) {
+        var h    = hourOf(e.metadata.created_at);
+        var kind = e.metadata.kind || 'reflection';
+        var off  = KIND_OFF[kind] || 0;
+        var L = 23, W = 6.7;
+        var col = colorAt(h);
+        var g = mkEl('g', { class: 'petal' });
+        var p = mkEl('path', { class: 'lobe', d: petalPath(thOf(h) + off, L, W) });
+        p.style.fill = col;
+        g.appendChild(p);
+        svg.appendChild(g);
+      });
+
+    /* open (private) entries */
+    entries.filter(function (e) { return !e.metadata || e.metadata.visibility !== 'public'; })
+      .forEach(function (e) {
+        var h    = hourOf(e.metadata && e.metadata.created_at);
+        var kind = (e.metadata && e.metadata.kind) || 'reflection';
+        var off  = KIND_OFF[kind] || 0;
+        var ripe = 0.30;
+        var ew   = 1 + ripe * 2.0;
+        var L = 15 + ew * 8, W = 4.5 + ew * 2.2;
+        var col  = colorAt(h);
+        var dpath = petalPath(thOf(h) + off, L, W);
+        var g = mkEl('g', { class: 'matter' });
+        var fp = mkEl('path', { class: 'fillp', d: dpath });
+        fp.style.fill = col;
+        fp.style.opacity = (ripe * 0.55).toFixed(3);
+        g.appendChild(fp);
+        var ed = mkEl('path', { class: 'edge', d: dpath });
+        ed.style.stroke = col;
+        g.appendChild(ed);
+        svg.appendChild(g);
+      });
+
+    /* "now" indicator — only when viewing today */
+    if (showNow) {
+      var nowD = new Date();
+      var tn   = nowD.getHours() + nowD.getMinutes() / 60;
+      var day  = (tn >= sunrise && tn <= sunset);
+      var io   = ptT(R - 26, tn), oo = ptT(R, tn);
+      svg.appendChild(mkEl('line', {
+        class: 'nowline',
+        x1: io.x.toFixed(1), y1: io.y.toFixed(1),
+        x2: oo.x.toFixed(1), y2: oo.y.toFixed(1)
+      }));
+      var sp = ptT(R, tn);
+      if (day) {
+        var ring = mkEl('circle', { class: 'sun', cx: sp.x.toFixed(1), cy: sp.y.toFixed(1), r: 7 });
+        ring.style.fill = 'none'; ring.style.stroke = 'var(--sun-gold)'; ring.style.opacity = '.45';
+        svg.appendChild(ring);
+      }
+      var dot = mkEl('circle', { cx: sp.x.toFixed(1), cy: sp.y.toFixed(1), r: 4.5 });
+      dot.style.fill        = day ? 'var(--sun-gold)' : 'var(--surface)';
+      dot.style.stroke      = day ? 'var(--sun-gold)' : 'var(--muted)';
+      dot.style.strokeWidth = '1';
+      svg.appendChild(dot);
+      var nlp = ptA(LBL, thOf(tn));
+      var nl  = mkEl('text', { class: 'nowlbl', x: nlp.x.toFixed(1), y: (nlp.y + 3).toFixed(1), 'text-anchor': 'middle' });
+      nl.textContent = 'now';
+      svg.appendChild(nl);
+    }
+
+    /* center text */
+    var n = entries.length;
+    var ct = mkEl('text', { class: 'c-time', x: cx, y: cy + 2, 'text-anchor': 'middle' });
+    ct.textContent = n === 0 ? 'no entries' : n === 1 ? '1 entry' : n + ' entries';
+    svg.appendChild(ct);
+    var cm = mkEl('text', { class: 'c-mer', x: cx, y: cy + 20, 'text-anchor': 'middle' });
+    cm.textContent = entries.filter(function(e){ return e.metadata && e.metadata.visibility !== 'public'; }).length + ' open';
+    svg.appendChild(cm);
+  }
+
+  /* ── helpers ── */
+  function hourOf(isoStr) {
+    if (!isoStr) return 12;
+    var d = new Date(isoStr);
+    return d.getHours() + d.getMinutes() / 60;
+  }
+
+  function formatTime(isoStr) {
+    if (!isoStr) return '';
+    return new Date(isoStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+
+  /* YYYY-MM-DD from a Date or ISO string, in local time */
+  function toDateKey(d) {
+    if (typeof d === 'string') d = new Date(d);
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function todayKey() { return toDateKey(new Date()); }
+
+  function isDateKey(key, d) { return toDateKey(d) === key; }
+
+  function formatDateHeading(key) {
+    /* key = YYYY-MM-DD */
+    var parts = key.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function formatChipLabel(key) {
+    var parts = key.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  /* ── landing ── */
+  function landEntry(entry, card, topEl, actionsEl) {
+    var token  = localStorage.getItem(TOKEN_KEY) || '';
+    var author = localStorage.getItem('daybook-author') || 'member';
+    var now    = new Date().toISOString();
+    var updated = Object.assign({}, entry.metadata, { visibility: 'public', published_at: now, published_by: author });
+
+    return fetch(VAULT + '/notes/' + entry.path, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metadata: updated })
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      card.classList.add('public');
+      topEl.querySelector('.entry-vis').textContent = 'public';
+      topEl.querySelector('.entry-vis').classList.add('public');
+      var lb = actionsEl.querySelector('.land-btn');
+      if (lb) lb.remove();
+      setStatus('Entry landed — now public.', 'ok');
+      setTimeout(function () { setStatus('', ''); }, 4000);
+    }).catch(function (e) {
+      setStatus('Could not land entry: ' + e.message, 'error');
+      var lb = actionsEl.querySelector('.land-btn');
+      if (lb) { lb.textContent = 'Land'; lb.disabled = false; }
+    });
+  }
+
+  /* ── entry card ── */
+  function buildCard(entry) {
+    var meta     = entry.metadata || {};
+    var kind     = meta.kind || 'reflection';
+    var isPublic = meta.visibility === 'public';
+    var time     = formatTime(meta.created_at || entry.createdAt);
+    var author   = meta.author || '';
+    var body     = entry.content || '';
+
+    var card = document.createElement('div');
+    card.className = 'entry-card' + (isPublic ? ' public' : '');
+
+    var top = document.createElement('div');
+    top.className = 'entry-top';
+    top.innerHTML =
+      '<span class="entry-kind ' + kind + '">' + kind + '</span>' +
+      '<span class="entry-time">' + time + '</span>' +
+      (author ? '<span class="entry-author">' + author + '</span>' : '') +
+      '<span class="entry-vis' + (isPublic ? ' public' : '') + '">' + (isPublic ? 'public' : 'private') + '</span>';
+    card.appendChild(top);
+
+    var bodyEl = document.createElement('div');
+    var clamped = body.length > 320;
+    bodyEl.className = 'entry-body' + (clamped ? ' clamped' : '');
+    bodyEl.textContent = body;
+    card.appendChild(bodyEl);
+
+    var actions = document.createElement('div');
+    actions.className = 'entry-actions';
+
+    var workRef = meta.work_ref || '';
+    if (workRef) {
+      var wr = document.createElement('span');
+      wr.className = 'work-ref';
+      wr.textContent = '→ ' + workRef.replace('work/', '');
+      actions.appendChild(wr);
+    } else {
+      actions.appendChild(document.createElement('span'));
+    }
+
+    if (clamped) {
+      var exp = document.createElement('button');
+      exp.className = 'expand-btn';
+      exp.textContent = 'read more';
+      exp.addEventListener('click', function () {
+        bodyEl.classList.remove('clamped');
+        exp.style.display = 'none';
+      });
+      actions.appendChild(exp);
+    }
+
+    if (!isPublic) {
+      var lb = document.createElement('button');
+      lb.className = 'land-btn';
+      lb.textContent = 'Land';
+      lb.title = 'Make this entry public';
+      lb.addEventListener('click', function () {
+        if (!confirm('Land this ' + kind + ' entry? It will become public.')) return;
+        lb.textContent = 'Landing…';
+        lb.disabled = true;
+        landEntry(entry, card, top, actions);
+      });
+      actions.appendChild(lb);
+    }
+
+    card.appendChild(actions);
+    return card;
+  }
+
+  /* ── state ── */
+  var allEntries  = [];   /* all vault entries, sorted descending by date */
+  var dateKeys    = [];   /* sorted unique date keys, descending */
+  var selectedDate = '';  /* YYYY-MM-DD */
+
+  /* ── render for date ── */
+  function renderForDate(key) {
+    selectedDate = key;
+    var today    = todayKey();
+    var isToday  = (key === today);
+
+    /* update URL without reload */
+    var newUrl = '/daybook/archive/' + (isToday ? '' : '?date=' + key);
+    history.replaceState(null, '', newUrl);
+
+    /* heading */
+    document.getElementById('dayHeading').textContent = isToday
+      ? 'Today — ' + formatDateHeading(key)
+      : formatDateHeading(key);
+
+    /* filter entries */
+    var dayEntries = allEntries.filter(function (e) {
+      var ts = (e.metadata && e.metadata.created_at) || e.createdAt || '';
+      return ts && toDateKey(ts) === key;
+    });
+    dayEntries.sort(function (a, b) {
+      var ta = (a.metadata && a.metadata.created_at) || a.createdAt || '';
+      var tb = (b.metadata && b.metadata.created_at) || b.createdAt || '';
+      return ta.localeCompare(tb);
+    });
+
+    document.getElementById('dayCount').textContent =
+      dayEntries.length === 0 ? 'no entries' :
+      dayEntries.length === 1 ? '1 entry' : dayEntries.length + ' entries';
+
+    renderBloom(dayEntries, isToday);
+
+    var list = document.getElementById('entryList');
+    while (list.firstChild) list.removeChild(list.firstChild);
+
+    if (!dayEntries.length) {
+      document.getElementById('emptyMsg').style.display = 'block';
+    } else {
+      document.getElementById('emptyMsg').style.display = 'none';
+      dayEntries.forEach(function (e) { list.appendChild(buildCard(e)); });
+    }
+
+    /* date nav arrows */
+    var idx = dateKeys.indexOf(key);
+    document.getElementById('btnPrev').disabled = (idx >= dateKeys.length - 1);
+    document.getElementById('btnNext').disabled = (idx <= 0);
+
+    /* date display */
+    document.getElementById('dateDisplay').textContent = isToday
+      ? 'today'
+      : formatChipLabel(key);
+
+    /* today link styling */
+    var tl = document.getElementById('todayLink');
+    if (isToday) { tl.classList.add('dim'); } else { tl.classList.remove('dim'); }
+
+    /* highlight active chip */
+    document.querySelectorAll('.date-chip').forEach(function (c) {
+      c.classList.toggle('active', c.dataset.key === key);
+    });
+  }
+
+  /* ── build date chips ── */
+  function buildChips() {
+    var bar = document.getElementById('dateChips');
+    while (bar.children.length > 1) bar.removeChild(bar.lastChild); /* keep label */
+
+    if (!dateKeys.length) {
+      var empty = document.createElement('span');
+      empty.className = 'chips-empty';
+      empty.textContent = 'no entries yet';
+      bar.appendChild(empty);
+      return;
+    }
+
+    /* show at most 20 most recent dates */
+    var shown = dateKeys.slice(0, 20);
+    shown.forEach(function (key) {
+      var chip = document.createElement('button');
+      chip.className = 'date-chip';
+      chip.dataset.key = key;
+      chip.textContent = formatChipLabel(key);
+      chip.addEventListener('click', function () { renderForDate(key); });
+      bar.appendChild(chip);
+    });
+  }
+
+  /* ── init ── */
+  var token = localStorage.getItem(TOKEN_KEY);
+  if (!token) {
+    show('screenNoToken');
+    return;
+  }
+
+  show('screenLoading');
+
+  fetch(VAULT + '/notes?tag=daybook-entry&include_content=true&limit=500', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function (r) {
+    if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+    return r.json();
+  }).then(function (data) {
+    var notes = Array.isArray(data) ? data : (data.notes || []);
+
+    /* sort all entries descending by timestamp */
+    notes.sort(function (a, b) {
+      var ta = (a.metadata && a.metadata.created_at) || a.createdAt || '';
+      var tb = (b.metadata && b.metadata.created_at) || b.createdAt || '';
+      return tb.localeCompare(ta);
+    });
+    allEntries = notes;
+
+    /* collect unique date keys, descending */
+    var seen = {};
+    allEntries.forEach(function (e) {
+      var ts = (e.metadata && e.metadata.created_at) || e.createdAt || '';
+      if (ts) { var k = toDateKey(ts); if (!seen[k]) { seen[k] = true; dateKeys.push(k); } }
+    });
+
+    if (!dateKeys.length) {
+      show('screenEmpty');
+      return;
+    }
+
+    /* determine selected date from URL param or default to most recent */
+    var params = new URLSearchParams(window.location.search);
+    var requested = params.get('date');
+    if (requested && seen[requested]) {
+      selectedDate = requested;
+    } else {
+      /* default to today if has entries, else most recent */
+      var today = todayKey();
+      selectedDate = seen[today] ? today : dateKeys[0];
+    }
+
+    /* show nav */
+    document.getElementById('dateNavBar').style.display = 'flex';
+    document.getElementById('dateChips').style.display  = 'flex';
+    buildChips();
+
+    /* wire nav arrows */
+    document.getElementById('btnPrev').addEventListener('click', function () {
+      var idx = dateKeys.indexOf(selectedDate);
+      if (idx < dateKeys.length - 1) renderForDate(dateKeys[idx + 1]);
+    });
+    document.getElementById('btnNext').addEventListener('click', function () {
+      var idx = dateKeys.indexOf(selectedDate);
+      if (idx > 0) renderForDate(dateKeys[idx - 1]);
+    });
+
+    show('screenMain');
+    renderForDate(selectedDate);
+
+  }).catch(function (err) {
+    show('screenMain');
+    setStatus('Could not load entries: ' + err.message, 'error');
+    renderBloom([], false);
+  });
+
+})();
+</script>
+</body>
+</html>
