@@ -173,6 +173,19 @@ a:hover { text-decoration: underline; }
   margin-bottom: var(--s5);
 }
 
+/* transition history */
+.transitions { margin-top: var(--s4); }
+.transitions-toggle { font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--faint); cursor: pointer; border: none; background: none; padding: 0; }
+.transitions-toggle:hover { color: var(--muted); }
+.transitions-list { margin-top: var(--s3); border-left: 2px solid var(--line); padding-left: var(--s4); display: none; }
+.transitions-list.open { display: block; }
+.transition-row { display: flex; gap: var(--s3); font: 400 11px/1.5 var(--mono); color: var(--muted); padding: 4px 0; }
+.transition-from { color: var(--faint); }
+.transition-arrow { color: var(--faint); }
+.transition-to { color: var(--heading); }
+.transition-by { color: var(--ember-t); }
+.transition-at { color: var(--faint); font-size: 10px; }
+
 /* ── Create form ─────────────────────────────────────────── */
 .create-form {
   background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
@@ -471,10 +484,14 @@ a:hover { text-decoration: underline; }
     var author = localStorage.getItem('daybook-author') || 'member';
     var now = new Date().toISOString();
     var meta = Object.assign({}, item.metadata || {});
+    var fromStage = meta.stage || 'captured';
     meta.stage = toStage;
     if (toStage === 'held' && !meta.assignee) meta.assignee = author;
     if (toStage === 'resolved') { meta.resolved_at = now; meta.resolved_by = author; }
     if (toStage === 'composted') { meta.composted_at = now; meta.composted_by = author; }
+    // append transition record
+    var transition = { from: fromStage, to: toStage, by: author, at: now };
+    meta.transitions = (meta.transitions || []).concat([transition]);
 
     fetch(VAULT + '/notes/' + encodeURIComponent(item.path), {
       method: 'PATCH',
@@ -558,6 +575,33 @@ a:hover { text-decoration: underline; }
       });
 
       card.appendChild(actions);
+    }
+
+    // transition history
+    var transitions = meta.transitions || [];
+    if (transitions.length > 0) {
+      var histEl = document.createElement('div');
+      histEl.className = 'transitions';
+      var toggleEl = document.createElement('button');
+      toggleEl.className = 'transitions-toggle';
+      toggleEl.textContent = transitions.length + ' stage move' + (transitions.length !== 1 ? 's' : '');
+      var listEl = document.createElement('div');
+      listEl.className = 'transitions-list';
+      transitions.forEach(function (t) {
+        var row = document.createElement('div');
+        row.className = 'transition-row';
+        row.innerHTML =
+          '<span class="transition-from">' + (t.from || '—') + '</span>' +
+          '<span class="transition-arrow">→</span>' +
+          '<span class="transition-to">' + t.to + '</span>' +
+          '<span class="transition-by">by ' + t.by + '</span>' +
+          '<span class="transition-at">' + new Date(t.at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span>';
+        listEl.appendChild(row);
+      });
+      toggleEl.addEventListener('click', function () { listEl.classList.toggle('open'); });
+      histEl.appendChild(toggleEl);
+      histEl.appendChild(listEl);
+      card.appendChild(histEl);
     }
 
     return card;
