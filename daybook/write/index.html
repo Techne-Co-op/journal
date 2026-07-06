@@ -577,6 +577,16 @@ footer {
         <option value="">— none —</option>
       </select>
     </div>
+    <div class="field" id="matterRefField">
+      <label class="field-label" for="matterRefSelect">Linked matter <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint)">(required for clearing)</span></label>
+      <select class="work-select" id="matterRefSelect">
+        <option value="">— none —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label" for="supersedesInput">Corrects prior entry</label>
+      <input class="field-input" type="text" id="supersedesInput" placeholder="daybook/entries/… path of entry being corrected" spellcheck="false" autocomplete="off">
+    </div>
 
     <!-- Actions -->
     <div class="action-bar">
@@ -686,6 +696,7 @@ footer {
       document.querySelectorAll('.kind-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedKind = btn.dataset.kind;
+      updateMatterFieldHint();
     });
   });
 
@@ -702,27 +713,60 @@ footer {
     } catch { return false; }
   }
 
-  /* ── work items ── */
-  async function loadWorkItems() {
+  /* ── optional refs ── */
+  async function loadOptionalRefs() {
     const token = getToken();
+
+    /* work items */
     try {
       const r = await fetch(`${VAULT}/notes?tag=work&include_content=false&limit=100`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!r.ok) return;
-      const data = await r.json();
-      const items = Array.isArray(data) ? data : (data.notes || []);
-      const sel = document.getElementById('workRefSelect');
-      items
-        .filter(n => n.metadata?.status !== 'resolved')
-        .sort((a, b) => (a.metadata?.title || '').localeCompare(b.metadata?.title || ''))
-        .forEach(n => {
-          const opt = document.createElement('option');
-          opt.value = n.path;
-          opt.textContent = n.metadata?.title || n.path;
-          sel.appendChild(opt);
-        });
+      if (r.ok) {
+        const data = await r.json();
+        const items = Array.isArray(data) ? data : (data.notes || []);
+        const sel = document.getElementById('workRefSelect');
+        items
+          .filter(n => n.metadata?.status !== 'resolved')
+          .sort((a, b) => (a.metadata?.title || '').localeCompare(b.metadata?.title || ''))
+          .forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n.path;
+            opt.textContent = n.metadata?.title || n.path;
+            sel.appendChild(opt);
+          });
+      }
     } catch { /* non-fatal */ }
+
+    /* open matters */
+    try {
+      const r = await fetch(`${VAULT}/notes?tag=daybook-matter&include_content=false&limit=100`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const notes = Array.isArray(data) ? data : (data.notes || []);
+        const sel = document.getElementById('matterRefSelect');
+        notes
+          .filter(n => !n.metadata?.landed_at)
+          .sort((a, b) => (b.metadata?.opened_at || '').localeCompare(a.metadata?.opened_at || ''))
+          .forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n.path;
+            opt.textContent = n.metadata?.heading || n.path;
+            sel.appendChild(opt);
+          });
+      }
+    } catch { /* non-fatal */ }
+  }
+
+  /* highlight matter field when kind = clearing */
+  function updateMatterFieldHint() {
+    const field = document.getElementById('matterRefField');
+    field.style.borderLeft = selectedKind === 'clearing'
+      ? '3px solid var(--k-cle)'
+      : '';
+    field.style.paddingLeft = selectedKind === 'clearing' ? '10px' : '';
   }
 
   /* ── setup ── */
@@ -758,7 +802,8 @@ footer {
 
   function enterCompose() {
     show('screenCompose');
-    loadWorkItems();
+    loadOptionalRefs();
+    updateMatterFieldHint();
     document.getElementById('bodyInput').focus();
   }
 
@@ -773,7 +818,9 @@ footer {
     const pad     = n => String(n).padStart(2, '0');
     const pathTs  = `${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}`;
     const path    = `daybook/entries/${pathTs}-${selectedKind}`;
-    const workRef = document.getElementById('workRefSelect').value || null;
+    const workRef    = document.getElementById('workRefSelect').value || null;
+    const matterRef  = document.getElementById('matterRefSelect').value || null;
+    const supersedes = document.getElementById('supersedesInput').value.trim() || null;
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.textContent = 'Saving…';
@@ -796,7 +843,9 @@ footer {
             visibility: 'private',
             author,
             created_at: ts.toISOString(),
-            ...(workRef ? { work_ref: workRef } : {})
+            ...(workRef    ? { work_ref:   workRef    } : {}),
+            ...(matterRef  ? { matter_ref: matterRef  } : {}),
+            ...(supersedes ? { supersedes: supersedes } : {})
           }
         })
       });
