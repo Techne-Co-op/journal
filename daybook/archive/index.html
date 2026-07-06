@@ -48,6 +48,13 @@ a:hover { text-decoration: underline; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 ::selection { background: var(--blue); color: var(--bg); }
 
+/* supersedes + refs */
+.entry-refs { display: flex; gap: var(--s3); flex-wrap: wrap; font: 400 11px/1.4 var(--mono); color: var(--muted); padding: var(--s2) 0 var(--s3); border-bottom: 1px solid var(--line); margin-bottom: var(--s3); }
+.entry-ref { display: flex; align-items: center; gap: 5px; }
+.entry-ref-label { text-transform: uppercase; letter-spacing: .06em; font-size: 10px; color: var(--faint); }
+.entry-ref-val { color: var(--blue-t); word-break: break-all; }
+.corrects-notice { background: color-mix(in srgb, var(--warn) 10%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); border-radius: 2px; padding: 6px 10px; font: 400 11px/1.4 var(--mono); color: var(--warn); margin-bottom: var(--s3); }
+
 /* topbar */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -643,6 +650,33 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       (author ? '<span class="entry-author">' + author + '</span>' : '') +
       '<span class="entry-vis' + (isPublic ? ' public' : '') + '">' + (isPublic ? 'public' : 'private') + '</span>';
     card.appendChild(top);
+
+    // supersedes notice
+    if (meta.supersedes) {
+      var supEl = document.createElement('div');
+      supEl.className = 'corrects-notice';
+      supEl.textContent = 'Corrects: ' + meta.supersedes;
+      card.appendChild(supEl);
+    }
+
+    // refs row
+    if (meta.matter_ref) {
+      var refsEl = document.createElement('div');
+      refsEl.className = 'entry-refs';
+      var mr = document.createElement('span');
+      mr.className = 'entry-ref';
+      var mrl = document.createElement('span');
+      mrl.className = 'entry-ref-label';
+      mrl.textContent = 'matter';
+      var mrv = document.createElement('a');
+      mrv.className = 'entry-ref-val';
+      mrv.href = '/daybook/matters/';
+      mrv.textContent = meta.matter_ref.replace('daybook/matters/','');
+      mr.appendChild(mrl);
+      mr.appendChild(mrv);
+      refsEl.appendChild(mr);
+      card.appendChild(refsEl);
+    }
 
     var bodyEl = document.createElement('div');
     var clamped = body.length > 320;
