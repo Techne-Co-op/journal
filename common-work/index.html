@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Common Work MVP, an interface concept rendered in the Techne v4 design system: a peer commons across the full arc, parchment and ink, blue primary and ember secondary, the sunset sweep as the arc's atmosphere.">
+<meta name="description" content="Common Work — the shared coordination board. Six stages, live from the cooperative's Supabase substrate. Machines prepare; people land.">
 <title>Common Work &middot; MVP &middot; Techne v4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -419,13 +419,13 @@
     </aside>
   </div>
 </div>
-<div class="samplebadge">illustrative sample data &middot; interface concept, not a working build</div>
 
 <script>
 (function(){
   "use strict";
-  var root=document.documentElement, btn=document.getElementById('modeBtn'), tkey='cw-mvp-mode', stored=null;
-  try{ stored=localStorage.getItem(tkey); }catch(e){}
+  var root=document.documentElement, btn=document.getElementById('modeBtn');
+  var tkey='techne-mode';
+  var stored=null; try{ stored=localStorage.getItem(tkey); }catch(e){}
   var m = (stored==='light'||stored==='dark') ? stored : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   root.setAttribute('data-mode', m);
   btn.textContent = m==='dark' ? 'light' : 'dark';
@@ -435,43 +435,131 @@
     try{ localStorage.setItem(tkey,next); }catch(e){}
   });
 
-  var works=[
-    { id:'cw-018', stage:'captured', title:"A shared calendar for the Hub open hours", group:'this season', kind:'step', owner:'you',
-      essence:'Noticed the open-hours information lives in three places and drifts.',
-      observed:'Three places list the Hub open hours, and they disagree with each other.',
-      guessed:'A single shared calendar might fix it. Not sure yet who would keep it.' },
-    { id:'cw-014', stage:'offered', title:'Vivero seed-inventory schema', group:'this season', kind:'step', owner:null,
-      essence:'A first schema for the garden seed inventory, open for anyone to shape.',
-      forWhom:'Anyone designing the Vivero Phase 01 data model.', needs:['data modeling','Supabase'], interest:2 },
-    { id:'cw-015', stage:'offered', title:'Onboarding path for new RegenHub members', group:'this season', kind:'step', owner:null,
-      essence:'A clear first-week path so new members are not left to guess.',
-      forWhom:'Facilitation-minded peers; anyone who has onboarded somewhere.', needs:['facilitation','low-code'], interest:3 },
-    { id:'cw-011', stage:'offered', title:'Compost Layer pattern-mining ritual', group:'next season', kind:'decision', owner:null,
-      essence:'A small recurring ritual to mine deprecated work for patterns.',
-      forWhom:'Anyone who has run a retro that actually changed something.', needs:['facilitation','governance'], interest:1 },
-    { id:'cw-007', stage:'held', title:'Field Notes privacy review', group:'this season', kind:'gate', owner:'Mara', state:'review',
-      essence:'Reviewing default-deny visibility before Field Notes ships.',
-      success_state:'A written review confirming no record is visible by default.', verification:null, depends_on:[],
-      reserved:[{ act:'Adopt the review', label:'a person adopts this', status:'pending' }] },
-    { id:'cw-009', stage:'standing', title:'Standing Book K-1 source rollup', group:'next season', kind:'step', owner:'Asa',
-      essence:'Rolling capital events into annual K-1 source data.',
-      success_state:'A demonstrated rollup matching a hand-checked sample.', verification:'ci:rollup-check', depends_on:['cw-007'],
-      standing:{ state:'Runs on one quarter of sample events.', state_ev:'pr #41', waiting:'A full-ledger pass, and sign-off on cw-007.', done:'Output matches a hand-checked sample.', done_ev:'sample-check.csv' },
-      decision:{ text:'Anchor the weekly Merkle roots to Base rather than another layer two.', drafted:true, status:'pending' } },
-    { id:'cw-006', stage:'socialized', title:'RegenHub CIS authorization model', group:'this season', kind:'gate', owner:'Devin',
-      essence:'The cite-as-you-enforce authorization model for the member portal.',
-      success_state:'Every read and write traces to a named rule, default deny.', verification:'ci:policy-tests', depends_on:['cw-007'],
-      coheld:['Mara','Asa'],
-      lenses:{ plain:'Members see only what a written rule lets them see, and nothing by default. Every door has a reason attached.', technical:'Row-level security with policy predicates that cite an authorization row; default deny, audit-by-design, and a policy-test suite in CI.' },
-      invites:['No one on the audit-log lens yet.','The default-deny test matrix is unwritten.'] },
-    { id:'cw-003', stage:'resolved', title:'Adopt Supabase as the shared substrate', group:'this season', kind:'decision', owner:'you',
-      essence:'One record beneath every instrument, rather than a patchwork.',
-      decided:{ text:'Adopt Supabase, a Postgres substrate, beneath all instruments.', by:'the group', on:'2026-05-12', why:'One record beneath every instrument, row-level enforcement of reserved acts, and a credible vendor-exit path.', status:'done' } },
-    { id:'cw-002', stage:'composted', title:'GlideApps as the primary application layer', group:'last season', kind:'decision', owner:'you',
-      essence:'An earlier bet on a low-code app builder as the main surface.',
-      lesson:'Low-code app builders could not enforce reserved acts at the row level. That gap is what pushed the substrate toward Postgres.',
-      feeds:'cw-003' }
-  ];
+  /* ── Supabase config (shared with Daybook) ── */
+  var SB_URL    = 'https://kxprevuqghixwspucfqo.supabase.co';
+  var SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  var SB_REST   = SB_URL + '/rest/v1';
+  var TOKEN_KEY  = 'daybook-sb-token';
+  var AUTHOR_KEY = 'daybook-author';
+
+  function sbHeaders(token) {
+    var h = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
+  function getToken()  { return localStorage.getItem(TOKEN_KEY) || ''; }
+  function getAuthor() { return localStorage.getItem(AUTHOR_KEY) || 'member'; }
+
+  /* ── Map a Supabase row to the work object shape ── */
+  function mapRow(r) {
+    return {
+      id:          r.id,
+      path:        r.path || '',
+      title:       r.title || 'Untitled',
+      essence:     r.essence || '',
+      description: r.description || '',
+      kind:        r.kind || 'task',
+      stage:       r.stage || 'captured',
+      owner:       r.assignee || null,
+      assignee:    r.assignee || null,
+      group:       'this season',
+      transitions: r.transitions || [],
+      created_by:  r.created_by || '',
+      created_at:  r.created_at || '',
+      resolved_at:  r.resolved_at || null,
+      resolved_by:  r.resolved_by || null,
+      composted_at: r.composted_at || null,
+      composted_by: r.composted_by || null,
+      _live: true
+    };
+  }
+
+  /* ── Live data ── */
+  var works = [];
+
+  function loadWorks() {
+    var token = getToken();
+    fetch(SB_REST + '/daybook_work_items?order=created_at.desc&limit=200', {
+      headers: sbHeaders(token)
+    }).then(function(r){ return r.ok ? r.json() : []; })
+    .then(function(rows){
+      works = (Array.isArray(rows) ? rows : []).map(mapRow);
+      renderBoard();
+      if (currentView === 'field') renderField();
+      renderSignals();
+      recount();
+    }).catch(function(){ renderBoard(); });
+  }
+
+  /* ── Auth-required notice ── */
+  function showAuthNeeded() {
+    byId('detailBody').innerHTML = '<div class="d-empty">'
+      + '<div class="de-h">Sign in to act</div>'
+      + '<p style="font-size:14px;color:var(--text);line-height:1.65;margin-bottom:var(--s4)">Stage advances are reserved to named members. '
+      + 'Sign in via the Daybook write interface — your session carries across to the board automatically.</p>'
+      + '<div class="actions"><a class="btn primary" href="/daybook/write/" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+      + 'Sign in via Daybook</a></div>'
+      + '<p style="font-size:11px;color:var(--faint);margin-top:var(--s4)">Already signed in? Reload the page.</p></div>';
+    openD();
+  }
+
+  /* ── Stage advance (writes to Supabase) ── */
+  function advanceStage(id, newStage, extra) {
+    var token = getToken();
+    if (!token) { showAuthNeeded(); return; }
+    var w = workById(id);
+    if (!w) return;
+    var transition = { from: w.stage, to: newStage, by: getAuthor(), at: new Date().toISOString() };
+    var body = { stage: newStage, transitions: (w.transitions || []).concat([transition]) };
+    if (extra) { for (var k in extra) { if (extra.hasOwnProperty(k)) body[k] = extra[k]; } }
+    /* optimistic update */
+    var prevStage = w.stage;
+    w.stage = newStage;
+    if (extra) { for (var k in extra) { if (extra.hasOwnProperty(k)) w[k] = extra[k]; } }
+    renderBoard(); openWork(id);
+    fetch(SB_REST + '/daybook_work_items?id=eq.' + id, {
+      method: 'PATCH',
+      headers: Object.assign({}, sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(rows){
+      if (rows && rows[0]) {
+        var idx = -1;
+        for (var i = 0; i < works.length; i++) { if (works[i].id === id) { idx = i; break; } }
+        if (idx >= 0) { works[idx] = Object.assign(works[idx], mapRow(rows[0])); }
+        renderBoard(); openWork(id);
+      }
+    }).catch(function(){
+      /* revert on failure */
+      if (w) { w.stage = prevStage; renderBoard(); }
+    });
+  }
+
+  /* ── Capture (inserts to Supabase) ── */
+  function doCapture(title, essence, description) {
+    var token = getToken();
+    if (!token) { showAuthNeeded(); return; }
+    var author = getAuthor();
+    var ts = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'').slice(0,30);
+    var path = 'work/' + ts.getFullYear() + pad(ts.getMonth()+1) + pad(ts.getDate()) + '-' + slug;
+    fetch(SB_REST + '/daybook_work_items', {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify({ path:path, title:title, essence:essence||'', description:description||'', kind:'task', stage:'captured', created_by:author, transitions:[] })
+    }).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(rows){
+      if (rows && rows[0]) {
+        var nw = mapRow(rows[0]);
+        works.unshift(nw);
+        setView('commons'); renderBoard(); openWork(nw.id);
+      }
+    }).catch(function(){ /* non-fatal for now */ });
+  }
+
+  /* works[] is populated by loadWorks() via Supabase — see above */
 
   var peers=[
     { name:'Mara', caps:['facilitation','privacy review','governance'], growing:['facilitation at federation scale'],
@@ -491,10 +579,11 @@
   var sunStop={ captured:'--sun-gold', offered:'--sun-amber', held:'--sun-coral', standing:'--sun-rose', socialized:'--sun-violet', resolved:'--sun-blue', composted:'--sun-gold' };
   var sunTint={ captured:'--sun-gold-t', offered:'--sun-amber-t', held:'--sun-coral-t', standing:'--sun-rose-t', socialized:'--sun-violet-t', resolved:'--sun-blue-t', composted:'--sun-gold-t' };
 
-  var bodyOf={ 'cw-003':'Substrate','cw-002':'Substrate','cw-009':'Standing Book','cw-007':'CIS / Field Notes','cw-006':'CIS / Field Notes','cw-014':'Vivero','cw-015':'Community / Hub','cw-011':'Community / Hub','cw-018':'Community / Hub' };
-  var shortOf={ 'cw-003':'Supabase substrate','cw-002':'GlideApps composted','cw-009':'Standing Book rollup','cw-007':'Field Notes review','cw-006':'CIS auth model','cw-014':'Vivero schema','cw-015':'Onboarding path','cw-011':'Compost ritual','cw-018':'Hub calendar' };
-  var bodyOrder=['Substrate','Standing Book','CIS / Field Notes','Vivero','Community / Hub'];
-  var bodyAngle={ 'Substrate':205,'Standing Book':62,'CIS / Field Notes':125,'Vivero':18,'Community / Hub':330 };
+  /* field-view groupings — populated from live data as bodies emerge */
+  var bodyOf={};
+  var shortOf={};
+  var bodyOrder=[];
+  var bodyAngle={};
   var FR={ captured:248, offered:200, held:152, standing:108, socialized:68, resolved:42, composted:16 };
   var FCX=330, FCY=300;
 
@@ -832,22 +921,19 @@
       Array.prototype.forEach.call(box.querySelectorAll('.lens-pane'),function(pn){ pn.classList.toggle('on', pn.getAttribute('data-pane')===which); }); return; }
     if(act==='goto'){ openWork(id); return; }
     if(act==='noop'){ return; }
-    if(act==='offer'){ w.stage='offered'; w.owner=null; renderBoard(); openWork(id); }
-    else if(act==='hold'){ w.stage='held'; w.owner='you'; renderBoard(); openWork(id); }
-    else if(act==='give-standing'){ w.stage='standing'; renderBoard(); openWork(id); }
-    else if(act==='socialize'){ w.stage='socialized'; if(!w.coheld) w.coheld=[]; renderBoard(); openWork(id); }
-    else if(act==='resolve'){ w.stage='resolved'; w.state=null; if(w.decision&&w.decision.status!=='done') w.decision.status='done'; if(!w.decided) w.decided={text:'Resolved by the group.', by:'you', on:'today', why:'Reached its success state.', status:'done'}; renderBoard(); openWork(id); }
-    else if(act==='compost'){ w.stage='composted'; w.state=null; if(!w.lesson) w.lesson=''; renderBoard(); openWork(id); }
-    else if(act==='record-decision'){ if(w.decision) w.decision.status='done'; renderWork(w); renderBoard(); if(currentView==='field') renderField(); }
-    else if(act==='adopt'){ if(w.reserved) w.reserved.forEach(function(r){ r.status='done'; }); w.state=null; renderWork(w); renderBoard(); if(currentView==='field') renderField(); }
+    if(act==='offer'){ advanceStage(id,'offered',{assignee:null}); }
+    else if(act==='hold'){ advanceStage(id,'held',{assignee:getAuthor()}); }
+    else if(act==='give-standing'){ advanceStage(id,'standing',{}); }
+    else if(act==='socialize'){ advanceStage(id,'socialized',{}); }
+    else if(act==='resolve'){ advanceStage(id,'resolved',{resolved_by:getAuthor(),resolved_at:new Date().toISOString()}); }
+    else if(act==='compost'){ advanceStage(id,'composted',{composted_by:getAuthor(),composted_at:new Date().toISOString(),compost_reason:''}); }
+    else if(act==='record-decision'){ if(w&&w.decision) w.decision.status='done'; if(w){renderWork(w); renderBoard(); if(currentView==='field') renderField();} }
+    else if(act==='adopt'){ if(w&&w.reserved) w.reserved.forEach(function(r){ r.status='done'; }); if(w){w.state=null; renderWork(w); renderBoard(); if(currentView==='field') renderField();} }
     else if(act==='do-capture'){
       var t=(byId('capTitle').value||'').trim(); if(!t){ byId('capTitle').focus(); return; }
-      var cnt=works.filter(function(x){return x.id.indexOf('cw-0')===0;}).length;
-      var nid='cw-'+('00'+(19+cnt)).slice(-3);
-      works.unshift({ id:nid, stage:'captured', title:t, group:'this season', kind:'step', owner:'you',
-        essence:((byId('capObs').value||'A newly captured piece.').trim().slice(0,120))||'A newly captured piece.',
-        observed:(byId('capObs').value||'').trim()||'Not written yet.', guessed:(byId('capGuess').value||'').trim()||'Not written yet.' });
-      setView('commons'); renderBoard(); openWork(nid);
+      var ess=(byId('capObs').value||'').trim().slice(0,200)||'';
+      var desc=(byId('capGuess').value||'').trim();
+      doCapture(t, ess, desc);
     }
   });
 
@@ -861,7 +947,7 @@
   byId('captureBtn').addEventListener('click',openCapture);
   byId('detailClose').addEventListener('click',function(){ byId('detail').classList.remove('open'); });
 
-  renderBoard(); renderEmpty();
+  loadWorks(); renderEmpty();
 })();
 </script>
 </body>
