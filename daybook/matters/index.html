@@ -268,9 +268,9 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   <!-- no token -->
   <div class="screen" id="screenNoToken">
     <div class="no-token-wrap">
-      <h2>No vault connected</h2>
-      <p>Set up your vault token in the write surface to start your daybook.</p>
-      <a href="/daybook/write/" class="cta-link">Connect vault →</a>
+      <h2>Sign in required</h2>
+      <p>Matters are member-only. Sign in through the write surface to access this page.</p>
+      <a href="/daybook/write/" class="cta-link">Sign in →</a>
     </div>
   </div>
 
@@ -371,8 +371,16 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 (function () {
   'use strict';
 
-  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
-  var TOKEN_KEY = 'daybook-vault-token';
+  var SB_URL    = 'https://kxprevuqghixwspucfqo.supabase.co';
+  var SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  var SB_REST   = SB_URL + '/rest/v1';
+  var TOKEN_KEY = 'daybook-sb-token';
+
+  function sbHeaders(token) {
+    var h = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
 
   /* ── mode toggle ── */
   var root = document.documentElement;
@@ -472,32 +480,26 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     btn.textContent = 'Opening…';
     btn.disabled = true;
 
-    fetch(VAULT + '/notes', {
+    fetch(SB_REST + '/daybook_matters', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
       body: JSON.stringify({
-        path: path,
-        content: heading,
-        tags: ['daybook-matter'],
-        metadata: {
-          kind:       createKind,
-          heading:    heading,
-          awaits:     awaits,
-          face:       face,
-          cite:       cite || null,
-          act:        act  || null,
-          ripe:       0,
-          opened_at:  now,
-          opened_by:  author,
-          landed_at:  null,
-          landed_by:  null,
-          landing_entry: null
-        }
+        path:      path,
+        heading:   heading,
+        awaits:    awaits,
+        face:      face,
+        cite:      cite || null,
+        act:       act  || null,
+        ripe:      0,
+        opened_at: now,
+        opened_by: author,
+        content:   heading
       })
     }).then(function (r) {
-      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || r.status); });
       return r.json();
-    }).then(function (matter) {
+    }).then(function (result) {
+      var matter = Array.isArray(result) ? result[0] : result;
       allMatters.unshift(matter);
       currentTab = 'open';
       document.getElementById('tabOpen').classList.add('active');
@@ -518,17 +520,16 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   /* ── ripe update ── */
   function setRipe(matter, newRipe, ripeRow) {
     var token = localStorage.getItem(TOKEN_KEY) || '';
-    var ripe  = Math.max(matter.metadata.ripe || 0, Math.min(100, Math.floor(newRipe)));
-    if (ripe === (matter.metadata.ripe || 0)) return;
+    var ripe  = Math.max(matter.ripe || 0, Math.min(100, Math.floor(newRipe)));
+    if (ripe === (matter.ripe || 0)) return;
 
-    var updated = Object.assign({}, matter.metadata, { ripe: ripe });
-    fetch(VAULT + '/notes/' + matter.path, {
+    fetch(SB_REST + '/daybook_matters?path=eq.' + encodeURIComponent(matter.path), {
       method: 'PATCH',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ metadata: updated })
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify({ ripe: ripe })
     }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
-      matter.metadata.ripe = ripe;
+      matter.ripe = ripe;
       var fill = ripeRow.querySelector('.ripe-fill');
       var pct  = ripeRow.querySelector('.ripe-pct');
       fill.style.width = ripe + '%';
@@ -550,40 +551,35 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     var stamp  = now.replace(/[-:T]/g,'').slice(0,12);
     var clearPath = 'daybook/entries/' + stamp + '-clearing-land';
 
-    var clearingBody = 'Matter landed: ' + matter.metadata.heading + '\n\nLanded by ' + author + ' at ' + new Date().toLocaleString();
+    var clearingBody = 'Matter landed: ' + matter.heading + '\n\nLanded by ' + author + ' at ' + new Date().toLocaleString();
 
-    fetch(VAULT + '/notes', {
+    fetch(SB_REST + '/daybook_entries', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
       body: JSON.stringify({
-        path: clearPath,
-        content: clearingBody,
-        tags: ['daybook-entry'],
-        metadata: {
-          kind: 'clearing',
-          visibility: 'public',
-          author: author,
-          created_at: now,
-          matter_ref: matter.path
-        }
+        path:       clearPath,
+        kind:       'clearing',
+        visibility: 'public',
+        author:     author,
+        created_at: now,
+        matter_ref: matter.path,
+        content:    clearingBody
       })
     }).then(function (r) {
-      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || r.status); });
       return r.json();
-    }).then(function (entry) {
+    }).then(function (result) {
+      var entry = Array.isArray(result) ? result[0] : result;
       /* 2. Mark the matter as landed */
-      var updated = Object.assign({}, matter.metadata, {
-        landed_at: now,
-        landed_by: author,
-        landing_entry: entry.path
-      });
-      return fetch(VAULT + '/notes/' + matter.path, {
+      return fetch(SB_REST + '/daybook_matters?path=eq.' + encodeURIComponent(matter.path), {
         method: 'PATCH',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ metadata: updated })
+        headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({ landed_at: now, landed_by: author, landing_entry: entry.path })
       }).then(function (r2) {
-        if (!r2.ok) return r2.json().then(function (e) { throw new Error(e.error || r2.status); });
-        matter.metadata = updated;
+        if (!r2.ok) return r2.json().then(function (e) { throw new Error(e.message || r2.status); });
+        matter.landed_at = now;
+        matter.landed_by = author;
+        matter.landing_entry = entry.path;
         card.classList.add('landed');
         var landBtn = card.querySelector('.land-matter-btn');
         if (landBtn) { landBtn.textContent = 'Landed'; landBtn.disabled = true; }
@@ -602,9 +598,8 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
   /* ── build matter card ── */
   function buildCard(matter) {
-    var meta    = matter.metadata || {};
-    var landed  = !!meta.landed_at;
-    var ripe    = meta.ripe || 0;
+    var landed  = !!matter.landed_at;
+    var ripe    = matter.ripe || 0;
 
     var card = document.createElement('div');
     card.className = 'matter-card' + (landed ? ' landed' : '');
@@ -613,11 +608,11 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     var top = document.createElement('div');
     top.className = 'matter-top';
     var kindEl = document.createElement('span');
-    kindEl.className = 'matter-kind ' + (meta.kind || 'reflection');
-    kindEl.textContent = meta.kind || 'reflection';
+    kindEl.className = 'matter-kind ' + (matter.face ? 'reflection' : 'reflection');
+    kindEl.textContent = 'matter';
     var headEl = document.createElement('span');
     headEl.className = 'matter-heading';
-    headEl.textContent = meta.heading || matter.content || '';
+    headEl.textContent = matter.heading || matter.content || '';
     top.appendChild(kindEl);
     top.appendChild(headEl);
     card.appendChild(top);
@@ -632,11 +627,11 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       s.innerHTML = '<strong>' + label + ':</strong> ' + val;
       mf.appendChild(s);
     }
-    mfield('Awaits', meta.awaits);
-    mfield('Face', meta.face);
-    if (meta.cite) mfield('Cite', meta.cite);
-    if (meta.act)  mfield('Act', meta.act);
-    if (landed)    mfield('Landed by', meta.landed_by);
+    mfield('Awaits', matter.awaits);
+    mfield('Face', matter.face);
+    if (matter.cite) mfield('Cite', matter.cite);
+    if (matter.act)  mfield('Act', matter.act);
+    if (landed)      mfield('Landed by', matter.landed_by);
     card.appendChild(mf);
 
     /* ripe bar (only for open matters) */
@@ -664,7 +659,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
     var openedNote = document.createElement('span');
     openedNote.className = 'opened-note';
-    openedNote.textContent = 'opened ' + (meta.opened_at ? new Date(meta.opened_at).toLocaleDateString() : '');
+    openedNote.textContent = 'opened ' + (matter.opened_at ? new Date(matter.opened_at).toLocaleDateString() : '');
     actions.appendChild(openedNote);
 
     if (!landed) {
@@ -673,7 +668,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       lb.textContent = 'Land';
       lb.title = 'Land this matter — creates a public Clearing entry';
       lb.addEventListener('click', function () {
-        var face = meta.face || 'the named person';
+        var face = matter.face || 'the named person';
         if (!confirm('Land this matter as ' + (localStorage.getItem('daybook-author') || 'member') + '?\n\nThis creates a public Clearing entry and closes the matter. According to the architecture, only ' + face + ' should land this.')) return;
         lb.textContent = 'Landing…';
         lb.disabled = true;
@@ -694,12 +689,12 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     while (list.firstChild) list.removeChild(list.firstChild);
 
     var filtered = allMatters.filter(function (m) {
-      var landed = !!(m.metadata && m.metadata.landed_at);
+      var landed = !!m.landed_at;
       return currentTab === 'landed' ? landed : !landed;
     });
 
-    var openCount   = allMatters.filter(function(m){ return !(m.metadata && m.metadata.landed_at); }).length;
-    var landedCount = allMatters.filter(function(m){ return !!(m.metadata && m.metadata.landed_at); }).length;
+    var openCount   = allMatters.filter(function(m){ return !m.landed_at; }).length;
+    var landedCount = allMatters.filter(function(m){ return !!m.landed_at; }).length;
     document.getElementById('pageCount').textContent =
       openCount + ' open' + (landedCount ? ', ' + landedCount + ' landed' : '');
 
@@ -717,18 +712,13 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   if (!token) { show('screenNoToken'); return; }
   show('screenMain');
 
-  fetch(VAULT + '/notes?tag=daybook-matter&include_content=true&limit=200', {
-    headers: { 'Authorization': 'Bearer ' + token }
+  fetch(SB_REST + '/daybook_matters?order=opened_at.desc&limit=200', {
+    headers: sbHeaders(token)
   }).then(function (r) {
     if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
     return r.json();
   }).then(function (data) {
-    var notes = Array.isArray(data) ? data : (data.notes || []);
-    notes.sort(function (a, b) {
-      var ta = (a.metadata && a.metadata.opened_at) || a.createdAt || '';
-      var tb = (b.metadata && b.metadata.opened_at) || b.createdAt || '';
-      return tb.localeCompare(ta);
-    });
+    var notes = Array.isArray(data) ? data : [];
     allMatters = notes;
     document.getElementById('loadingMsg').style.display = 'none';
     renderList();

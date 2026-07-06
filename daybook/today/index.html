@@ -310,8 +310,16 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 (function () {
   'use strict';
 
-  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
-  var TOKEN_KEY = 'daybook-vault-token';
+  var SB_URL    = 'https://kxprevuqghixwspucfqo.supabase.co';
+  var SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  var SB_REST   = SB_URL + '/rest/v1';
+  var TOKEN_KEY = 'daybook-sb-token';
+
+  function sbHeaders(token) {
+    var h = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
 
   /* ── mode toggle ── */
   var root = document.documentElement;
@@ -437,10 +445,10 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     card(0, 'midnight', 9);
 
     /* settled (public) entries — solid fill petals */
-    entries.filter(function (e) { return e.metadata && e.metadata.visibility === 'public'; })
+    entries.filter(function (e) { return e.visibility === 'public'; })
       .forEach(function (e) {
-        var h   = hourOf(e.metadata.created_at);
-        var kind = e.metadata.kind || 'reflection';
+        var h   = hourOf(e.created_at);
+        var kind = e.kind || 'reflection';
         var off  = KIND_OFF[kind] || 0;
         var w    = 1; /* each entry has unit weight */
         var L    = 15 + w * 8, W = 4.5 + w * 2.2;
@@ -453,10 +461,10 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       });
 
     /* open (private) entries — outline + semi-fill at fixed ripe=0.30 */
-    entries.filter(function (e) { return !e.metadata || e.metadata.visibility !== 'public'; })
+    entries.filter(function (e) { return e.visibility !== 'public'; })
       .forEach(function (e) {
-        var h    = hourOf(e.metadata && e.metadata.created_at);
-        var kind = (e.metadata && e.metadata.kind) || 'reflection';
+        var h    = hourOf(e.created_at);
+        var kind = e.kind || 'reflection';
         var off  = KIND_OFF[kind] || 0;
         var ripe = 0.30;
         var ew   = 1 + ripe * 2.0;
@@ -475,12 +483,12 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       });
 
     /* open matters — outline petals, fill scaled to ripe score */
-    matters.filter(function (m) { return !m.metadata || !m.metadata.landed_at; })
+    matters.filter(function (m) { return !m.landed_at; })
       .forEach(function (m) {
-        var h    = hourOf(m.metadata && m.metadata.opened_at);
-        var kind = (m.metadata && m.metadata.kind) || 'reflection';
+        var h    = hourOf(m.opened_at);
+        var kind = m.kind || 'reflection';
         var off  = KIND_OFF[kind] || 0;
-        var ripe = ((m.metadata && m.metadata.ripe) || 0) / 100;
+        var ripe = (m.ripe || 0) / 100;
         var ew   = 1 + Math.max(ripe, 0.15) * 2.0;
         var L    = 15 + ew * 8, W = 4.5 + ew * 2.2;
         var col  = colorAt(h);
@@ -525,12 +533,12 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
     /* center text */
     var n  = entries.length;
-    var nm = matters.filter(function(m){ return !m.metadata || !m.metadata.landed_at; }).length;
+    var nm = matters.filter(function(m){ return !m.landed_at; }).length;
     var ct = mkEl('text', { class: 'c-time', x: cx, y: cy + 2, 'text-anchor': 'middle' });
     ct.textContent = n === 0 ? 'the day' : n === 1 ? '1 entry' : n + ' entries';
     svg.appendChild(ct);
     var cm = mkEl('text', { class: 'c-mer', x: cx, y: cy + 20, 'text-anchor': 'middle' });
-    var openEntries = entries.filter(function(e){ return e.metadata && e.metadata.visibility !== 'public'; }).length;
+    var openEntries = entries.filter(function(e){ return e.visibility !== 'public'; }).length;
     cm.textContent = (openEntries + nm) + ' open';
     svg.appendChild(cm);
   }
@@ -560,14 +568,13 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     var token  = localStorage.getItem(TOKEN_KEY) || '';
     var author = localStorage.getItem('daybook-author') || 'member';
     var now    = new Date().toISOString();
-    var updated = Object.assign({}, entry.metadata, { visibility: 'public', published_at: now, published_by: author });
 
-    return fetch(VAULT + '/notes/' + entry.path, {
+    return fetch(SB_REST + '/daybook_entries?path=eq.' + encodeURIComponent(entry.path), {
       method: 'PATCH',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ metadata: updated })
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify({ visibility: 'public', published_at: now, published_by: author })
     }).then(function (r) {
-      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || r.status); });
       card.classList.add('public');
       topEl.querySelector('.entry-vis').textContent  = 'public';
       topEl.querySelector('.entry-vis').classList.add('public');
@@ -584,10 +591,9 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
   /* ── entry cards ── */
   function buildCard(entry) {
-    var meta    = entry.metadata || {};
-    var kind    = meta.kind || 'reflection';
-    var isPublic = meta.visibility === 'public';
-    var time    = formatTime(meta.created_at || entry.createdAt);
+    var kind    = entry.kind || 'reflection';
+    var isPublic = entry.visibility === 'public';
+    var time    = formatTime(entry.created_at);
     var body    = entry.content || '';
 
     var card = document.createElement('div');
@@ -602,15 +608,15 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     card.appendChild(top);
 
     // supersedes notice
-    if (meta.supersedes) {
+    if (entry.supersedes) {
       var supEl = document.createElement('div');
       supEl.className = 'corrects-notice';
-      supEl.textContent = 'Corrects: ' + meta.supersedes;
+      supEl.textContent = 'Corrects: ' + entry.supersedes;
       card.appendChild(supEl);
     }
 
     // refs row (matter_ref)
-    if (meta.matter_ref) {
+    if (entry.matter_ref) {
       var refsEl = document.createElement('div');
       refsEl.className = 'entry-refs';
       var mr = document.createElement('span');
@@ -621,7 +627,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       var mrv = document.createElement('a');
       mrv.className = 'entry-ref-val';
       mrv.href = '/daybook/matters/';
-      mrv.textContent = meta.matter_ref.replace('daybook/matters/','');
+      mrv.textContent = entry.matter_ref.replace('daybook/matters/','');
       mr.appendChild(mrl);
       mr.appendChild(mrv);
       refsEl.appendChild(mr);
@@ -637,7 +643,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     var actions = document.createElement('div');
     actions.className = 'entry-actions';
 
-    var workRef = meta.work_ref || '';
+    var workRef = entry.work_ref || '';
     if (workRef) {
       var wr = document.createElement('span');
       wr.className = 'work-ref';
@@ -681,39 +687,32 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   var lastMatters = [];
 
   function fetchAll(token) {
-    var entriesP = fetch(VAULT + '/notes?tag=daybook-entry&include_content=true&limit=200', {
-      headers: { 'Authorization': 'Bearer ' + token }
+    var entriesP = fetch(SB_REST + '/daybook_entries?order=created_at.desc&limit=200', {
+      headers: sbHeaders(token)
     }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       return r.json();
     }).then(function (data) {
-      var notes = Array.isArray(data) ? data : (data.notes || []);
-      notes = notes.filter(function (n) {
-        return isToday(n.metadata && n.metadata.created_at ? n.metadata.created_at : n.createdAt);
-      });
-      notes.sort(function (a, b) {
-        var ta = (a.metadata && a.metadata.created_at) || a.createdAt || '';
-        var tb = (b.metadata && b.metadata.created_at) || b.createdAt || '';
-        return tb.localeCompare(ta);
-      });
+      var notes = Array.isArray(data) ? data : [];
+      notes = notes.filter(function (n) { return isToday(n.created_at); });
       return notes;
     });
 
-    var mattersP = fetch(VAULT + '/notes?tag=daybook-matter&include_content=false&limit=100', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    }).then(function (r) {
-      if (!r.ok) return [];
-      return r.json().then(function (data) { return Array.isArray(data) ? data : (data.notes || []); });
-    }).catch(function () { return []; });
+    var mattersP = token
+      ? fetch(SB_REST + '/daybook_matters?order=opened_at.desc&limit=100', {
+          headers: sbHeaders(token)
+        }).then(function (r) {
+          if (!r.ok) return [];
+          return r.json().then(function (data) { return Array.isArray(data) ? data : []; });
+        }).catch(function () { return []; })
+      : Promise.resolve([]);
 
     return Promise.all([entriesP, mattersP]);
   }
 
   /* ── init ── */
-  var READ_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Im5zdmg5M21aUXY1R0JuNm9laXB6RFh0X0hyUTN1TVpTdVJFZDRhY0Nwd28ifQ.eyJzY29wZSI6InZhdWx0OnRlY2huZTpyZWFkIiwiY2xpZW50X2lkIjoicGFyYWNodXRlLWh1YiIsInZhdWx0X3Njb3BlIjpbInRlY2huZSJdLCJzdWIiOiJ0b2Rkcy12YXVsdC1hY2Nlc3MiLCJpc3MiOiJodHRwczovL291ci5wYXJhY2h1dGUuY29tcHV0ZXIiLCJpYXQiOjE3ODMzNTM3NjYsImV4cCI6MTc5MTEyOTc2NiwiYXVkIjoidmF1bHQudGVjaG5lIiwianRpIjoiMHZNYjd4ZDNzWjNUYXFHalBkYVhhQSJ9.QoNhr4Zy8q-ldaH7PtnPuXA2C2EnTyycIfE4FzGXEKKCHuACMMxL2yia-e17gx0qs4hEI_s1Ry7jgt5KEvLklzSBL9jzQvrFAaR0vB7A6ndrW74IZy09Fle4gEC4648wkIchq2wnRY-I4tD1d-RhbTWyECFf36cyvfKsddQZyaRl42Kxj-OoiBfbopo9mFn2MPU-Bp0zzAsDF0wIHOa5Yh2-pRJK2tlEQW_UU4KzBydgF9j79uGUk6g3-GGV02E2K41llFTfNuORNk3zo54tCRU9MJb-GgBKVPyPcdG10fKZNa1HNGITuHs53JbnWd7UtkgsFys7TCX7gwSBBFd8tw';
   var userToken  = localStorage.getItem(TOKEN_KEY);
   var isObserver = !userToken;
-  var token      = userToken || READ_TOKEN;
 
   if (isObserver) {
     var banner = document.getElementById('observerBanner');
@@ -727,16 +726,9 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   document.getElementById('dayHeading').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-  fetchAll(token).then(function (results) {
-    var allEntries = results[0];
-    var matters    = results[1];
-    // observers see only public entries
-    var entries = isObserver
-      ? allEntries.filter(function (e) {
-          return (e.metadata && e.metadata.visibility === 'public') &&
-                 (e.metadata && e.metadata.published_at);
-        })
-      : allEntries;
+  fetchAll(userToken).then(function (results) {
+    var entries = results[0];
+    var matters = results[1];
 
     lastEntries = entries;
     lastMatters = isObserver ? [] : matters;

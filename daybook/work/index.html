@@ -245,18 +245,28 @@ a:hover { text-decoration: underline; }
 
   <!-- settings panel -->
   <div class="settings-panel" id="settingsPanel">
-    <div class="settings-title">Vault settings</div>
-    <div class="field">
-      <label class="field-label" for="tokenInput">Vault token</label>
-      <input class="field-input" type="password" id="tokenInput" placeholder="paste your daybook-vault-token">
+    <div class="settings-title">Sign in</div>
+    <div id="settingsSignedIn" style="display:none">
+      <div class="field">
+        <span class="field-label">Signed in as <span id="signedInAs"></span></span>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-cancel" id="signOutBtn">Sign out</button>
+      </div>
     </div>
-    <div class="field">
-      <label class="field-label" for="authorInput">Your name</label>
-      <input class="field-input" type="text" id="authorInput" placeholder="how you sign entries">
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-primary" id="saveSettings">Save</button>
-      <button class="btn btn-cancel" id="clearSettings">Clear session</button>
+    <div id="settingsSignInForm">
+      <div class="field">
+        <label class="field-label" for="emailInput">Email</label>
+        <input class="field-input" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label" for="passwordInput">Password</label>
+        <input class="field-input" type="password" id="passwordInput" placeholder="password" autocomplete="current-password">
+      </div>
+      <div id="settingsStatus" class="status"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="signInBtn">Sign in</button>
+      </div>
     </div>
   </div>
 
@@ -324,8 +334,17 @@ a:hover { text-decoration: underline; }
 (function () {
   'use strict';
 
-  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
-  var TOKEN_KEY = 'daybook-vault-token';
+  var SB_URL    = 'https://kxprevuqghixwspucfqo.supabase.co';
+  var SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  var SB_REST   = SB_URL + '/rest/v1';
+  var SB_AUTH   = SB_URL + '/auth/v1';
+  var TOKEN_KEY = 'daybook-sb-token';
+
+  function sbHeaders(token) {
+    var h = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
 
   var STAGES = ['captured','offered','held','standing','socialized','resolved','composted'];
   var STAGE_COLORS = {
@@ -382,23 +401,58 @@ a:hover { text-decoration: underline; }
 
   /* ── settings panel ── */
   var settingsPanel = document.getElementById('settingsPanel');
+
+  function updateSettingsPanel() {
+    var token  = localStorage.getItem(TOKEN_KEY);
+    var author = localStorage.getItem('daybook-author') || '';
+    var signedInDiv  = document.getElementById('settingsSignedIn');
+    var signInForm   = document.getElementById('settingsSignInForm');
+    if (token) {
+      signedInDiv.style.display = 'block';
+      signInForm.style.display  = 'none';
+      document.getElementById('signedInAs').textContent = author || 'member';
+    } else {
+      signedInDiv.style.display = 'none';
+      signInForm.style.display  = 'block';
+    }
+  }
+
   document.getElementById('settingsLink').addEventListener('click', function (e) {
     e.preventDefault();
     settingsPanel.classList.toggle('open');
-    if (settingsPanel.classList.contains('open')) {
-      document.getElementById('tokenInput').value = localStorage.getItem(TOKEN_KEY) || '';
-      document.getElementById('authorInput').value = localStorage.getItem('daybook-author') || '';
+    if (settingsPanel.classList.contains('open')) updateSettingsPanel();
+  });
+
+  document.getElementById('signInBtn').addEventListener('click', function () {
+    var email    = document.getElementById('emailInput').value.trim();
+    var password = document.getElementById('passwordInput').value;
+    var statusEl = document.getElementById('settingsStatus');
+    if (!email || !password) {
+      statusEl.textContent = 'Email and password required.';
+      statusEl.className = 'status error';
+      return;
     }
+    statusEl.textContent = 'Signing in…';
+    statusEl.className = 'status ok';
+    fetch(SB_AUTH + '/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    }).then(function (r) {
+      return r.json().then(function (d) { if (!r.ok) throw new Error(d.error_description || d.msg || r.status); return d; });
+    }).then(function (d) {
+      localStorage.setItem(TOKEN_KEY, d.access_token);
+      var name = (d.user && d.user.user_metadata && d.user.user_metadata.name) || (d.user && d.user.email ? d.user.email.split('@')[0] : 'member');
+      localStorage.setItem('daybook-author', name);
+      settingsPanel.classList.remove('open');
+      location.reload();
+    }).catch(function (e) {
+      statusEl.textContent = 'Sign-in failed: ' + e.message;
+      statusEl.className = 'status error';
+    });
   });
-  document.getElementById('saveSettings').addEventListener('click', function () {
-    var t = document.getElementById('tokenInput').value.trim();
-    var a = document.getElementById('authorInput').value.trim();
-    if (t) localStorage.setItem(TOKEN_KEY, t);
-    if (a) localStorage.setItem('daybook-author', a);
-    settingsPanel.classList.remove('open');
-    location.reload();
-  });
-  document.getElementById('clearSettings').addEventListener('click', function () {
+
+  document.getElementById('signOutBtn').addEventListener('click', function () {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('daybook-author');
     location.reload();
@@ -432,7 +486,7 @@ a:hover { text-decoration: underline; }
   /* ── create work item ── */
   document.getElementById('createBtn').addEventListener('click', function () {
     var token = localStorage.getItem(TOKEN_KEY);
-    if (!token) { setStatus('No vault token. Open settings to add one.', 'error'); return; }
+    if (!token) { setStatus('No session. Open settings to sign in.', 'error'); return; }
     var title = document.getElementById('wTitle').value.trim();
     var kind  = document.getElementById('wKind').value;
     var desc  = document.getElementById('wDesc').value.trim();
@@ -443,29 +497,25 @@ a:hover { text-decoration: underline; }
     var path = 'daybook/work/' + now.slice(0,10) + '-' + slug;
 
     var payload = {
-      path: path,
-      tags: ['work'],
-      metadata: {
-        kind: kind,
-        title: title,
-        stage: 'captured',
-        created_by: author,
-        created_at: now,
-        assignee: null,
-        resolved_at: null,
-        composted_at: null
-      },
-      content: desc || ''
+      path:        path,
+      kind:        kind,
+      title:       title,
+      stage:       'captured',
+      created_by:  author,
+      created_at:  now,
+      description: desc || '',
+      transitions: []
     };
 
-    fetch(VAULT + '/notes', {
+    fetch(SB_REST + '/daybook_work_items', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
       body: JSON.stringify(payload)
     }).then(function (r) {
       if (!r.ok) return r.json().then(function (d) { throw new Error(d.message || r.status); });
       return r.json();
-    }).then(function (note) {
+    }).then(function (result) {
+      var note = Array.isArray(result) ? result[0] : result;
       setStatus('Work item captured.', 'ok');
       document.getElementById('createForm').classList.remove('open');
       document.getElementById('wTitle').value = '';
@@ -480,27 +530,27 @@ a:hover { text-decoration: underline; }
   /* ── stage advance ── */
   function advanceStage(item, toStage) {
     var token = localStorage.getItem(TOKEN_KEY);
-    if (!token) { setStatus('No vault token.', 'error'); return; }
+    if (!token) { setStatus('No session.', 'error'); return; }
     var author = localStorage.getItem('daybook-author') || 'member';
     var now = new Date().toISOString();
-    var meta = Object.assign({}, item.metadata || {});
-    var fromStage = meta.stage || 'captured';
-    meta.stage = toStage;
-    if (toStage === 'held' && !meta.assignee) meta.assignee = author;
-    if (toStage === 'resolved') { meta.resolved_at = now; meta.resolved_by = author; }
-    if (toStage === 'composted') { meta.composted_at = now; meta.composted_by = author; }
-    // append transition record
+    var fromStage = item.stage || 'captured';
     var transition = { from: fromStage, to: toStage, by: author, at: now };
-    meta.transitions = (meta.transitions || []).concat([transition]);
+    var transitions = (item.transitions || []).concat([transition]);
 
-    fetch(VAULT + '/notes/' + encodeURIComponent(item.path), {
+    var patch = { stage: toStage, transitions: transitions };
+    if (toStage === 'held' && !item.assignee) patch.assignee = author;
+    if (toStage === 'resolved') { patch.resolved_at = now; patch.resolved_by = author; }
+    if (toStage === 'composted') { patch.composted_at = now; patch.composted_by = author; }
+
+    fetch(SB_REST + '/daybook_work_items?path=eq.' + encodeURIComponent(item.path), {
       method: 'PATCH',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ metadata: meta, force: true })
+      headers: Object.assign(sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify(patch)
     }).then(function (r) {
       if (!r.ok) return r.json().then(function (d) { throw new Error(d.message || r.status); });
       return r.json();
-    }).then(function (updated) {
+    }).then(function (result) {
+      var updated = Array.isArray(result) ? result[0] : result;
       setStatus('Moved to ' + toStage + '.', 'ok');
       var idx = allItems.findIndex(function (x) { return x.path === item.path; });
       if (idx > -1) allItems[idx] = updated;
@@ -512,8 +562,7 @@ a:hover { text-decoration: underline; }
 
   /* ── build card ── */
   function buildCard(item) {
-    var meta = item.metadata || {};
-    var stage = meta.stage || 'captured';
+    var stage = item.stage || 'captured';
     var col = STAGE_COLORS[stage] || '#888';
     var nexts = NEXT_STAGES[stage] || [];
 
@@ -526,12 +575,12 @@ a:hover { text-decoration: underline; }
 
     var titleEl = document.createElement('div');
     titleEl.className = 'item-title';
-    titleEl.textContent = meta.title || item.path;
+    titleEl.textContent = item.title || item.path;
     header.appendChild(titleEl);
 
     var kindEl = document.createElement('div');
     kindEl.className = 'item-kind';
-    kindEl.textContent = meta.kind || 'task';
+    kindEl.textContent = item.kind || 'task';
     header.appendChild(kindEl);
 
     var stageEl = document.createElement('div');
@@ -541,19 +590,20 @@ a:hover { text-decoration: underline; }
     header.appendChild(stageEl);
     card.appendChild(header);
 
-    if (item.content && item.content.trim()) {
+    var descText = item.description || item.content || '';
+    if (descText && descText.trim()) {
       var desc = document.createElement('div');
       desc.className = 'item-desc';
-      desc.innerHTML = typeof marked !== 'undefined' ? marked.parse(item.content) : item.content;
+      desc.innerHTML = typeof marked !== 'undefined' ? marked.parse(descText) : descText;
       card.appendChild(desc);
     }
 
     var metaEl = document.createElement('div');
     metaEl.className = 'item-meta';
     var parts = [];
-    if (meta.created_by) parts.push('by ' + meta.created_by);
-    if (meta.created_at) parts.push(new Date(meta.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
-    if (meta.assignee) parts.push('assignee: ' + meta.assignee);
+    if (item.created_by) parts.push('by ' + item.created_by);
+    if (item.created_at) parts.push(new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+    if (item.assignee) parts.push('assignee: ' + item.assignee);
     metaEl.textContent = parts.join(' · ');
     card.appendChild(metaEl);
 
@@ -578,7 +628,7 @@ a:hover { text-decoration: underline; }
     }
 
     // transition history
-    var transitions = meta.transitions || [];
+    var transitions = item.transitions || [];
     if (transitions.length > 0) {
       var histEl = document.createElement('div');
       histEl.className = 'transitions';
@@ -613,15 +663,8 @@ a:hover { text-decoration: underline; }
     wrap.innerHTML = '';
 
     var filtered = activeStage === 'all'
-      ? allItems.filter(function (i) { return !TERMINALS.includes(i.metadata && i.metadata.stage) || activeStage !== 'all'; })
-      : allItems.filter(function (i) { return (i.metadata && i.metadata.stage) === activeStage; });
-
-    // "all" tab hides terminal items by default unless specifically selected
-    if (activeStage === 'all') {
-      filtered = allItems.filter(function (i) {
-        return !TERMINALS.includes(i.metadata && i.metadata.stage);
-      });
-    }
+      ? allItems.filter(function (i) { return !TERMINALS.includes(i.stage); })
+      : allItems.filter(function (i) { return i.stage === activeStage; });
 
     document.getElementById('itemCount').textContent =
       filtered.length === 0 ? 'no items' :
@@ -640,23 +683,19 @@ a:hover { text-decoration: underline; }
 
   /* ── fetch items ── */
   function fetchItems(token) {
-    return fetch(VAULT + '/notes?tag=work&include_content=true&limit=200', {
-      headers: { 'Authorization': 'Bearer ' + token }
+    return fetch(SB_REST + '/daybook_work_items?order=created_at.desc&limit=200', {
+      headers: sbHeaders(token)
     }).then(function (r) {
       if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
       return r.json();
     }).then(function (data) {
-      return Array.isArray(data) ? data : (data.notes || []);
+      return Array.isArray(data) ? data : [];
     });
   }
-
-  /* ── read token (observer fallback) ── */
-  var READ_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Im5zdmg5M21aUXY1R0JuNm9laXB6RFh0X0hyUTN1TVpTdVJFZDRhY0Nwd28ifQ.eyJzY29wZSI6InZhdWx0OnRlY2huZTpyZWFkIiwiY2xpZW50X2lkIjoicGFyYWNodXRlLWh1YiIsInZhdWx0X3Njb3BlIjpbInRlY2huZSJdLCJzdWIiOiJ0b2Rkcy12YXVsdC1hY2Nlc3MiLCJpc3MiOiJodHRwczovL291ci5wYXJhY2h1dGUuY29tcHV0ZXIiLCJpYXQiOjE3ODMzNTM3NjYsImV4cCI6MTc5MTEyOTc2NiwiYXVkIjoidmF1bHQudGVjaG5lIiwianRpIjoiMHZNYjd4ZDNzWjNUYXFHalBkYVhhQSJ9.QoNhr4Zy8q-ldaH7PtnPuXA2C2EnTyycIfE4FzGXEKKCHuACMMxL2yia-e17gx0qs4hEI_s1Ry7jgt5KEvLklzSBL9jzQvrFAaR0vB7A6ndrW74IZy09Fle4gEC4648wkIchq2wnRY-I4tD1d-RhbTWyECFf36cyvfKsddQZyaRl42Kxj-OoiBfbopo9mFn2MPU-Bp0zzAsDF0wIHOa5Yh2-pRJK2tlEQW_UU4KzBydgF9j79uGUk6g3-GGV02E2K41llFTfNuORNk3zo54tCRU9MJb-GgBKVPyPcdG10fKZNa1HNGITuHs53JbnWd7UtkgsFys7TCX7gwSBBFd8tw';
 
   /* ── init ── */
   var userToken = localStorage.getItem(TOKEN_KEY);
   isObserver = !userToken;
-  var token = userToken || READ_TOKEN;
 
   if (isObserver) {
     document.getElementById('observerNotice').style.display = 'block';
@@ -665,16 +704,16 @@ a:hover { text-decoration: underline; }
     document.getElementById('createToggle').style.display = '';
   }
 
-  fetchItems(token).then(function (items) {
+  fetchItems(userToken).then(function (items) {
     // sort: active first (by stage order), then by created_at desc within stage
     var stageOrder = {};
     STAGES.forEach(function (s, i) { stageOrder[s] = i; });
     items.sort(function (a, b) {
-      var sa = (a.metadata && a.metadata.stage) || 'captured';
-      var sb = (b.metadata && b.metadata.stage) || 'captured';
+      var sa = a.stage || 'captured';
+      var sb = b.stage || 'captured';
       if (sa !== sb) return (stageOrder[sa] || 0) - (stageOrder[sb] || 0);
-      var ta = (a.metadata && a.metadata.created_at) || a.createdAt || '';
-      var tb = (b.metadata && b.metadata.created_at) || b.createdAt || '';
+      var ta = a.created_at || '';
+      var tb = b.created_at || '';
       return tb.localeCompare(ta);
     });
     allItems = items;

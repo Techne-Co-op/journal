@@ -504,27 +504,27 @@ footer {
   <!-- ── Setup ── -->
   <div class="screen" id="screenSetup">
     <div class="page-head">
-      <div class="kicker">Daybook · first time</div>
-      <h1>Connect your vault</h1>
-      <p>The Daybook stores your entries privately in the Techne vault. Entries begin private — visible only to you — until you choose to land them.</p>
+      <div class="kicker">Daybook · sign in</div>
+      <h1>Sign in to write</h1>
+      <p>The Daybook stores your entries privately. Entries begin private — visible only to members — until you choose to land them.</p>
     </div>
 
-    <div class="note">Your token is stored in this browser's localStorage only. It is sent only to our.parachute.computer to authenticate your requests.</div>
+    <div class="note">Your session token is stored in this browser's localStorage only.</div>
 
     <div id="setupStatus" class="status"></div>
 
     <div class="field">
-      <label class="field-label" for="tokenInput">Vault token</label>
-      <input class="field-input" type="password" id="tokenInput" placeholder="eyJhbGci…" autocomplete="off" spellcheck="false">
+      <label class="field-label" for="emailInput">Email</label>
+      <input class="field-input" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
     </div>
 
     <div class="field">
-      <label class="field-label" for="authorInput">Your name</label>
-      <input class="field-input" type="text" id="authorInput" placeholder="e.g. Todd Youngblood" autocomplete="name">
+      <label class="field-label" for="passwordInput">Password</label>
+      <input class="field-input" type="password" id="passwordInput" placeholder="password" autocomplete="current-password">
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" id="setupBtn">Connect</button>
+      <button class="btn btn-primary" id="setupBtn">Sign in</button>
     </div>
   </div>
 
@@ -597,7 +597,7 @@ footer {
     </div>
 
     <div class="settings-note">
-      <a href="#" id="settingsLink">change token or name</a>
+      <a href="#" id="settingsLink">sign out / switch account</a>
     </div>
   </div>
 
@@ -629,9 +629,18 @@ footer {
 (function () {
   'use strict';
 
-  const VAULT      = 'https://our.parachute.computer/vault/techne/api';
-  const TOKEN_KEY  = 'daybook-vault-token';
+  const SB_URL     = 'https://kxprevuqghixwspucfqo.supabase.co';
+  const SB_ANON    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  const SB_REST    = SB_URL + '/rest/v1';
+  const SB_AUTH    = SB_URL + '/auth/v1';
+  const TOKEN_KEY  = 'daybook-sb-token';
   const AUTHOR_KEY = 'daybook-author';
+
+  function sbHeaders(token) {
+    const h = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
 
   /* ── mode toggle ── */
   const root = document.documentElement;
@@ -707,8 +716,8 @@ footer {
 
   async function verifyToken(token) {
     try {
-      const r = await fetch(`${VAULT}/notes?limit=1`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const r = await fetch(`${SB_AUTH}/user`, {
+        headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${token}` }
       });
       return r.ok;
     } catch { return false; }
@@ -720,20 +729,19 @@ footer {
 
     /* work items */
     try {
-      const r = await fetch(`${VAULT}/notes?tag=work&include_content=false&limit=100`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const r = await fetch(`${SB_REST}/daybook_work_items?order=created_at.desc&limit=100`, {
+        headers: sbHeaders(token)
       });
       if (r.ok) {
-        const data = await r.json();
-        const items = Array.isArray(data) ? data : (data.notes || []);
+        const items = await r.json();
         const sel = document.getElementById('workRefSelect');
-        items
-          .filter(n => n.metadata?.status !== 'resolved')
-          .sort((a, b) => (a.metadata?.title || '').localeCompare(b.metadata?.title || ''))
+        (Array.isArray(items) ? items : [])
+          .filter(n => n.stage !== 'resolved' && n.stage !== 'composted')
+          .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
           .forEach(n => {
             const opt = document.createElement('option');
             opt.value = n.path;
-            opt.textContent = n.metadata?.title || n.path;
+            opt.textContent = n.title || n.path;
             sel.appendChild(opt);
           });
       }
@@ -741,20 +749,18 @@ footer {
 
     /* open matters */
     try {
-      const r = await fetch(`${VAULT}/notes?tag=daybook-matter&include_content=false&limit=100`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const r = await fetch(`${SB_REST}/daybook_matters?order=opened_at.desc&limit=100`, {
+        headers: sbHeaders(token)
       });
       if (r.ok) {
-        const data = await r.json();
-        const notes = Array.isArray(data) ? data : (data.notes || []);
+        const notes = await r.json();
         const sel = document.getElementById('matterRefSelect');
-        notes
-          .filter(n => !n.metadata?.landed_at)
-          .sort((a, b) => (b.metadata?.opened_at || '').localeCompare(a.metadata?.opened_at || ''))
+        (Array.isArray(notes) ? notes : [])
+          .filter(n => !n.landed_at)
           .forEach(n => {
             const opt = document.createElement('option');
             opt.value = n.path;
-            opt.textContent = n.metadata?.heading || n.path;
+            opt.textContent = n.heading || n.path;
             sel.appendChild(opt);
           });
       }
@@ -770,33 +776,39 @@ footer {
     field.style.paddingLeft = selectedKind === 'clearing' ? '10px' : '';
   }
 
-  /* ── setup ── */
+  /* ── setup (sign in) ── */
   document.getElementById('setupBtn').addEventListener('click', async () => {
-    const token  = document.getElementById('tokenInput').value.trim();
-    const author = document.getElementById('authorInput').value.trim();
-    if (!token) { setStatus('setupStatus', 'Paste your vault token.', 'error'); return; }
+    const email    = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    if (!email || !password) { setStatus('setupStatus', 'Email and password required.', 'error'); return; }
 
     const btn = document.getElementById('setupBtn');
-    btn.textContent = 'Checking…';
+    btn.textContent = 'Signing in…';
     btn.disabled = true;
 
-    const ok = await verifyToken(token);
-    if (!ok) {
-      setStatus('setupStatus', 'Token did not authenticate. Check the value and try again.', 'error');
-      btn.textContent = 'Connect';
+    try {
+      const r = await fetch(`${SB_AUTH}/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error_description || d.msg || r.status);
+      const name = (d.user?.user_metadata?.name) || (d.user?.email ? d.user.email.split('@')[0] : 'member');
+      localStorage.setItem(TOKEN_KEY, d.access_token);
+      localStorage.setItem(AUTHOR_KEY, name);
+      enterCompose();
+    } catch (e) {
+      setStatus('setupStatus', 'Sign-in failed: ' + e.message, 'error');
+      btn.textContent = 'Sign in';
       btn.disabled = false;
-      return;
     }
-
-    localStorage.setItem(TOKEN_KEY, token);
-    if (author) localStorage.setItem(AUTHOR_KEY, author);
-    enterCompose();
   });
 
   document.getElementById('settingsLink').addEventListener('click', e => {
     e.preventDefault();
-    document.getElementById('tokenInput').value = getToken();
-    document.getElementById('authorInput').value = getAuthor();
+    document.getElementById('emailInput').value = '';
+    document.getElementById('passwordInput').value = '';
     setStatus('setupStatus', '', '');
     show('screenSetup');
   });
@@ -829,31 +841,25 @@ footer {
     setStatus('composeStatus', '', '');
 
     try {
-      const res = await fetch(`${VAULT}/notes`, {
+      const res = await fetch(`${SB_REST}/daybook_entries`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { ...sbHeaders(token), 'Prefer': 'return=representation' },
         body: JSON.stringify({
           path,
-          content: body,
-          tags: ['daybook-entry'],
-          metadata: {
-            kind: selectedKind,
-            visibility: 'private',
-            author,
-            created_at: ts.toISOString(),
-            ...(workRef    ? { work_ref:   workRef    } : {}),
-            ...(matterRef  ? { matter_ref: matterRef  } : {}),
-            ...(supersedes ? { supersedes: supersedes } : {})
-          }
+          kind:       selectedKind,
+          visibility: 'private',
+          author,
+          created_at: ts.toISOString(),
+          content:    body,
+          ...(workRef    ? { work_ref:   workRef    } : {}),
+          ...(matterRef  ? { matter_ref: matterRef  } : {}),
+          ...(supersedes ? { supersedes: supersedes } : {})
         })
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `${res.status}`);
+        throw new Error(err.message || err.error || `${res.status}`);
       }
 
       show('screenSuccess');
