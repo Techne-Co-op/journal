@@ -1,67 +1,103 @@
 # journal
 
-**The CIS journal module. Book of original entry for cooperative event capture and work coordination.**
+The journal of [Techne](https://techne.coop) — book of original entry for [RegenHub, LCA](https://techne.coop/legal/), a Colorado Limited Cooperative Association in Boulder.
 
-A module of the [Common Information System (CIS)](https://techne-co-op.github.io/commons/) — the cooperative accounting infrastructure of [RegenHub, LCA](https://techne-co-op.github.io/journal/), a Colorado Limited Cooperative Association built on REA (Resource-Event-Agent) accounting.
-
-In accounting, a journal is the book of original entry: where events are first recorded before they post to accounts. This module is that layer. Members capture contributions, reflections, exchanges, and clearings here. Common Work coordinates which events are ready. Both feed into the CIS's REA engine, which posts events to member capital accounts under Subchapter K patronage accounting rules.
+Live at **[journal.techne.coop](https://journal.techne.coop)**
 
 ---
 
-## The tools
+## What this is
 
-### Daybook
+In accounting, a journal is the book of original entry: where events are first written down before they post to the ledger. This is that layer for the cooperative. Members record contributions, reflections, exchanges, and clearings here. Work moves through a shared board. And the encyclopedia holds what the cooperative has made.
 
-A member's personal record of the day. Every entry begins private — a contribution, reflection, exchange, or clearing written by the member alone. Content stays private until the member chooses to land it, at which point it enters the cooperative's shared record. Nothing becomes public without a person deciding to put it there.
-
-The Daybook renders the cooperative's activity as a **bloom**: a clock face where each petal sits at the hour it was made public, in the color of its kind. The bloom shows *when* and *how often* — never *what*. Solid petals are public entries; outline petals are open matters still waiting to land.
-
-Entry kinds:
-- **Reflection** — witness and perception; open to observers
-- **Contribution** — labor, skill, or resource given; the primary input for patronage accounting
-- **Exchange** — goods or services traded between members or with the outside world
-- **Clearing** — settlement of a debt, credit, or obligation; closes open matters
-
-### Common Work
-
-The cooperative's shared view of what everyone is working on. Work items move through a defined lifecycle — captured, offered, held, standing, socialized, resolved — with each stage requiring specific actors and conditions. The arc from captured to resolved mirrors the sunset sweep: warm at first notice, cooling toward settlement.
-
-Nothing resolves without a named human performing that action. Agents prepare; people land.
+The journal is the cooperative's workshop — door open, work in progress visible on the benches. What you see is real and wearing its stage.
 
 ---
 
-## How they connect
+## Three surfaces
 
-The Daybook and Common Work share no tables but reference each other by ID. A **Contribution** entry links a member's action to a work item. A **Clearing** entry closes a matter or resolves a work item. Together they produce the audit trail the CIS needs to post events to member capital accounts.
+### Common Work — the shared board
 
-This module sits between member action and cooperative accounting: what you did becomes legible to the cooperative at the moment you choose, in the form the REA engine can process.
+Work moves through six stages: captured → offered → held → standing → socialized → resolved. Each stage is a plain word with a plain meaning. Nothing resolves without a named member performing that act.
+
+Path: `/common-work/`
+
+### The Daybook — each member's record
+
+Where members write. Four kinds of entry: reflection, contribution, exchange, clearing. Private by default. The member chooses what lands — what becomes part of the shared record. The cooperative sees only rhythm (that you wrote, when, how often) until you share something deliberately.
+
+The bloom visualization renders the day's activity as a clock face. Petals at the hour they were made public, in the color of that hour on the sunset spectrum.
+
+Path: `/daybook/`
+
+### The Encyclopedia — the artifact register
+
+The cooperative's named things: policies, practices, roles, agreements, works — organized into nine shelves by kind. Each entry carries its status, tier of visibility, and who tends it.
+
+Where Daybook and Common Work are flow, the Encyclopedia is stock. A live view of what the cooperative has made and what it governs. Data fetched from the Parachute vault at page load. D3 force graph + hierarchy navigation. Three visibility tiers (public / participant / member) simulated client-side.
+
+Path: `/encyclopedia/`  
+Live vault: `https://our.parachute.computer/vault/techne/`  
+Tags: `encyclopedia-entry` (18 entries), `encyclopedia-shelf` (9 shelves)
 
 ---
 
-## Relation to CIS
+## The one rule
 
-The CIS is the full system — REA schema, roles, capital accounts, grant reporting, governance. This repo is one module within it: the event capture and work coordination layer. The CIS general ledger is the authoritative record; the journal is where entries originate.
-
-See the [CIS documentation](https://techne-co-op.github.io/commons/) for the full architecture, build roadmap, and implementation plan.
+**Machines prepare; people land.** Nothing enters the official record — no stage advances, no decision settles, no page publishes — without a named member choosing it. The system is built to refuse otherwise. This is structure, not etiquette.
 
 ---
 
-## What's in this repo
+## How work becomes patronage
+
+Each Daybook entry links to a work item. Each work item belongs to a program. Each program accumulates a patronage record. Surplus and standing follow that record, by rules set before the work began.
+
+The stack: your entry → work item → program → patronage record → allocation.
+
+---
+
+## Two addresses
+
+| Address | What it is |
+|---|---|
+| `journal.techne.coop` | The workshop. Work in the open, wearing its stage. |
+| `techne.coop` | The cooperative's voice. Finished, ratified, signed by a named member. |
+
+A page crosses from the journal to the cooperative's voice through the same landing rule — a named member's act, not an automatic promotion.
+
+---
+
+## Repository contents
 
 | Path | Contents |
 |---|---|
-| `/` | Landing page — introduction for first-time visitors |
-| `/architecture/` | Pre-implementation specification: schema, state machines, logic, invariants |
-| `/design-system/` | Design System v4 — canonical tokens, components, and site application protocol |
-| `/daybook/` | Daybook interface and bloom visualization |
-| `/common-work/` | Common Work interface |
-
-Live site: [techne-co-op.github.io/journal](https://techne-co-op.github.io/journal/)
+| `/` | Landing page — introduction to all three surfaces |
+| `/common-work/` | Common Work interface — six-stage coordination board |
+| `/daybook/` | Daybook interface, bloom visualization, full module spec |
+| `/daybook/onboarding/` | Six-step guided introduction for new members |
+| `/daybook/two-layers/` | Settled and ripening — the two-layer bloom |
+| `/encyclopedia/` | Encyclopedia of Artifacts — live vault view |
+| `/architecture/` | Pre-implementation spec: schema, state machines, logic, invariants |
+| `/design-system/` | Design System v4 — tokens, components, site application protocol |
 
 ---
 
-## Built by
+## Technology
 
-[Techne Studio](https://techne-co-op.github.io/journal/) — the design and engineering practice of RegenHub, LCA. Boulder, Colorado.
+- Static HTML/CSS/JS — no build step, served as GitHub Pages
+- D3.js for bloom visualization (daybook) and force graph (encyclopedia)
+- Parachute vault REST API for encyclopedia data (`our.parachute.computer/vault/techne/api/`)
+- Magic link auth (planned for contribution and clearing entry kinds)
+- Techne Design System v4: Libre Baskerville + IBM Plex Mono, sunrise color spectrum
 
-Part of the Common Information System · [CIS documentation](https://techne-co-op.github.io/commons/) · [Architecture spec](https://techne-co-op.github.io/journal/architecture/)
+---
+
+## Status
+
+Open-draft for founding members. Launch August 14. Not yet ratified policy.
+
+The cooperative's practice is the elder — where our actual work diverges from what these pages say, we amend the pages to follow.
+
+---
+
+Built by [Techne Studio](https://techne.coop) · RegenHub, LCA · Boulder, Colorado

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Common Work and Daybook — tools for a worker cooperative to see what everyone is working on, and to record each person's contribution to the shared ledger. Built by RegenHub, LCA in Boulder, Colorado.">
-<title>Common Work · Daybook · Tools for cooperative work</title>
+<meta name="description" content="The journal of Techne — book of original entry for the cooperative. Daybook, Common Work, and the Encyclopedia of Artifacts. Built by RegenHub, LCA in Boulder, Colorado.">
+<title>The Journal &middot; Techne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -84,8 +84,9 @@
   .rule-block .rb-body{font:400 15px/1.68 var(--serif);color:var(--text);max-width:60ch}
   .rule-block .rb-body em{color:var(--heading)}
 
-  .tools{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s5)}
-  @media(max-width:660px){.tools{grid-template-columns:1fr}}
+  .tools{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);margin-top:var(--s5)}
+  @media(max-width:760px){.tools{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.tools{grid-template-columns:1fr}}
   .tool{background:var(--surface);border:1px solid var(--line);padding:var(--s5)}
   .tool-tag{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
     color:var(--faint);margin-bottom:var(--s3)}
@@ -185,12 +186,12 @@
 
   <header class="hero">
     <div class="origin"><span class="tk"></span>RegenHub, LCA &middot; Boulder, Colorado &middot; Techne</div>
-    <h1>Shared work,<br>made <em>legible</em>.</h1>
-    <p class="lede">Two tools for a worker-owned cooperative &mdash; one to see <em>what everyone is working on</em>, one to record <em>each member&rsquo;s contribution</em> to the shared books. Both built around a single, stubborn rule: nothing enters the official record without a person deciding to put it there.</p>
+    <h1>The journal:<br>where work <em>first lands</em>.</h1>
+    <p class="lede">The book of original entry for Techne &mdash; a cooperative of craft, art, and technology. The workshop with its door open: Common Work, the Daybook, and the Encyclopedia. What you see here is real and in motion, wearing its stage.</p>
     <div class="chips">
-      <span class="chip proto">Concept prototype</span>
-      <span class="chip">June 2026</span>
-      <span class="chip">Not yet in production</span>
+      <span class="chip proto">The workshop &middot; journal.techne.coop</span>
+      <span class="chip">July 2026</span>
+      <span class="chip">Launch August 14</span>
     </div>
   </header>
 
@@ -200,16 +201,16 @@
     <div class="rule-block">
       <div class="rb-label">The human landing rule</div>
       <div class="rb-rule">Agents prepare. People land.</div>
-      <div class="rb-body">Software can track, suggest, ripen, and signal &mdash; but it cannot write anything authoritative on anyone&rsquo;s behalf. Every contribution, transaction, and settlement that enters the cooperative&rsquo;s record does so because a <em>named member decided</em> to put it there, at a specific moment in time. The act of landing is always human.</div>
+      <div class="rb-body">Software can draft, sort, suggest, and signal &mdash; but it cannot write anything authoritative on anyone&rsquo;s behalf. Nothing enters the official record &mdash; no stage advances, no decision settles, no page publishes &mdash; without a <em>named member choosing it</em>. The system is built to refuse otherwise. This is structure, not etiquette.</div>
     </div>
-    <p>This is not a policy promise &mdash; it is structural. The tool has no path from &ldquo;ready&rdquo; to &ldquo;recorded&rdquo; that doesn&rsquo;t go through a person. If you didn&rsquo;t land it, it didn&rsquo;t happen.</p>
+    <p>A record that allocates ownership and voice must be made of human decisions, or it allocates to no one. An assistant&rsquo;s draft is a draft; it becomes part of us only when one of us puts a name on it.</p>
   </section>
 
 
   <section class="sec">
-    <div class="sec-label">The two tools</div>
-    <h2>Two surfaces, one arc</h2>
-    <p>A cooperative has two things it needs to track: the work it is doing together, and the activity that goes into the shared books. These are related but different. Common Work handles the first. The Daybook handles the second.</p>
+    <div class="sec-label">Three surfaces</div>
+    <h2>Three surfaces, one journal</h2>
+    <p>The journal has three surfaces. <em>Common Work</em> tracks the work the cooperative does together. <em>The Daybook</em> is where members write their own record — contributions, reflections, exchanges, clearings — and choose what lands. <em>The Encyclopedia</em> is the stock view: the cooperative&rsquo;s named things, organized and tended. All three feed the same logbook.</p>
 
     <div class="tools">
 
@@ -261,6 +262,14 @@
           <svg id="bloom-static" viewBox="0 0 240 240" role="img" aria-label="a simplified daybook bloom showing petals at different hours in sunset colors"></svg>
         </div>
         <a class="tlink" href="./daybook/">Open The Daybook <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+
+      <div class="tool">
+        <div class="tool-tag">Artifact register</div>
+        <h3>The Encyclopedia</h3>
+        <p>The cooperative&rsquo;s named things &mdash; policies, practices, roles, agreements, and works &mdash; organized into nine shelves by kind. Each entry carries its status, its tier of visibility, and a record of who tends it.</p>
+        <p>Where the Daybook and Common Work are <em>flow</em>, the Encyclopedia is <em>stock</em>: a live view of what the cooperative has made and what it governs. Entries arrive by accession &mdash; a named act by a named member, not an automatic post.</p>
+        <a class="tlink" href="./encyclopedia/">Open the Encyclopedia <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
 
     </div>
@@ -338,7 +347,7 @@
   <section class="sec">
     <div class="sec-label">All concept artifacts</div>
     <h2>Explore the full set</h2>
-    <p>Six documents, in order from most interactive to most technical. The design system and architecture spec are the ground layers — everything else builds on them.</p>
+    <p>Seven artifacts, from live surfaces to technical specs. The encyclopedia is live vault data. The design system and architecture spec are the ground layers &mdash; everything else builds on them.</p>
 
     <div class="artifacts">
       <a class="art" href="./daybook/onboarding/">
@@ -371,6 +380,11 @@
         <h4>Design System v4</h4>
         <p>The canonical visual reference: tokens, type scale, rules vocabulary, document and instrument grammars, data visualization with sunset, accessibility requirements, and the site application protocol.</p>
       </a>
+      <a class="art" href="./encyclopedia/">
+        <div class="art-tag">Live register &middot; Encyclopedia</div>
+        <h4>Encyclopedia of Artifacts</h4>
+        <p>The cooperative&rsquo;s named things in nine shelves, live from the Parachute vault. D3 force graph and hierarchy navigation. Three simulated visibility tiers: public, participant, member.</p>
+      </a>
     </div>
   </section>
 
@@ -385,18 +399,18 @@
     <div>
       <div class="ab-label">Built by Techne</div>
       <h3>The studio behind the tools</h3>
-      <p>Techne is the studio brand of RegenHub, LCA. These tools are prototypes &mdash; concepts in development, not yet in production. They represent an approach, not a finished system.</p>
+      <p>Techne is the studio brand of RegenHub, LCA. These tools are live drafts &mdash; open to founding members, wearing their stage, not yet ratified. Work that finishes crossing to <a href="https://techne.coop">techne.coop</a> is the cooperative&rsquo;s signed voice; what you see here is the workshop.</p>
       <p>The design system (Libre Baskerville, IBM Plex Mono, the sunrise color spectrum) is Techne v4. The guiding principle: legibility is a product, not a byproduct. If you can&rsquo;t see it, you can&rsquo;t govern it.</p>
       <p><a href="./design-system/">Design System v4 reference &rarr;</a> &ensp; <a href="./architecture/">Architecture spec &rarr;</a></p>
-      <p><a href="https://techne.institute/legal/">Legal documents &rarr;</a> &ensp; <a href="https://techne.institute/">techne.institute &rarr;</a></p>
+      <p><a href="https://techne.coop/legal/">Legal documents &rarr;</a> &ensp; <a href="https://techne.coop/">techne.coop &rarr;</a></p>
     </div>
   </div>
 
   <div class="foot">
-    <b>Common Work &middot; Daybook &middot; concept prototypes &middot; June 2026</b><br>
+    <b>Common Work &middot; Daybook &middot; Encyclopedia &middot; July 2026</b><br>
     RegenHub, LCA, operating as Techne &middot; Colorado Public Benefit Limited Cooperative Association &middot; Boulder, CO.<br>
-    Not adopted policy. Not yet in production. Grounds in the Common Information System PRD v0.2 and Techne Design System v4.<br>
-    <a href="./design-system/">Design System v4</a> &ensp;&middot;&ensp; <a href="./architecture/">Architecture</a> &ensp;&middot;&ensp; <a href="./common-work/">Common Work</a> &ensp;&middot;&ensp; <a href="./daybook/">Daybook spec</a>
+    Open-draft. Not adopted policy. Launch August 14. Built on Techne Design System v4.<br>
+    <a href="./design-system/">Design System v4</a> &ensp;&middot;&ensp; <a href="./architecture/">Architecture</a> &ensp;&middot;&ensp; <a href="./common-work/">Common Work</a> &ensp;&middot;&ensp; <a href="./daybook/">Daybook</a> &ensp;&middot;&ensp; <a href="./encyclopedia/">Encyclopedia</a>
   </div>
 
 </div>
