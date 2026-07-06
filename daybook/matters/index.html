@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Daybook matters — open questions awaiting a human decision.">
+<title>Daybook · matters · Techne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<style>
+:root {
+  --serif: "Libre Baskerville", Georgia, serif;
+  --mono:  "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:.4s; --micro:.15s; --ease:cubic-bezier(.4,0,.2,1);
+  --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A;
+  --sun-rose:#B45C7C; --sun-violet:#6E5494;
+}
+html[data-mode="dark"] {
+  --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+  --line:#2A2A30; --rule:#3A3A42;
+  --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+  --blue:#6A8AC4; --blue-t:#97B5E8; --ember:#C4956A; --ember-t:#D4A57A;
+  --ok:#6A9A6A; --warn:#C46A6A;
+  --k-ref:#EAB668; --k-con:#E09A52; --k-exc:#D1755A; --k-cle:#6A9A6A;
+}
+html[data-mode="light"] {
+  --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+  --line:#D8D3C8; --rule:#9A958A;
+  --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+  --blue:#4A6FB0; --blue-t:#39588F; --ember:#8A6A4A; --ember-t:#6F5436;
+  --ok:#4A7A4A; --warn:#A84F4C;
+  --k-ref:#87621F; --k-con:#8C581D; --k-exc:#9C4636; --k-cle:#4A7A4A;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark light; }
+body {
+  background: var(--bg); color: var(--text);
+  font: 400 17px/1.72 var(--serif); min-height: 100vh;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+a { color: var(--blue-t); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+/* topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--s5); height: 52px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: var(--bg); z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: var(--s3); }
+.brand { font: 500 12px/1 var(--mono); color: var(--heading); text-decoration: none; }
+.brand:hover { color: var(--ember-t); text-decoration: none; }
+.sep { font: 400 12px/1 var(--mono); color: var(--faint); }
+.topbar-sub { font: 400 12px/1 var(--mono); color: var(--muted); }
+.topbar-right { display: flex; align-items: center; gap: var(--s3); }
+.nav-link { font: 500 11px/1 var(--mono); color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 2px; }
+.nav-link:hover { color: var(--heading); text-decoration: none; }
+.mode-btn {
+  font: 500 11px/1 var(--mono); color: var(--muted); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 7px 14px; cursor: pointer;
+}
+.mode-btn:hover { background: var(--raised); color: var(--heading); }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
+
+/* screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* no-token */
+.no-token-wrap { text-align: center; padding: var(--s8) 0; }
+.no-token-wrap h2 { font: 700 24px/1.1 var(--serif); color: var(--heading); margin-bottom: var(--s4); }
+.no-token-wrap p { font: 400 15px/1.72 var(--serif); color: var(--text); max-width: 44ch; margin: 0 auto var(--s5); }
+.cta-link {
+  display: inline-block; font: 600 12px/1 var(--mono); color: var(--ember-t);
+  border: 1px solid var(--ember); border-radius: 2px; padding: 12px 22px;
+  text-decoration: none; text-transform: uppercase; letter-spacing: .06em;
+}
+.cta-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
+
+/* page head */
+.page-head { padding-bottom: var(--s5); margin-bottom: var(--s5); border-bottom: 1px solid var(--rule); }
+.kicker { font: 500 11px/1.6 var(--mono); color: var(--ember-t); text-transform: uppercase; letter-spacing: .14em; margin-bottom: var(--s3); }
+.page-head h1 { font: 700 30px/1.1 var(--serif); color: var(--heading); letter-spacing: -.012em; margin-bottom: var(--s3); }
+.page-meta { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.page-count { font: 400 12px/1 var(--mono); color: var(--muted); }
+
+/* status */
+.status {
+  display: none; font: 400 13px/1.5 var(--mono); padding: var(--s3) var(--s4);
+  border-radius: 2px; margin-bottom: var(--s4); border: 1px solid transparent;
+}
+.status.error { display: block; color: var(--warn); background: #2a1010; border-color: #5a2020; }
+.status.ok    { display: block; color: var(--ok);   background: #101a10; border-color: #204020; }
+
+/* open matter button */
+.open-matter-btn {
+  font: 600 11px/1 var(--mono); color: var(--ember-t);
+  border: 1px solid var(--ember); border-radius: 2px;
+  padding: 7px 14px; background: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .06em;
+  transition: background var(--micro), color var(--micro);
+}
+.open-matter-btn:hover { background: var(--ember); color: var(--bg); }
+
+/* tabs: open / landed */
+.tab-bar {
+  display: flex; border-bottom: 1px solid var(--line); margin-bottom: var(--s5); gap: 0;
+}
+.tab-btn {
+  font: 500 11px/1 var(--mono); color: var(--muted); background: none; border: none;
+  padding: var(--s3) var(--s4); cursor: pointer; text-transform: uppercase; letter-spacing: .08em;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color var(--micro), border-color var(--micro);
+}
+.tab-btn:hover { color: var(--heading); }
+.tab-btn.active { color: var(--ember-t); border-bottom-color: var(--ember); }
+
+/* matter cards */
+.matter-list { display: flex; flex-direction: column; gap: var(--s4); }
+.matter-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 2px;
+  padding: var(--s4) var(--s5);
+}
+.matter-card.landed { border-left: 3px solid var(--ok); opacity: .75; }
+.matter-top { display: flex; align-items: flex-start; gap: var(--s3); margin-bottom: var(--s3); flex-wrap: wrap; }
+.matter-kind {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em;
+  padding: 3px 9px; border-radius: 2px; border: 1px solid currentColor; flex: none;
+  margin-top: 2px;
+}
+.matter-kind.reflection   { color: var(--k-ref); }
+.matter-kind.contribution { color: var(--k-con); }
+.matter-kind.exchange     { color: var(--k-exc); }
+.matter-kind.clearing     { color: var(--k-cle); }
+.matter-heading { font: 700 16px/1.3 var(--serif); color: var(--heading); flex: 1; }
+.matter-meta { display: flex; gap: var(--s4); flex-wrap: wrap; margin-bottom: var(--s3); }
+.matter-field { font: 400 12px/1.5 var(--mono); color: var(--muted); }
+.matter-field strong { color: var(--text); font-weight: 500; }
+
+/* ripe bar */
+.ripe-row { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
+.ripe-label { font: 400 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.ripe-track {
+  flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden;
+}
+.ripe-fill { height: 100%; background: var(--sun-amber); border-radius: 2px; transition: width .3s var(--ease); }
+.ripe-fill.full { background: var(--ok); }
+.ripe-pct { font: 500 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.ripe-input {
+  width: 60px; font: 400 11px/1 var(--mono); color: var(--heading);
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+  padding: 4px 8px; text-align: center;
+}
+.ripe-input:focus { border-color: var(--blue); outline: none; }
+.ripe-set-btn {
+  font: 500 10px/1 var(--mono); color: var(--muted); background: none;
+  border: 1px solid var(--line); border-radius: 2px; padding: 5px 9px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.ripe-set-btn:hover { color: var(--heading); border-color: var(--rule); }
+
+/* matter actions */
+.matter-actions { display: flex; align-items: center; gap: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); flex-wrap: wrap; }
+.land-matter-btn {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  background: transparent; color: var(--ok); border: 1px solid var(--ok);
+  border-radius: 2px; padding: 6px 12px; cursor: pointer;
+}
+.land-matter-btn:hover:not(:disabled) { background: var(--ok); color: var(--bg); }
+.land-matter-btn:disabled { opacity: .4; cursor: not-allowed; }
+.opened-note { font: 400 11px/1 var(--mono); color: var(--faint); margin-left: auto; }
+
+/* create form */
+.create-panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 2px;
+  padding: var(--s5) var(--s5); margin-bottom: var(--s6);
+}
+.create-panel h2 { font: 700 18px/1.2 var(--serif); color: var(--heading); margin-bottom: var(--s4); }
+.field { margin-bottom: var(--s4); }
+.field-label {
+  display: block; font: 600 11px/1.6 var(--mono); color: var(--muted);
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: var(--s2);
+}
+.field-hint { font: 400 11px/1.5 var(--mono); color: var(--faint); margin-bottom: var(--s2); }
+.field-input {
+  display: block; width: 100%; background: var(--inset); border: 1px solid var(--rule);
+  border-radius: 2px; color: var(--heading); font: 400 14px/1.5 var(--mono);
+  padding: 10px var(--s4); transition: border-color var(--micro);
+}
+.field-input:focus { border-color: var(--blue); outline: none; }
+.field-input.serif-input { font: 400 15px/1.6 var(--serif); }
+.field-textarea {
+  display: block; width: 100%; background: var(--inset); border: 1px solid var(--rule);
+  border-radius: 2px; color: var(--heading); font: 400 15px/1.72 var(--serif);
+  padding: var(--s3) var(--s4); min-height: 80px; resize: vertical;
+  transition: border-color var(--micro);
+}
+.field-textarea:focus { border-color: var(--blue); outline: none; }
+.create-kind-row { display: flex; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s4); }
+.ck-btn {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  background: var(--inset); border: 1px solid var(--line); border-radius: 2px;
+  padding: 7px 12px; cursor: pointer; transition: all var(--micro);
+}
+.ck-btn.active { border-width: 2px; }
+.ck-btn[data-kind="reflection"]   { color: var(--k-ref); }
+.ck-btn[data-kind="contribution"] { color: var(--k-con); }
+.ck-btn[data-kind="exchange"]     { color: var(--k-exc); }
+.ck-btn[data-kind="clearing"]     { color: var(--k-cle); }
+.ck-btn[data-kind="reflection"].active   { border-color: var(--k-ref); }
+.ck-btn[data-kind="contribution"].active { border-color: var(--k-con); }
+.ck-btn[data-kind="exchange"].active     { border-color: var(--k-exc); }
+.ck-btn[data-kind="clearing"].active     { border-color: var(--k-cle); }
+.create-actions { display: flex; gap: var(--s3); margin-top: var(--s5); }
+.btn-primary {
+  font: 600 12px/1 var(--mono); background: var(--ember); color: var(--bg);
+  border: 1px solid var(--ember); border-radius: 2px; padding: 12px 24px;
+  cursor: pointer; text-transform: uppercase; letter-spacing: .06em;
+  transition: opacity var(--micro);
+}
+.btn-primary:hover:not(:disabled) { opacity: .88; }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+.btn-ghost {
+  font: 600 12px/1 var(--mono); background: transparent; color: var(--muted);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 12px 20px;
+  cursor: pointer; text-transform: uppercase; letter-spacing: .06em;
+}
+.btn-ghost:hover { color: var(--heading); border-color: var(--heading); }
+
+/* empty */
+.empty { text-align: center; padding: var(--s7) 0; color: var(--muted); }
+.empty p { font: 400 15px/1.72 var(--serif); }
+.loading { text-align: center; padding: var(--s7) 0; font: 400 13px/1 var(--mono); color: var(--faint); }
+
+footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: var(--s8); }
+.footer-note { font: 400 12px/1.6 var(--mono); color: var(--faint); text-align: center; }
+.footer-note a { color: var(--faint); }
+.footer-note a:hover { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="/" class="brand">Techne</a>
+    <span class="sep">·</span>
+    <span class="topbar-sub">daybook</span>
+    <span class="sep">·</span>
+    <span class="topbar-sub">matters</span>
+  </div>
+  <div class="topbar-right">
+    <a href="/daybook/write/" class="nav-link">write</a>
+    <a href="/daybook/today/" class="nav-link">today</a>
+    <a href="/daybook/archive/" class="nav-link">archive</a>
+    <button class="mode-btn" id="modeBtn">light</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- no token -->
+  <div class="screen" id="screenNoToken">
+    <div class="no-token-wrap">
+      <h2>No vault connected</h2>
+      <p>Set up your vault token in the write surface to start your daybook.</p>
+      <a href="/daybook/write/" class="cta-link">Connect vault →</a>
+    </div>
+  </div>
+
+  <!-- main -->
+  <div class="screen" id="screenMain">
+
+    <div class="page-head">
+      <div class="kicker">Daybook</div>
+      <h1>Matters</h1>
+      <div class="page-meta">
+        <span class="page-count" id="pageCount"></span>
+        <button class="open-matter-btn" id="openMatterBtn" type="button">+ Open matter</button>
+      </div>
+    </div>
+
+    <div id="globalStatus" class="status"></div>
+
+    <!-- create form (hidden by default) -->
+    <div class="create-panel" id="createPanel" style="display:none">
+      <h2>Open a matter</h2>
+      <p style="font:400 14px/1.6 var(--serif);color:var(--muted);margin-bottom:var(--s4);">
+        A matter is an open question that must be decided by a named person. It sits in the bloom as an outline petal until landed.
+      </p>
+
+      <div id="createStatus" class="status"></div>
+
+      <div class="field">
+        <label class="field-label">Kind</label>
+        <div class="create-kind-row">
+          <button class="ck-btn active" data-kind="reflection" type="button">Reflection</button>
+          <button class="ck-btn" data-kind="contribution" type="button">Contribution</button>
+          <button class="ck-btn" data-kind="exchange" type="button">Exchange</button>
+          <button class="ck-btn" data-kind="clearing" type="button">Clearing</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="headingInput">Heading</label>
+        <div class="field-hint">Phrase as an open question or statement.</div>
+        <input class="field-input serif-input" type="text" id="headingInput" placeholder="What should we do about…?">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="awaitsInput">Awaits</label>
+        <div class="field-hint">The specific decision or action needed to close this.</div>
+        <input class="field-input" type="text" id="awaitsInput" placeholder="A decision on…">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="faceInput">Face</label>
+        <div class="field-hint">The person who must land this matter.</div>
+        <input class="field-input" type="text" id="faceInput" placeholder="e.g. Todd Youngblood">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="citeInput">Cite (optional)</label>
+        <div class="field-hint">Bylaw, agreement, or PRD reference.</div>
+        <input class="field-input" type="text" id="citeInput" placeholder="Bylaws §3.2 or CIS PRD §05">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="actInput">Act (optional)</label>
+        <div class="field-hint">Describes the landing action when it happens.</div>
+        <input class="field-input" type="text" id="actInput" placeholder="Ratifies the proposal and records a Clearing entry">
+      </div>
+
+      <div class="create-actions">
+        <button class="btn-primary" id="createBtn" type="button">Open matter</button>
+        <button class="btn-ghost" id="cancelCreateBtn" type="button">Cancel</button>
+      </div>
+    </div>
+
+    <!-- tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabOpen" type="button">Open</button>
+      <button class="tab-btn" id="tabLanded" type="button">Landed</button>
+    </div>
+
+    <div id="loadingMsg" class="loading">Loading matters…</div>
+    <div class="matter-list" id="matterList"></div>
+    <div class="empty" id="emptyMsg" style="display:none">
+      <p id="emptyText">No open matters.</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p class="footer-note">
+      <a href="https://journal.techne.coop">journal.techne.coop</a> ·
+      <a href="https://techne.coop">techne.coop</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
+  var TOKEN_KEY = 'daybook-vault-token';
+
+  /* ── mode toggle ── */
+  var root = document.documentElement;
+  var modeBtn = document.getElementById('modeBtn');
+  var initMode = localStorage.getItem('techne-mode') || 'dark';
+  root.setAttribute('data-mode', initMode);
+  modeBtn.textContent = initMode === 'dark' ? 'light' : 'dark';
+  modeBtn.addEventListener('click', function () {
+    var next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-mode', next);
+    localStorage.setItem('techne-mode', next);
+    modeBtn.textContent = next === 'dark' ? 'light' : 'dark';
+  });
+
+  /* ── screens ── */
+  function show(id) {
+    ['screenNoToken', 'screenMain'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function setStatus(id, msg, type) {
+    var el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status' + (msg ? ' ' + type : '');
+  }
+
+  /* ── state ── */
+  var allMatters = [];
+  var currentTab = 'open'; /* 'open' | 'landed' */
+  var createKind = 'reflection';
+
+  /* ── kind selector in create form ── */
+  document.querySelectorAll('.ck-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.ck-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      createKind = btn.dataset.kind;
+    });
+  });
+
+  /* ── tabs ── */
+  document.getElementById('tabOpen').addEventListener('click', function () {
+    currentTab = 'open';
+    document.getElementById('tabOpen').classList.add('active');
+    document.getElementById('tabLanded').classList.remove('active');
+    renderList();
+  });
+  document.getElementById('tabLanded').addEventListener('click', function () {
+    currentTab = 'landed';
+    document.getElementById('tabLanded').classList.add('active');
+    document.getElementById('tabOpen').classList.remove('active');
+    renderList();
+  });
+
+  /* ── create panel toggle ── */
+  document.getElementById('openMatterBtn').addEventListener('click', function () {
+    var panel = document.getElementById('createPanel');
+    var open  = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    if (!open) document.getElementById('headingInput').focus();
+  });
+  document.getElementById('cancelCreateBtn').addEventListener('click', function () {
+    document.getElementById('createPanel').style.display = 'none';
+    clearCreateForm();
+  });
+
+  function clearCreateForm() {
+    ['headingInput','awaitsInput','faceInput','citeInput','actInput'].forEach(function (id) {
+      document.getElementById(id).value = '';
+    });
+    document.querySelectorAll('.ck-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelector('.ck-btn[data-kind="reflection"]').classList.add('active');
+    createKind = 'reflection';
+    setStatus('createStatus', '', '');
+  }
+
+  /* ── create matter ── */
+  document.getElementById('createBtn').addEventListener('click', function () {
+    var heading = document.getElementById('headingInput').value.trim();
+    var awaits  = document.getElementById('awaitsInput').value.trim();
+    var face    = document.getElementById('faceInput').value.trim();
+    var cite    = document.getElementById('citeInput').value.trim();
+    var act     = document.getElementById('actInput').value.trim();
+    var author  = localStorage.getItem('daybook-author') || 'member';
+
+    if (!heading) { setStatus('createStatus', 'Heading is required.', 'error'); return; }
+    if (!awaits)  { setStatus('createStatus', 'Awaits is required — what decision is needed?', 'error'); return; }
+    if (!face)    { setStatus('createStatus', 'Face is required — who must land this?', 'error'); return; }
+
+    var token = localStorage.getItem(TOKEN_KEY) || '';
+    var now   = new Date().toISOString();
+    var stamp = now.replace(/[-:T]/g,'').slice(0,12);
+    var path  = 'daybook/matters/' + stamp + '-' + createKind;
+
+    var btn = document.getElementById('createBtn');
+    btn.textContent = 'Opening…';
+    btn.disabled = true;
+
+    fetch(VAULT + '/notes', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: path,
+        content: heading,
+        tags: ['daybook-matter'],
+        metadata: {
+          kind:       createKind,
+          heading:    heading,
+          awaits:     awaits,
+          face:       face,
+          cite:       cite || null,
+          act:        act  || null,
+          ripe:       0,
+          opened_at:  now,
+          opened_by:  author,
+          landed_at:  null,
+          landed_by:  null,
+          landing_entry: null
+        }
+      })
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      return r.json();
+    }).then(function (matter) {
+      allMatters.unshift(matter);
+      currentTab = 'open';
+      document.getElementById('tabOpen').classList.add('active');
+      document.getElementById('tabLanded').classList.remove('active');
+      renderList();
+      document.getElementById('createPanel').style.display = 'none';
+      clearCreateForm();
+      setStatus('globalStatus', 'Matter opened.', 'ok');
+      setTimeout(function () { setStatus('globalStatus', '', ''); }, 3000);
+    }).catch(function (e) {
+      setStatus('createStatus', 'Could not open matter: ' + e.message, 'error');
+    }).finally(function () {
+      btn.textContent = 'Open matter';
+      btn.disabled = false;
+    });
+  });
+
+  /* ── ripe update ── */
+  function setRipe(matter, newRipe, ripeRow) {
+    var token = localStorage.getItem(TOKEN_KEY) || '';
+    var ripe  = Math.max(matter.metadata.ripe || 0, Math.min(100, Math.floor(newRipe)));
+    if (ripe === (matter.metadata.ripe || 0)) return;
+
+    var updated = Object.assign({}, matter.metadata, { ripe: ripe });
+    fetch(VAULT + '/notes/' + matter.path, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metadata: updated })
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      matter.metadata.ripe = ripe;
+      var fill = ripeRow.querySelector('.ripe-fill');
+      var pct  = ripeRow.querySelector('.ripe-pct');
+      fill.style.width = ripe + '%';
+      fill.classList.toggle('full', ripe === 100);
+      pct.textContent  = ripe + '%';
+      if (ripe === 100) setStatus('globalStatus', 'Matter is ripe — ready to land.', 'ok');
+    }).catch(function () {
+      setStatus('globalStatus', 'Could not update ripe score.', 'error');
+    });
+  }
+
+  /* ── land matter ── */
+  function landMatter(matter, card) {
+    var token  = localStorage.getItem(TOKEN_KEY) || '';
+    var author = localStorage.getItem('daybook-author') || 'member';
+    var now    = new Date().toISOString();
+
+    /* 1. Create a Clearing entry that references this matter */
+    var stamp  = now.replace(/[-:T]/g,'').slice(0,12);
+    var clearPath = 'daybook/entries/' + stamp + '-clearing-land';
+
+    var clearingBody = 'Matter landed: ' + matter.metadata.heading + '\n\nLanded by ' + author + ' at ' + new Date().toLocaleString();
+
+    fetch(VAULT + '/notes', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: clearPath,
+        content: clearingBody,
+        tags: ['daybook-entry'],
+        metadata: {
+          kind: 'clearing',
+          visibility: 'public',
+          author: author,
+          created_at: now,
+          matter_ref: matter.path
+        }
+      })
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      return r.json();
+    }).then(function (entry) {
+      /* 2. Mark the matter as landed */
+      var updated = Object.assign({}, matter.metadata, {
+        landed_at: now,
+        landed_by: author,
+        landing_entry: entry.path
+      });
+      return fetch(VAULT + '/notes/' + matter.path, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ metadata: updated })
+      }).then(function (r2) {
+        if (!r2.ok) return r2.json().then(function (e) { throw new Error(e.error || r2.status); });
+        matter.metadata = updated;
+        card.classList.add('landed');
+        var landBtn = card.querySelector('.land-matter-btn');
+        if (landBtn) { landBtn.textContent = 'Landed'; landBtn.disabled = true; }
+        setStatus('globalStatus', 'Matter landed. A public Clearing entry was created.', 'ok');
+        setTimeout(function () {
+          renderList();
+          setStatus('globalStatus', '', '');
+        }, 2000);
+      });
+    }).catch(function (e) {
+      setStatus('globalStatus', 'Could not land matter: ' + e.message, 'error');
+      var lb = card.querySelector('.land-matter-btn');
+      if (lb) { lb.textContent = 'Land'; lb.disabled = false; }
+    });
+  }
+
+  /* ── build matter card ── */
+  function buildCard(matter) {
+    var meta    = matter.metadata || {};
+    var landed  = !!meta.landed_at;
+    var ripe    = meta.ripe || 0;
+
+    var card = document.createElement('div');
+    card.className = 'matter-card' + (landed ? ' landed' : '');
+
+    /* top row */
+    var top = document.createElement('div');
+    top.className = 'matter-top';
+    var kindEl = document.createElement('span');
+    kindEl.className = 'matter-kind ' + (meta.kind || 'reflection');
+    kindEl.textContent = meta.kind || 'reflection';
+    var headEl = document.createElement('span');
+    headEl.className = 'matter-heading';
+    headEl.textContent = meta.heading || matter.content || '';
+    top.appendChild(kindEl);
+    top.appendChild(headEl);
+    card.appendChild(top);
+
+    /* meta fields */
+    var mf = document.createElement('div');
+    mf.className = 'matter-meta';
+    function mfield(label, val) {
+      if (!val) return;
+      var s = document.createElement('span');
+      s.className = 'matter-field';
+      s.innerHTML = '<strong>' + label + ':</strong> ' + val;
+      mf.appendChild(s);
+    }
+    mfield('Awaits', meta.awaits);
+    mfield('Face', meta.face);
+    if (meta.cite) mfield('Cite', meta.cite);
+    if (meta.act)  mfield('Act', meta.act);
+    if (landed)    mfield('Landed by', meta.landed_by);
+    card.appendChild(mf);
+
+    /* ripe bar (only for open matters) */
+    if (!landed) {
+      var ripeRow = document.createElement('div');
+      ripeRow.className = 'ripe-row';
+      ripeRow.innerHTML =
+        '<span class="ripe-label">Ripe</span>' +
+        '<div class="ripe-track"><div class="ripe-fill' + (ripe === 100 ? ' full' : '') + '" style="width:' + ripe + '%"></div></div>' +
+        '<span class="ripe-pct">' + ripe + '%</span>' +
+        '<input class="ripe-input" type="number" min="' + ripe + '" max="100" value="' + ripe + '" title="Set ripe score (cannot decrease)">' +
+        '<button class="ripe-set-btn" type="button">Set</button>';
+      var ripeInput = ripeRow.querySelector('.ripe-input');
+      ripeRow.querySelector('.ripe-set-btn').addEventListener('click', function () {
+        var v = parseInt(ripeInput.value, 10);
+        if (isNaN(v)) return;
+        setRipe(matter, v, ripeRow);
+      });
+      card.appendChild(ripeRow);
+    }
+
+    /* actions */
+    var actions = document.createElement('div');
+    actions.className = 'matter-actions';
+
+    var openedNote = document.createElement('span');
+    openedNote.className = 'opened-note';
+    openedNote.textContent = 'opened ' + (meta.opened_at ? new Date(meta.opened_at).toLocaleDateString() : '');
+    actions.appendChild(openedNote);
+
+    if (!landed) {
+      var lb = document.createElement('button');
+      lb.className = 'land-matter-btn';
+      lb.textContent = 'Land';
+      lb.title = 'Land this matter — creates a public Clearing entry';
+      lb.addEventListener('click', function () {
+        var face = meta.face || 'the named person';
+        if (!confirm('Land this matter as ' + (localStorage.getItem('daybook-author') || 'member') + '?\n\nThis creates a public Clearing entry and closes the matter. According to the architecture, only ' + face + ' should land this.')) return;
+        lb.textContent = 'Landing…';
+        lb.disabled = true;
+        landMatter(matter, card);
+      });
+      actions.appendChild(lb);
+    }
+
+    card.appendChild(actions);
+    return card;
+  }
+
+  /* ── render list ── */
+  function renderList() {
+    var list    = document.getElementById('matterList');
+    var empty   = document.getElementById('emptyMsg');
+    var emptyTx = document.getElementById('emptyText');
+    while (list.firstChild) list.removeChild(list.firstChild);
+
+    var filtered = allMatters.filter(function (m) {
+      var landed = !!(m.metadata && m.metadata.landed_at);
+      return currentTab === 'landed' ? landed : !landed;
+    });
+
+    var openCount   = allMatters.filter(function(m){ return !(m.metadata && m.metadata.landed_at); }).length;
+    var landedCount = allMatters.filter(function(m){ return !!(m.metadata && m.metadata.landed_at); }).length;
+    document.getElementById('pageCount').textContent =
+      openCount + ' open' + (landedCount ? ', ' + landedCount + ' landed' : '');
+
+    if (!filtered.length) {
+      emptyTx.textContent = currentTab === 'open' ? 'No open matters.' : 'No landed matters yet.';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      filtered.forEach(function (m) { list.appendChild(buildCard(m)); });
+    }
+  }
+
+  /* ── init ── */
+  var token = localStorage.getItem(TOKEN_KEY);
+  if (!token) { show('screenNoToken'); return; }
+  show('screenMain');
+
+  fetch(VAULT + '/notes?tag=daybook-matter&include_content=true&limit=200', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function (r) {
+    if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+    return r.json();
+  }).then(function (data) {
+    var notes = Array.isArray(data) ? data : (data.notes || []);
+    notes.sort(function (a, b) {
+      var ta = (a.metadata && a.metadata.opened_at) || a.createdAt || '';
+      var tb = (b.metadata && b.metadata.opened_at) || b.createdAt || '';
+      return tb.localeCompare(ta);
+    });
+    allMatters = notes;
+    document.getElementById('loadingMsg').style.display = 'none';
+    renderList();
+  }).catch(function (err) {
+    document.getElementById('loadingMsg').style.display = 'none';
+    setStatus('globalStatus', 'Could not load matters: ' + err.message, 'error');
+    renderList();
+  });
+
+})();
+</script>
+</body>
+</html>
