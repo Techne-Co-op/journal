@@ -405,13 +405,13 @@
 (function(){
   "use strict";
   var root=document.documentElement, btn=document.getElementById('toggle'), stored=null;
-  try{ stored=localStorage.getItem('cw-mode'); }catch(e){}
+  try{ stored=localStorage.getItem('techne-mode'); }catch(e){}
   var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   root.setAttribute('data-mode',m); btn.textContent=(m==='dark')?'light':'dark';
   btn.addEventListener('click',function(){
     var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
     root.setAttribute('data-mode',next); btn.textContent=(next==='dark')?'light':'dark';
-    try{ localStorage.setItem('cw-mode',next); }catch(e){}
+    try{ localStorage.setItem('techne-mode',next); }catch(e){}
     drawBloom();
   });
 

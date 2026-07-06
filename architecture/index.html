@@ -1414,9 +1414,9 @@ td code { background: var(--inset); padding: .1em .35em; border-radius: 2px; fon
 </main>
 
 <script>
-// Mode: restore from localStorage (commons-mode shared across site)
+// Mode: restore from localStorage (techne-mode shared across site)
 (function() {
-  var m = localStorage.getItem('commons-mode') || 'dark';
+  var m = localStorage.getItem('techne-mode') || 'dark';
   document.documentElement.dataset.mode = m;
 })();
 
@@ -1424,7 +1424,7 @@ td code { background: var(--inset); padding: .1em .35em; border-radius: 2px; fon
 document.getElementById('modeBtn').addEventListener('click', function() {
   var next = document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark';
   document.documentElement.dataset.mode = next;
-  localStorage.setItem('commons-mode', next);
+  localStorage.setItem('techne-mode', next);
 });
 
 // Mobile rail drawer

@@ -245,7 +245,7 @@ footer{border-top:1px solid var(--line);padding:var(--s6) var(--s4);margin-top:v
 
 <script>
 (function(){
-  var s=null;try{s=localStorage.getItem('cis-theme');}catch(e){}
+  var s=null;try{s=localStorage.getItem('techne-mode');}catch(e){}
   var m=s||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
   document.documentElement.setAttribute('data-mode',m);
 })();
@@ -436,7 +436,7 @@ footer{border-top:1px solid var(--line);padding:var(--s6) var(--s4);margin-top:v
   btn.addEventListener('click',function(){
     var n=root.getAttribute('data-mode')==='dark'?'light':'dark';
     root.setAttribute('data-mode',n);
-    try{localStorage.setItem('cis-theme',n);}catch(e){}
+    try{localStorage.setItem('techne-mode',n);}catch(e){}
     paint();
   });
 })();

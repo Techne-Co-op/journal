@@ -158,7 +158,7 @@ footer a{color:var(--muted);}
 
 <script>
 (function(){
-  var s=null;try{s=localStorage.getItem('cis-theme');}catch(e){}
+  var s=null;try{s=localStorage.getItem('techne-mode');}catch(e){}
   var m=s||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   document.documentElement.setAttribute('data-mode',m);
 })();
@@ -328,7 +328,7 @@ footer a{color:var(--muted);}
   btn.addEventListener('click',function(){
     var n=root.getAttribute('data-mode')==='dark'?'light':'dark';
     root.setAttribute('data-mode',n);
-    try{localStorage.setItem('cis-theme',n);}catch(e){}
+    try{localStorage.setItem('techne-mode',n);}catch(e){}
     paint();
   });
 })();

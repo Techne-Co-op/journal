@@ -173,7 +173,7 @@
 <script>
 (function(){
   var stored=null;
-  try{stored=localStorage.getItem('cis-theme');}catch(e){}
+  try{stored=localStorage.getItem('techne-mode');}catch(e){}
   var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   document.documentElement.setAttribute('data-mode',m);
 })();
@@ -366,7 +366,7 @@
   btn.addEventListener('click',function(){
     var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
     root.setAttribute('data-mode',next);
-    try{localStorage.setItem('cis-theme',next);}catch(e){}
+    try{localStorage.setItem('techne-mode',next);}catch(e){}
     paint();
   });
 })();

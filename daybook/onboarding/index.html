@@ -200,7 +200,7 @@
 (function(){
   "use strict";
   var root=document.documentElement, mb=document.getElementById('modeBtn'), stored=null;
-  try{ stored=localStorage.getItem('daybook-onboard-mode'); }catch(e){}
+  try{ stored=localStorage.getItem('techne-mode'); }catch(e){}
   var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   root.setAttribute('data-mode',m); mb.textContent=m==='dark'?'light':'dark';
   mb.addEventListener('click',function(){var n=root.getAttribute('data-mode')==='dark'?'light':'dark';root.setAttribute('data-mode',n);mb.textContent=n==='dark'?'light':'dark';draw();});

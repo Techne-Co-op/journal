@@ -658,7 +658,7 @@ TYPE     Libre Baskerville for prose; IBM Plex Mono for
 &lt;script&gt;
 (function(){
   var root=document.documentElement,btn=document.getElementById('modeBtn'),stored=null;
-  try{stored=localStorage.getItem('commons-mode');}catch(e){}
+  try{stored=localStorage.getItem('techne-mode');}catch(e){}
   var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   root.setAttribute('data-mode',m);
   btn.textContent=m==='dark'?'light':'dark';
@@ -666,7 +666,7 @@ TYPE     Libre Baskerville for prose; IBM Plex Mono for
     var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
     root.setAttribute('data-mode',next);
     btn.textContent=next==='dark'?'light':'dark';
-    try{localStorage.setItem('commons-mode',next);}catch(e){}
+    try{localStorage.setItem('techne-mode',next);}catch(e){}
   });
 })();
 &lt;/script&gt;
@@ -708,7 +708,7 @@ TYPE     Libre Baskerville for prose; IBM Plex Mono for
     <p>Run this against every page before merge. It extends the agent audit in <a href="#s10">&sect;10</a> with repo-specific requirements.</p>
     <ol class="audit">
       <li>All CSS uses canonical v4 token names (<code>--bg</code>, <code>--surface</code>, <code>--raised</code>, <code>--inset</code>, <code>--heading</code>, <code>--text</code>, <code>--muted</code>, <code>--faint</code>, <code>--blue</code>, <code>--blue-text</code>, <code>--ember</code>, <code>--ember-text</code>, <code>--sun-*</code>). No ad-hoc color constants that duplicate canonical tokens under different names.</li>
-      <li>Mode toggle present, reads the word of the mode it switches to, and stores preference in <code>localStorage</code> under the key <code>commons-mode</code>.</li>
+      <li>Mode toggle present, reads the word of the mode it switches to, and stores preference in <code>localStorage</code> under the key <code>techne-mode</code>.</li>
       <li>Masthead kick line links back to <code>/</code> and identifies the section by name.</li>
       <li>Page title follows the pattern: <em>[Page Title] · Techne Co-op</em>.</li>
       <li>Footer links to <code>/design-system/</code> and to <code>/architecture/</code>.</li>
@@ -740,7 +740,7 @@ TYPE     Libre Baskerville for prose; IBM Plex Mono for
   var root = document.documentElement;
   var btn  = document.getElementById('modeBtn');
   var stored = null;
-  try { stored = localStorage.getItem('commons-mode'); } catch(e) {}
+  try { stored = localStorage.getItem('techne-mode'); } catch(e) {}
   var m = stored || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   root.setAttribute('data-mode', m);
   btn.textContent = m === 'dark' ? 'light' : 'dark';
@@ -748,7 +748,7 @@ TYPE     Libre Baskerville for prose; IBM Plex Mono for
     var next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-mode', next);
     btn.textContent = next === 'dark' ? 'light' : 'dark';
-    try { localStorage.setItem('commons-mode', next); } catch(e) {}
+    try { localStorage.setItem('techne-mode', next); } catch(e) {}
   });
 })();
 </script>
