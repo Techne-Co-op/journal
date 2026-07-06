@@ -797,7 +797,7 @@ footer {
       const r = await fetch(`${SB_AUTH}/otp`, {
         method: 'POST',
         headers: { 'apikey': SB_ANON, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, create_user: true })
+        body: JSON.stringify({ email, create_user: true, redirect_to: 'https://journal.techne.coop/daybook/write/' })
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error_description || d.msg || r.status);
