@@ -283,13 +283,9 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
 <div class="wrap">
 
-  <!-- no token -->
-  <div class="screen" id="screenNoToken">
-    <div class="no-token-wrap">
-      <h2>No vault connected</h2>
-      <p>Set up your vault token in the write surface to start your daybook.</p>
-      <a href="/daybook/write/" class="cta-link">Connect vault →</a>
-    </div>
+  <!-- observer banner -->
+  <div id="observerBanner" style="display:none; background:var(--inset); border-bottom:1px solid var(--line); padding:10px var(--s5); font:400 12px/1.4 var(--mono); color:var(--muted);">
+    Observer view — public entries only. <a href="/daybook/write/" style="color:var(--ember-t);">Sign in</a> to write.
   </div>
 
   <!-- loading -->
@@ -387,7 +383,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
   /* ── screens ── */
   function show(id) {
-    ['screenNoToken', 'screenLoading', 'screenMain', 'screenEmpty'].forEach(function (s) {
+    ['screenLoading', 'screenMain', 'screenEmpty'].forEach(function (s) {
       document.getElementById(s).classList.toggle('active', s === id);
     });
   }
@@ -788,10 +784,16 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
   }
 
   /* ── init ── */
-  var token = localStorage.getItem(TOKEN_KEY);
-  if (!token) {
-    show('screenNoToken');
-    return;
+  var READ_TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Im5zdmg5M21aUXY1R0JuNm9laXB6RFh0X0hyUTN1TVpTdVJFZDRhY0Nwd28ifQ.eyJzY29wZSI6InZhdWx0OnRlY2huZTpyZWFkIiwiY2xpZW50X2lkIjoicGFyYWNodXRlLWh1YiIsInZhdWx0X3Njb3BlIjpbInRlY2huZSJdLCJzdWIiOiJ0b2Rkcy12YXVsdC1hY2Nlc3MiLCJpc3MiOiJodHRwczovL291ci5wYXJhY2h1dGUuY29tcHV0ZXIiLCJpYXQiOjE3ODMzNTM3NjYsImV4cCI6MTc5MTEyOTc2NiwiYXVkIjoidmF1bHQudGVjaG5lIiwianRpIjoiMHZNYjd4ZDNzWjNUYXFHalBkYVhhQSJ9.QoNhr4Zy8q-ldaH7PtnPuXA2C2EnTyycIfE4FzGXEKKCHuACMMxL2yia-e17gx0qs4hEI_s1Ry7jgt5KEvLklzSBL9jzQvrFAaR0vB7A6ndrW74IZy09Fle4gEC4648wkIchq2wnRY-I4tD1d-RhbTWyECFf36cyvfKsddQZyaRl42Kxj-OoiBfbopo9mFn2MPU-Bp0zzAsDF0wIHOa5Yh2-pRJK2tlEQW_UU4KzBydgF9j79uGUk6g3-GGV02E2K41llFTfNuORNk3zo54tCRU9MJb-GgBKVPyPcdG10fKZNa1HNGITuHs53JbnWd7UtkgsFys7TCX7gwSBBFd8tw';
+  var userToken  = localStorage.getItem(TOKEN_KEY);
+  var isObserver = !userToken;
+  var token      = userToken || READ_TOKEN;
+
+  if (isObserver) {
+    var banner = document.getElementById('observerBanner');
+    if (banner) banner.style.display = 'block';
+    var writeLink = document.querySelector('.write-link');
+    if (writeLink) writeLink.style.display = 'none';
   }
 
   show('screenLoading');
@@ -802,7 +804,14 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
     return r.json();
   }).then(function (data) {
-    var notes = Array.isArray(data) ? data : (data.notes || []);
+    var allData = Array.isArray(data) ? data : (data.notes || []);
+    // observers see only public published entries
+    var notes = isObserver
+      ? allData.filter(function (e) {
+          return (e.metadata && e.metadata.visibility === 'public') &&
+                 (e.metadata && e.metadata.published_at);
+        })
+      : allData;
 
     /* sort all entries descending by timestamp */
     notes.sort(function (a, b) {
