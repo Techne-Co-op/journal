@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="An encyclopedia of artifacts — the ratified and published work of the Techne cooperative, one register, many shelves. A live view of the commons vault.">
+<meta name="robots" content="noindex,nofollow">
+<title>An Encyclopedia of Artifacts &middot; Techne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     Techne Design System v4 · An Encyclopedia of Artifacts
+     Live view of the Parachute vault · journal.techne.coop/encyclopedia
+     Hierarchy panel + D3 force graph · two projections of one register.
+     Adapted from working surface v3.
+     ============================================================ */
+  :root {
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+    --micro:.16s; --ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A;
+    --sun-rose:#B45C7C; --sun-violet:#6E5494; --sun-blue:#5476B8;
+  }
+  html[data-mode="dark"] {
+    --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+    --line:#2A2A30; --rule:#3A3A42;
+    --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+    --blue:#6A8AC4; --blue-text:#97B5E8;
+    --ember:#C4956A; --ember-text:#D4A57A;
+    --ok:#6A9A6A; --info:#6A8AC4; --warn:#C46A6A;
+  }
+  html[data-mode="light"] {
+    --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+    --line:#D8D3C8; --rule:#9A958A;
+    --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+    --blue:#4A6FB0; --blue-text:#39588F;
+    --ember:#8A6A4A; --ember-text:#6F5436;
+    --ok:#4A7A4A; --info:#4A6FB0; --warn:#A84F4C;
+  }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font:400 14px/1.6 var(--mono);
+    transition:background-color var(--micro) var(--ease), color var(--micro) var(--ease); }
+  button { font:inherit; color:inherit; background:none; border:none; padding:0; cursor:pointer; text-align:left; }
+  input { font:inherit; color:inherit; }
+  :focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+  a { color:var(--blue-text); }
+  .ico { width:13px; height:13px; stroke:currentColor; stroke-width:1.6; fill:none;
+    stroke-linecap:round; stroke-linejoin:round; vertical-align:-2px; }
+
+  .app { display:grid; grid-template-rows:60px 1fr 34px; height:100vh; height:100dvh; }
+
+  /* ---------- topbar ---------- */
+  .top { display:flex; align-items:center; gap:var(--s4); padding:0 var(--s4);
+    border-bottom:1px solid var(--rule); background:var(--bg); }
+  .top .tau { font:400 18px/1 var(--serif); color:var(--ember-text); }
+  .top .name { font:600 12px/1.4 var(--mono); color:var(--heading); letter-spacing:.04em; text-transform:lowercase; }
+  .top .sub { font:400 10px/1.4 var(--mono); color:var(--muted); }
+  .top .grow { flex:1; }
+  .chip { display:inline-flex; align-items:center; gap:6px;
+    font:500 10px/1 var(--mono); padding:5px 8px;
+    border:1px solid var(--line); border-radius:2px; background:var(--surface); white-space:nowrap; }
+  .chip .dot { width:6px; height:6px; flex:0 0 auto; }
+  .chip.ok { color:var(--ok); } .chip.ok .dot { background:var(--ok); }
+  .chip.info { color:var(--info); } .chip.info .dot { background:var(--info); }
+  .chip.warn { color:var(--warn); } .chip.warn .dot { background:var(--warn); }
+  .tierbox { display:flex; align-items:center; gap:var(--s2); }
+  .tierbox .lab { font:500 9.5px/1.3 var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.1em; text-align:right; }
+  .tierbox .lab .sim { color:var(--warn); display:block; }
+  .seg { display:flex; border:1px solid var(--rule); border-radius:2px; overflow:hidden; }
+  .seg button { font:500 10.5px/1 var(--mono); padding:8px 11px; color:var(--muted);
+    background:var(--surface); border-right:1px solid var(--rule); text-transform:lowercase;
+    transition:background-color var(--micro) var(--ease), color var(--micro) var(--ease); }
+  .seg button:last-child { border-right:0; }
+  .seg button[aria-pressed="true"] { background:var(--raised); color:var(--heading); }
+  .seg button:hover { color:var(--heading); }
+  .toggle { font:500 10.5px/1 var(--mono); color:var(--text);
+    background:var(--surface); border:1px solid var(--rule); border-radius:2px;
+    padding:8px 11px; letter-spacing:.05em; text-transform:lowercase; }
+  .toggle:hover { background:var(--raised); border-color:var(--heading); }
+
+  /* ---------- loading state ---------- */
+  .loading { display:flex; align-items:center; justify-content:center; height:100%;
+    flex-direction:column; gap:var(--s4); color:var(--muted); }
+  .loading .pulse { width:8px; height:8px; background:var(--ember); border-radius:50%;
+    animation:pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+  .loading .t { font:400 12px/1.6 var(--mono); color:var(--muted); }
+  .errstate { display:flex; align-items:center; justify-content:center; height:100%;
+    flex-direction:column; gap:var(--s3); padding:var(--s5); }
+  .errstate .t { font:400 13px/1.6 var(--mono); color:var(--warn); }
+  .errstate .d { font:italic 400 13px/1.7 var(--serif); color:var(--muted); max-width:48ch; text-align:center; }
+
+  /* ---------- main: two nav modes ---------- */
+  .main { display:grid; min-height:0; }
+  .main[data-nav="graph"] { grid-template-columns:250px 1fr 400px; }
+  .main[data-nav="shelves"] { grid-template-columns:256px 336px 1fr; }
+  .pane { min-height:0; overflow-y:auto; }
+  .main[data-nav="graph"] .rail, .main[data-nav="graph"] .list { display:none; }
+  .main[data-nav="shelves"] .graphpane, .main[data-nav="shelves"] .treepane { display:none; }
+
+  /* ---------- hierarchy panel ---------- */
+  .treepane { border-right:1px solid var(--rule); background:var(--inset);
+    display:flex; flex-direction:column; }
+  .treehead { display:flex; align-items:center; gap:var(--s2);
+    padding:var(--s3) var(--s4); border-bottom:1px solid var(--rule); }
+  .treehead .lab { font:500 9.5px/1.5 var(--mono); color:var(--muted);
+    text-transform:uppercase; letter-spacing:.13em; }
+  .treehead .grow { flex:1; }
+  .treehead .mini { font:500 9.5px/1 var(--mono); color:var(--blue-text);
+    padding:4px 6px; border:1px solid var(--line); border-radius:2px; background:var(--surface); }
+  .treehead .mini:hover { border-color:var(--blue); }
+  .treebody { flex:1; min-height:0; overflow-y:auto; padding:var(--s2) 0 var(--s5); }
+  .trow { display:flex; align-items:center; gap:7px; width:100%;
+    padding:6px var(--s3) 6px var(--pad, 12px);
+    transition:background-color var(--micro) var(--ease); }
+  .trow:hover { background:var(--surface); }
+  .trow[aria-current="true"] { background:var(--surface); box-shadow:inset 3px 0 0 var(--ember); }
+  .trow .chev { flex:0 0 auto; width:14px; height:14px; display:inline-flex;
+    align-items:center; justify-content:center; color:var(--muted); }
+  .trow .chev svg { width:11px; height:11px; stroke:currentColor; stroke-width:1.8; fill:none;
+    stroke-linecap:round; stroke-linejoin:round;
+    transition:transform var(--micro) var(--ease); }
+  .trow .chev.open svg { transform:rotate(90deg); }
+  .trow .chev.blank { visibility:hidden; }
+  .trow .mark { flex:0 0 auto; width:14px; height:14px; }
+  .trow .t { flex:1; min-width:0; font:400 11.5px/1.4 var(--mono); color:var(--heading);
+    text-transform:lowercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .trow .no { flex:0 0 auto; font:500 10px/1.4 var(--mono); color:var(--ember-text); }
+  .trow .meta { flex:0 0 auto; font:400 9px/1.4 var(--mono); color:var(--muted); }
+  .trow.dim .t, .trow.dim .no { color:var(--muted); }
+  .trow.dim { opacity:.6; }
+  .tgroup { font:500 9.5px/1.5 var(--mono); color:var(--muted);
+    text-transform:uppercase; letter-spacing:.13em; padding:var(--s3) var(--s4) var(--s1); }
+
+  /* ---------- graph pane ---------- */
+  .graphpane { position:relative; border-right:1px solid var(--rule); background:var(--inset);
+    overflow:hidden; display:flex; flex-direction:column; }
+  .graphhead { display:flex; align-items:center; gap:var(--s4); flex-wrap:wrap;
+    padding:var(--s3) var(--s4); border-bottom:1px solid var(--rule); }
+  .graphhead .lab { font:500 9.5px/1.5 var(--mono); color:var(--muted);
+    text-transform:uppercase; letter-spacing:.13em; }
+  .graphhead .grow { flex:1; }
+  .legend { display:flex; gap:var(--s3); flex-wrap:wrap; align-items:center;
+    font:400 9.5px/1.4 var(--mono); color:var(--muted); }
+  .legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .legend svg { width:14px; height:14px; overflow:visible; }
+  #graph { flex:1; min-height:0; touch-action:none; }
+  #graph svg { display:block; width:100%; height:100%; cursor:grab; }
+  #graph svg:active { cursor:grabbing; }
+  .gnode { cursor:pointer; }
+  .gnode text { pointer-events:none; }
+  .graphfoot { padding:6px var(--s4); border-top:1px solid var(--rule);
+    font:400 9.5px/1.5 var(--mono); color:var(--faint); }
+
+  /* ---------- shelves nav panes ---------- */
+  .rail { border-right:1px solid var(--rule); background:var(--inset); padding:var(--s3) 0 var(--s5); }
+  .list { border-right:1px solid var(--rule); background:var(--bg); padding:var(--s4); }
+  .plate { background:var(--bg); padding:var(--s4) var(--s5) var(--s6); }
+
+  .rail .lab { font:500 9.5px/1.5 var(--mono); color:var(--muted);
+    text-transform:uppercase; letter-spacing:.13em; padding:var(--s3) var(--s4) var(--s2); }
+  .railbtn { display:block; width:100%; padding:9px var(--s4) 9px 13px;
+    border-left:3px solid var(--hue, var(--rule));
+    transition:background-color var(--micro) var(--ease); }
+  .railbtn:hover { background:var(--surface); }
+  .railbtn[aria-current="true"] { background:var(--surface); }
+  .railbtn .t { font:500 12px/1.4 var(--mono); color:var(--heading); text-transform:lowercase; }
+  .railbtn .m { font:400 9.5px/1.5 var(--mono); color:var(--muted); margin-top:2px; }
+  .railbtn .m .k { color:var(--ember-text); }
+  .railbtn.empty { border-left-style:dashed; }
+  .railbtn.outside { border-left:3px dashed var(--rule); }
+  .railbtn.gated { opacity:.55; }
+  .rail .div { height:1px; background:var(--rule); margin:var(--s3) var(--s4); }
+
+  .search { display:flex; align-items:center; gap:8px; margin-bottom:var(--s3);
+    border:1px solid var(--line); border-radius:2px; background:var(--surface); padding:7px 10px; }
+  .search input { flex:1; background:none; border:none; outline:none;
+    font:400 12px/1.4 var(--mono); color:var(--heading); }
+  .search input::placeholder { color:var(--faint); }
+  .search .ico { color:var(--muted); }
+
+  .list .head { padding-bottom:var(--s3); border-bottom:1px solid var(--rule); margin-bottom:var(--s3); }
+  .list .head .t { font:600 13px/1.4 var(--mono); color:var(--heading); text-transform:lowercase; }
+  .list .head .d { font:italic 400 12.5px/1.6 var(--serif); color:var(--text); margin-top:6px; }
+  .list .head .m { font:400 10px/1.6 var(--mono); color:var(--muted); margin-top:6px; }
+  .entrybtn { display:grid; grid-template-columns:34px 1fr auto; gap:var(--s2);
+    width:100%; padding:9px 8px; border:1px solid transparent; border-radius:2px; align-items:start;
+    transition:background-color var(--micro) var(--ease), border-color var(--micro) var(--ease); }
+  .entrybtn:hover { background:var(--surface); }
+  .entrybtn[aria-current="true"] { background:var(--surface); border-color:var(--line); }
+  .entrybtn .no { font:500 10.5px/1.6 var(--mono); color:var(--ember-text); }
+  .entrybtn .t { font:400 12px/1.45 var(--mono); color:var(--heading); }
+  .entrybtn .s { font:400 9.5px/1.5 var(--mono); color:var(--muted); margin-top:2px; }
+  .entrybtn .tier { font:500 9px/1 var(--mono); color:var(--muted);
+    border:1px solid var(--line); border-radius:2px; padding:3px 6px; text-transform:lowercase; white-space:nowrap; }
+  .entrybtn.scoped .t, .entrybtn.scoped .no { color:var(--muted); }
+  .note { font:italic 400 12.5px/1.7 var(--serif); color:var(--muted); padding:var(--s3) 8px 0; }
+
+  .plate .ph { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--s3);
+    padding-bottom:var(--s3); border-bottom:1px solid var(--rule); margin-bottom:var(--s4); flex-wrap:wrap; }
+  .plate .ph .no { font:500 10.5px/1.6 var(--mono); color:var(--ember-text); letter-spacing:.06em; }
+  .plate .ph h2 { font:700 20px/1.3 var(--serif); color:var(--heading); margin:2px 0 0; }
+  .frow { display:grid; grid-template-columns:110px 1fr; gap:var(--s3);
+    padding:8px 0; border-bottom:1px solid var(--line); align-items:baseline; }
+  .frow .k { font:500 10px/1.7 var(--mono); color:var(--muted); text-transform:lowercase; }
+  .frow .v { font:400 12.5px/1.65 var(--mono); color:var(--text); }
+  .frow .v.serif { font:400 13.5px/1.7 var(--serif); }
+  .xlink { font:500 11px/1 var(--mono); color:var(--blue-text);
+    border:1px solid var(--line); border-radius:2px; padding:5px 9px; background:var(--surface);
+    display:inline-block; margin:0 6px 6px 0; }
+  .xlink:hover { border-color:var(--blue); }
+  .plate .body { font:400 14px/1.75 var(--serif); color:var(--text); max-width:60ch; margin-top:var(--s4); }
+  .plate .quiet { font:italic 400 13px/1.7 var(--serif); color:var(--muted); max-width:56ch; margin-top:var(--s4); }
+  .scopepanel { border:1px dashed var(--rule); border-radius:2px; padding:var(--s4) var(--s5); margin-top:var(--s3); }
+  .scopepanel .t { font:500 11px/1.6 var(--mono); color:var(--heading); }
+  .scopepanel .d { font:italic 400 13px/1.7 var(--serif); color:var(--muted); margin-top:6px; max-width:52ch; }
+  .waverow { display:grid; grid-template-columns:16px 1fr; gap:var(--s3);
+    padding:9px 0; border-bottom:1px solid var(--line); align-items:baseline; }
+  .waverow .mark { color:var(--faint); font:400 11px/1.6 var(--mono); }
+  .waverow .t { font:400 12.5px/1.55 var(--mono); color:var(--heading); }
+  .waverow .d { font:italic 400 12px/1.6 var(--serif); color:var(--muted); margin-top:2px; }
+
+  .foot { display:flex; align-items:center; gap:var(--s4); padding:0 var(--s4);
+    border-top:1px solid var(--rule); background:var(--inset);
+    font:400 9.5px/1.4 var(--mono); color:var(--muted); overflow:hidden; white-space:nowrap; }
+  .foot .grow { flex:1; }
+  .foot .door { font-style:italic; font-family:var(--serif); font-size:11px; color:var(--ember-text); }
+  .foot .live { color:var(--ok); }
+
+  @media (max-width:1120px){
+    .main[data-nav="graph"] { grid-template-columns:230px 1fr 360px; }
+  }
+  @media (max-width:980px){
+    body { overflow:auto; }
+    .app { height:auto; grid-template-rows:auto auto auto; }
+    .main[data-nav="graph"], .main[data-nav="shelves"] { grid-template-columns:1fr; }
+    .pane { overflow:visible; }
+    .treepane { border-right:0; border-bottom:1px solid var(--rule); }
+    .treebody { overflow:visible; }
+    .graphpane { border-right:0; border-bottom:1px solid var(--rule); }
+    #graph { height:420px; flex:none; }
+    .rail { border-right:0; border-bottom:1px solid var(--rule); }
+    .list { border-right:0; border-bottom:1px solid var(--rule); }
+    .top { flex-wrap:wrap; height:auto; padding:var(--s3) var(--s4); row-gap:var(--s2); }
+    .foot { white-space:normal; padding:var(--s2) var(--s4); }
+  }
+  @media (prefers-reduced-motion: reduce){ * { transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <span class="tau" aria-hidden="true">&Tau;</span>
+    <div>
+      <div class="name">an encyclopedia of artifacts &middot; techne</div>
+      <div class="sub">one register &middot; many shelves &middot; live from the commons vault</div>
+    </div>
+    <div class="grow"></div>
+    <div class="seg" role="group" aria-label="Navigation mode">
+      <button data-nav="graph" aria-pressed="true">graph</button>
+      <button data-nav="shelves" aria-pressed="false">shelves</button>
+    </div>
+    <div class="tierbox">
+      <div class="lab">viewing as<span class="sim">tiers · simulated</span></div>
+      <div class="seg" role="group" aria-label="Visibility tier, simulated">
+        <button data-tier="public" aria-pressed="true">public</button>
+        <button data-tier="participant" aria-pressed="false">participant</button>
+        <button data-tier="member" aria-pressed="false">member</button>
+      </div>
+    </div>
+    <button id="modeBtn" class="toggle" aria-label="Switch color mode"><span id="modeLab">light</span></button>
+  </header>
+
+  <div class="main" id="main" data-nav="graph">
+    <nav class="pane treepane" aria-label="Hierarchy navigation, synchronized with the graph">
+      <div class="treehead">
+        <span class="lab">hierarchy</span>
+        <span class="grow"></span>
+        <button class="mini" data-treeall="1">expand all</button>
+        <button class="mini" data-treeall="0">collapse</button>
+      </div>
+      <div class="treebody" id="tree">
+        <div class="loading"><div class="pulse"></div><div class="t">loading the register&hellip;</div></div>
+      </div>
+    </nav>
+
+    <section class="pane graphpane" aria-label="Force graph navigation">
+      <div class="graphhead">
+        <span class="lab">the register &middot; force view</span>
+        <span class="grow"></span>
+        <div class="legend" aria-hidden="true">
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--surface)" stroke="var(--rule)" stroke-width="1.2"/></svg>made</span>
+          <span><svg viewBox="0 0 14 14"><rect x="3" y="3" width="8" height="8" transform="rotate(45 7 7)" fill="var(--surface)" stroke="var(--rule)" stroke-width="1.2"/></svg>gathered</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--rule)" stroke-width="1.2" stroke-dasharray="3 2"/></svg>empty / outside</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--muted)" stroke-width="1.2" opacity=".55"/></svg>scoped</span>
+          <span><svg viewBox="0 0 14 14"><line x1="1" y1="7" x2="13" y2="7" stroke="var(--ember)" stroke-width="1.4"/></svg>lineage</span>
+        </div>
+      </div>
+      <div id="graph" role="application" aria-label="Encyclopedia structure graph. Nodes are shelves and entries; select a node to open its plate.">
+        <div class="loading"><div class="pulse"></div><div class="t">loading&hellip;</div></div>
+      </div>
+      <div class="graphfoot" id="graphfoot">loading from vault &middot; journal.techne.coop/encyclopedia</div>
+    </section>
+
+    <nav class="pane rail" id="rail" aria-label="Views and shelves"></nav>
+    <section class="pane list" id="list" aria-label="Entries"></section>
+    <section class="pane plate" id="plate" aria-label="Detail"></section>
+  </div>
+
+  <footer class="foot">
+    <span id="footStatus">loading&hellip;</span>
+    <span class="grow"></span>
+    <span class="door">The door is open.</span>
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+(function () {
+  /* ===== MODE ===== */
+  var root = document.documentElement;
+  var modeBtn = document.getElementById('modeBtn');
+  var modeLab = document.getElementById('modeLab');
+  var savedMode = localStorage.getItem('techne-mode');
+  function applyMode(m) {
+    root.setAttribute('data-mode', m);
+    modeLab.textContent = m === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('techne-mode', m);
+  }
+  if (savedMode) {
+    applyMode(savedMode);
+  } else {
+    applyMode(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  modeBtn.addEventListener('click', function () {
+    applyMode(root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ===== VAULT FETCH ===== */
+  /* read-only token for the Techne commons vault */
+  var VAULT = 'https://our.parachute.computer/vault/techne/api';
+  var RT = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Im5zdmg5M21aUXY1R0JuNm9laXB6RFh0X0hyUTN1TVpTdVJFZDRhY0Nwd28ifQ.eyJzY29wZSI6InZhdWx0OnRlY2huZTpyZWFkIiwiY2xpZW50X2lkIjoicGFyYWNodXRlLWh1YiIsInZhdWx0X3Njb3BlIjpbInRlY2huZSJdLCJzdWIiOiJ0b2Rkcy12YXVsdC1hY2Nlc3MiLCJpc3MiOiJodHRwczovL291ci5wYXJhY2h1dGUuY29tcHV0ZXIiLCJpYXQiOjE3ODMzNTM3NjYsImV4cCI6MTc5MTEyOTc2NiwiYXVkIjoidmF1bHQudGVjaG5lIiwianRpIjoiMHZNYjd4ZDNzWjNUYXFHalBkYVhhQSJ9.QoNhr4Zy8q-ldaH7PtnPuXA2C2EnTyycIfE4FzGXEKKCHuACMMxL2yia-e17gx0qs4hEI_s1Ry7jgt5KEvLklzSBL9jzQvrFAaR0vB7A6ndrW74IZy09Fle4gEC4648wkIchq2wnRY-I4tD1d-RhbTWyECFf36cyvfKsddQZyaRl42Kxj-OoiBfbopo9mFn2MPU-Bp0zzAsDF0wIHOa5Yh2-pRJK2tlEQW_UU4KzBydgF9j79uGUk6g3-GGV02E2K41llFTfNuORNk3zo54tCRU9MJb-GgBKVPyPcdG10fKZNa1HNGITuHs53JbnWd7UtkgsFys7TCX7gwSBBFd8tw';
+
+  function vaultGet(path) {
+    return fetch(VAULT + path, { headers: { Authorization: 'Bearer ' + RT } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); });
+  }
+
+  /* Canonical shelf order — the register's spine */
+  var SHELF_ORDER = ['catalog','founding','governance','operating','voice','programs','reading','agreements','seasons'];
+
+  /* Outside the register — editorial, not from vault */
+  var OUTSIDE = [
+    { id:'wave', name:'the second wave', meta:'prior sessions · unconfirmed', tier:'member',
+      desc:'Made artifacts from prior working sessions, not yet in the commons vault. Names only until their fields are read from the artifacts themselves.',
+      items:[
+        ['the sensemaking tool & its public repository','candidate for tools in commons'],
+        ['the daybook design','candidate for tools in commons'],
+        ['the almanac','candidate for operating instruments'],
+        ['the loop audit','candidate for operating instruments'],
+        ['the convictions protocol','candidate for operating instruments'],
+        ['the pattern atlas','candidate for tools in commons'],
+        ['the letters series & condensed editions','waits on member signatures, by its own rule'],
+        ['the public education volumes & reader\u2019s guide','candidate for programs & teaching']
+      ],
+      flag:'provenance · from working memory of prior sessions · confirm against the artifacts before accession' },
+    { id:'door', name:'held at the door', meta:'three rules, outside', tier:'member',
+      desc:'Three categories stay out of version one deliberately, each by a rule. No path leads from here into the register; the absence is the meaning.',
+      items:[
+        ['made but unclaimed','Instrument-drafted work no member has yet claimed and answered for stays off the shelf, however finished it looks.'],
+        ['awaiting their own thresholds','Work that waits on signatures enters when signed; work that waits on counsel enters as what it is now, or waits. The catalog records states; it never advances them.'],
+        ['named but not made','A thing enters when it has a body of its own; concepts that live inside other artifacts are not yet entries.']
+      ],
+      flag:'' }
+  ];
+
+  var START = {
+    entries: ['001','005','014'],
+    candidate: { name:'the join page', d:'Flagged at review: the most arrival-serving artifact in the project folder is absent from the eighteen. Whether it enters — and at what number — is decided at accession.', owner:'Todd · decision at accession' },
+    season: { name:'this season', d:'The seasons shelf — empty until the fourteenth creates its first entry.' }
+  };
+
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TIER_RANK = { public:0, participant:1, member:2 };
+  var LOCK = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  var CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function chipHtml(status, kind) { return '<span class="chip ' + (kind||'warn') + '"><span class="dot"></span>' + esc(status) + '</span>'; }
+
+  /* ===== APP STATE ===== */
+  var ENTRIES = {};
+  var SHELVES = [];
+  var state = { tier:'public', nav:'graph', view:'start', entry:'001', q:'' };
+  var expanded = { founding:true };
+  var loaded = false;
+
+  function visible(e) { return TIER_RANK[e.tier] <= TIER_RANK[state.tier]; }
+  function shelfById(id) { return SHELVES.filter(function(x){ return x.id === id; })[0]; }
+  function shelfOf(entryId) {
+    for (var i = 0; i < SHELVES.length; i++) {
+      if (SHELVES[i].entries.indexOf(entryId) !== -1) return SHELVES[i].id;
+    }
+    return null;
+  }
+
+  /* ===== LOAD FROM VAULT ===== */
+  function loadFromVault() {
+    return Promise.all([
+      vaultGet('/notes?tag=encyclopedia-shelf&limit=100'),
+      vaultGet('/notes?tag=encyclopedia-entry&limit=100')
+    ]).then(function(results) {
+      var shelfNotes = results[0];
+      var entryNotes = results[1];
+
+      /* Build ENTRIES object */
+      ENTRIES = {};
+      entryNotes.forEach(function(note) {
+        var m = note.metadata;
+        if (!m || !m.no) return;
+        ENTRIES[m.no] = {
+          no: m.no,
+          name: m.name || '',
+          kind: m.kind || 'document',
+          tier: m.tier || 'public',
+          status: m.status || 'unknown',
+          status_kind: m.status_kind || 'warn',
+          steward: m.steward || '—',
+          home: m.home || '—',
+          shelf: m.shelf || '',
+          kingdom: m.kingdom || 'made',
+          prov: m.prov || '',
+          note: note.content || '',
+          supersedes: m.supersedes || null,
+          superseded_by: m.superseded_by || null,
+          chosen: m.chosen || null,
+          claimed: m.claimed || null
+        };
+      });
+
+      /* Build SHELVES array in canonical order */
+      var shelfMap = {};
+      shelfNotes.forEach(function(note) {
+        var m = note.metadata;
+        if (!m || !m.shelf_id) return;
+        shelfMap[m.shelf_id] = {
+          id: m.shelf_id,
+          hue: m.hue || '',
+          name: m.name || m.shelf_id,
+          kingdom: m.kingdom || 'made',
+          range: m.range || '',
+          desc: m.desc || '',
+          empty: !!m.empty,
+          expect: m.expect || '',
+          steward: m.steward_empty || '',
+          entries: []
+        };
+      });
+
+      /* Assign entries to shelves */
+      Object.keys(ENTRIES).sort().forEach(function(no) {
+        var e = ENTRIES[no];
+        if (e.shelf && shelfMap[e.shelf]) {
+          shelfMap[e.shelf].entries.push(no);
+        }
+      });
+
+      /* Sort shelves in canonical order */
+      SHELVES = SHELF_ORDER
+        .filter(function(id) { return shelfMap[id]; })
+        .map(function(id) { return shelfMap[id]; });
+
+      /* Build lineage links from supersedes metadata */
+      /* (already stored in entry objects above) */
+
+      loaded = true;
+      document.getElementById('footStatus').innerHTML =
+        '<span class="live">&#x25cf;</span> live · ' + Object.keys(ENTRIES).length + ' entries · ' +
+        SHELVES.length + ' shelves · vault.techne · last fetched ' + new Date().toLocaleTimeString();
+    });
+  }
+
+  /* ===== HIERARCHY PANEL ===== */
+  var treeEl = document.getElementById('tree');
+
+  function markSvg(kind, opts) {
+    opts = opts || {};
+    if (kind === 'hub') return '<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="var(--raised)" stroke="var(--heading)" stroke-width="1.2"/></svg>';
+    if (kind === 'gathered') return '<svg viewBox="0 0 14 14"><rect x="3.2" y="3.2" width="7.6" height="7.6" transform="rotate(45 7 7)" fill="var(--surface)" stroke="' + (opts.hue || 'var(--rule)') + '" stroke-width="1.2"/></svg>';
+    if (kind === 'empty' || kind === 'outside') return '<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--rule)" stroke-width="1.2" stroke-dasharray="3 2"/></svg>';
+    return '<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--surface)" stroke="' + (opts.hue || 'var(--rule)') + '" stroke-width="1.2"/></svg>';
+  }
+
+  function trow(opts) {
+    var cls = 'trow' + (opts.dim ? ' dim' : '');
+    var chev = opts.chev === undefined
+      ? '<span class="chev blank">' + CHEV + '</span>'
+      : '<button class="chev' + (opts.chev ? ' open' : '') + '" data-toggle="' + opts.toggleId + '" aria-label="' + (opts.chev ? 'Collapse' : 'Expand') + ' ' + esc(opts.t) + '" aria-expanded="' + !!opts.chev + '">' + CHEV + '</button>';
+    return '<div class="' + cls + '" style="--pad:' + (opts.pad || 12) + 'px" aria-current="' + !!opts.cur + '">' +
+      chev +
+      '<span class="mark" aria-hidden="true">' + opts.mark + '</span>' +
+      '<button style="all:unset;flex:1;min-width:0;cursor:pointer;font:400 11.5px/1.4 var(--mono);color:inherit;text-transform:lowercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" ' + opts.act + ' title="' + esc(opts.title || opts.t) + '">' + esc(opts.t) + '</button>' +
+      (opts.no ? '<span class="no">' + esc(opts.no) + '</span>' : '') +
+      (opts.meta ? '<span class="meta">' + opts.meta + '</span>' : '') +
+      '</div>';
+  }
+
+  function renderTree() {
+    var h = '';
+    h += trow({ t:'the register', title:'the register · select for flat view',
+      mark:markSvg('hub'), pad:10, cur:(state.view === 'all'), act:'data-view="all"',
+      meta:Object.keys(ENTRIES).length + ' entries' });
+    SHELVES.forEach(function(s) {
+      var isOpen = !!expanded[s.id];
+      var kind = s.empty ? 'empty' : (s.kingdom === 'gathered' ? 'gathered' : 'made');
+      h += trow({
+        t:s.name, title:s.name + ' · ' + s.range + ' · ' + s.kingdom,
+        mark:markSvg(kind, { hue:s.hue }), pad:22,
+        cur:(state.view === s.id && !ENTRIES[state.entry] ? true : state.view === s.id && s.empty),
+        act:'data-view="' + s.id + '"',
+        chev:(s.entries.length ? isOpen : undefined), toggleId:s.id,
+        meta:(s.empty ? 'empty' : s.kingdom)
+      });
+      if (isOpen && s.entries.length) {
+        s.entries.forEach(function(id) {
+          var e = ENTRIES[id];
+          if (!e) return;
+          var scoped = !visible(e);
+          h += trow({
+            t:e.name, title:e.no + ' · ' + e.name + ' · ' + e.tier + (scoped ? ' · scoped' : ''),
+            mark:markSvg(e.kingdom === 'gathered' ? 'gathered' : 'made', { hue:s.hue }), pad:44,
+            cur:(state.entry === id && ['wave','door','about'].indexOf(state.view) === -1),
+            act:'data-entry="' + id + '"',
+            no:e.no, dim:scoped,
+            meta:(scoped ? '<span style="display:inline-flex">' + LOCK + '</span>' : '')
+          });
+        });
+      }
+    });
+    h += '<div class="tgroup">outside the register</div>';
+    OUTSIDE.forEach(function(z) {
+      var gated = TIER_RANK[state.tier] < TIER_RANK[z.tier];
+      h += trow({
+        t:z.name, title:z.name + ' · ' + z.meta,
+        mark:markSvg('outside'), pad:22,
+        cur:(state.view === z.id), act:'data-view="' + z.id + '"',
+        dim:gated, meta:(gated ? '<span style="display:inline-flex">' + LOCK + '</span>' : z.id === 'wave' ? 'dashed' : 'no edge')
+      });
+    });
+    treeEl.innerHTML = h;
+  }
+
+  /* ===== FORCE GRAPH ===== */
+  var graphEl = document.getElementById('graph');
+  var gNodes, gLinks, linkSel, nodeSel, sim, W = 800, H = 600;
+  var graphBuilt = false;
+
+  function buildGraphData() {
+    gNodes = []; gLinks = [];
+    gNodes.push({ id:'register', type:'hub', label:'the register' });
+    SHELVES.forEach(function(s) {
+      gNodes.push({ id:s.id, type:'shelf', empty:!!s.empty, label:s.name, hue:s.hue || 'var(--rule)', kingdom:s.kingdom });
+      gLinks.push({ source:'register', target:s.id, type:'spine' });
+      s.entries.forEach(function(eid) {
+        var e = ENTRIES[eid];
+        if (!e) return;
+        gNodes.push({ id:eid, type:'entry', no:e.no, label:e.name, tier:e.tier,
+          kingdom:e.kingdom, hue:s.hue || 'var(--rule)' });
+        gLinks.push({ source:s.id, target:eid, type:'rib' });
+        if (e.supersedes) gLinks.push({ source:eid, target:e.supersedes, type:'lineage' });
+      });
+    });
+    gNodes.push({ id:'wave', type:'outside', label:'the second wave', tier:'member' });
+    gLinks.push({ source:'register', target:'wave', type:'pending' });
+    gNodes.push({ id:'door', type:'outside', label:'held at the door', tier:'member', unlinked:true });
+  }
+
+  function nodeR(d) { return d.type === 'hub' ? 26 : d.type === 'shelf' ? 15 : d.type === 'outside' ? 14 : 9; }
+  function measure() {
+    W = graphEl.clientWidth || 800;
+    H = graphEl.clientHeight || 600;
+  }
+  function seedPositions() {
+    var cx = W / 2, cy = H / 2, n = SHELVES.length;
+    gNodes.forEach(function(d) { if (d.type === 'hub') { d.x = cx; d.y = cy; } });
+    SHELVES.forEach(function(s, si) {
+      var a = (si / n) * 2 * Math.PI - Math.PI / 2;
+      var sn = gNodes.filter(function(d) { return d.id === s.id; })[0];
+      sn.x = cx + Math.cos(a) * Math.min(W, H) * 0.30;
+      sn.y = cy + Math.sin(a) * Math.min(W, H) * 0.30;
+      s.entries.forEach(function(eid, ei) {
+        var en = gNodes.filter(function(d) { return d.id === eid; })[0];
+        if (!en) return;
+        en.x = sn.x + Math.cos(a + ei * 0.5) * 42;
+        en.y = sn.y + Math.sin(a + ei * 0.5) * 42;
+      });
+    });
+    gNodes.forEach(function(d) {
+      if (d.id === 'wave') { d.x = cx; d.y = cy + Math.min(W, H) * 0.44; }
+      if (d.id === 'door') { d.x = W * 0.86; d.y = H * 0.12; }
+    });
+  }
+
+  function buildGraph() {
+    graphEl.innerHTML = '';
+    var svgEl = d3.select(graphEl).append('svg');
+    var gRoot = svgEl.append('g');
+    measure();
+    seedPositions();
+    svgEl.attr('viewBox', '0 0 ' + W + ' ' + H);
+
+    linkSel = gRoot.append('g').selectAll('line')
+      .data(gLinks).enter().append('line')
+      .attr('stroke-width', function(d) { return d.type === 'lineage' ? 1.4 : 1; })
+      .attr('stroke', function(d) { return d.type === 'lineage' ? 'var(--ember)' : 'var(--rule)'; })
+      .attr('stroke-dasharray', function(d) { return d.type === 'pending' ? '4 4' : ''; });
+
+    nodeSel = gRoot.append('g').selectAll('g')
+      .data(gNodes).enter().append('g')
+      .attr('class', 'gnode')
+      .call(d3.drag()
+        .on('start', function(ev, d) { if (!reducedMotion && !ev.active) sim.alphaTarget(0.25).restart(); d.fx = d.x; d.fy = d.y; })
+        .on('drag', function(ev, d) { d.fx = ev.x; d.fy = ev.y; if (reducedMotion) tick(); })
+        .on('end', function(ev, d) { if (!reducedMotion && !ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }))
+      .on('click', function(ev, d) { selectNode(d); });
+
+    nodeSel.append('title').text(function(d) {
+      if (d.type === 'entry') return d.no + ' · ' + d.label + ' · ' + d.tier;
+      return d.label;
+    });
+
+    nodeSel.each(function(d) {
+      var g = d3.select(this);
+      if (d.type === 'entry' && d.kingdom === 'gathered') {
+        g.append('rect').attr('x', -7).attr('y', -7).attr('width', 14).attr('height', 14)
+          .attr('transform', 'rotate(45)').attr('rx', 1.5);
+      } else {
+        g.append('circle').attr('r', nodeR(d));
+      }
+      g.append('text')
+        .attr('y', d.type === 'entry' ? 18 : nodeR(d) + 13)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'var(--mono)')
+        .attr('font-size', d.type === 'hub' ? 11 : d.type === 'entry' ? 9 : 9.5)
+        .text(d.type === 'entry' ? d.no : d.label);
+    });
+
+    sim = d3.forceSimulation(gNodes)
+      .force('link', d3.forceLink(gLinks).id(function(d) { return d.id; })
+        .distance(function(l) { return l.type === 'spine' ? 96 : l.type === 'rib' ? 44 : l.type === 'pending' ? 120 : 60; })
+        .strength(function(l) { return l.type === 'lineage' ? 0.25 : 0.7; }))
+      .force('charge', d3.forceManyBody().strength(function(d) {
+        return d.type === 'hub' ? -420 : d.type === 'shelf' ? -260 : d.type === 'outside' ? -160 : -70; }))
+      .force('center', d3.forceCenter(W / 2, H / 2))
+      .force('collide', d3.forceCollide().radius(function(d) {
+        return d.type === 'shelf' ? 40 : d.type === 'hub' ? 46 : d.type === 'outside' ? 40 : 16; }))
+      .force('doorX', d3.forceX(function(d) { return d.id === 'door' ? W * 0.86 : W / 2; })
+        .strength(function(d) { return d.id === 'door' ? 0.18 : 0.01; }))
+      .force('doorY', d3.forceY(function(d) { return d.id === 'door' ? H * 0.14 : H / 2; })
+        .strength(function(d) { return d.id === 'door' ? 0.18 : 0.01; }))
+      .on('tick', tick);
+
+    if (reducedMotion) { sim.stop(); for (var i = 0; i < 300; i++) sim.tick(); tick(); }
+
+    svgEl.call(d3.zoom().scaleExtent([0.5, 2.5]).on('zoom', function(ev) {
+      gRoot.attr('transform', ev.transform);
+    })).on('dblclick.zoom', null);
+
+    graphBuilt = true;
+    restyleGraph();
+    document.getElementById('graphfoot').textContent =
+      'tree and graph are two projections of one state · held-at-the-door has no edge on purpose · live from vault.techne';
+  }
+
+  function tick() {
+    if (!linkSel || !nodeSel) return;
+    linkSel
+      .attr('x1', function(d) { return d.source.x; }).attr('y1', function(d) { return d.source.y; })
+      .attr('x2', function(d) { return d.target.x; }).attr('y2', function(d) { return d.target.y; });
+    nodeSel.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+  }
+
+  function nodeScoped(d) {
+    if (d.type === 'entry') return !visible(ENTRIES[d.id]);
+    if (d.type === 'outside') return TIER_RANK[state.tier] < TIER_RANK.member;
+    return false;
+  }
+  function nodeSelected(d) {
+    if (d.type === 'entry') return state.entry === d.id && ['wave','door','about'].indexOf(state.view) === -1;
+    if (d.type === 'shelf') return state.view === d.id;
+    if (d.type === 'outside') return state.view === d.id;
+    if (d.type === 'hub') return state.view === 'all';
+    return false;
+  }
+  function restyleGraph() {
+    if (!nodeSel) return;
+    nodeSel.each(function(d) {
+      var g = d3.select(this);
+      var scoped = nodeScoped(d);
+      var sel = nodeSelected(d);
+      var shape = g.select('circle, rect');
+      var strokeCol = sel ? 'var(--ember)' :
+        (d.type === 'hub' ? 'var(--heading)' :
+         d.type === 'shelf' ? (d.empty ? 'var(--rule)' : d.hue) :
+         d.type === 'outside' ? 'var(--rule)' : d.hue);
+      shape
+        .attr('fill', scoped ? 'transparent' : (d.type === 'hub' ? 'var(--raised)' : 'var(--surface)'))
+        .attr('stroke', strokeCol)
+        .attr('stroke-width', sel ? 2.2 : (d.type === 'hub' ? 1.4 : 1.1))
+        .attr('stroke-dasharray', (d.type === 'outside' || (d.type === 'shelf' && d.empty)) ? '4 3' : null)
+        .attr('opacity', scoped ? 0.5 : 1);
+      g.select('text')
+        .attr('fill', sel ? 'var(--ember-text)' : (d.type === 'entry' ? 'var(--muted)' : 'var(--text)'))
+        .attr('opacity', scoped ? 0.55 : 1);
+    });
+  }
+
+  function selectNode(d) {
+    if (d.type === 'hub') { state.view = 'all'; state.entry = null; }
+    else if (d.type === 'shelf') {
+      state.view = d.id; state.entry = null;
+      var s = shelfById(d.id);
+      if (s && s.entries.length) expanded[d.id] = true;
+    }
+    else if (d.type === 'outside') { state.view = d.id; }
+    else { state.entry = d.id; state.view = shelfOf(d.id); expanded[state.view] = true; }
+    renderAll();
+  }
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (!graphBuilt || !sim) return;
+      measure();
+      sim.force('center', d3.forceCenter(W / 2, H / 2));
+      sim.force('doorX').x(function(d) { return d.id === 'door' ? W * 0.86 : W / 2; });
+      sim.force('doorY').y(function(d) { return d.id === 'door' ? H * 0.14 : H / 2; });
+      if (!reducedMotion) { sim.alpha(0.25).restart(); } else { for (var i = 0; i < 120; i++) sim.tick(); tick(); }
+    }, 150);
+  });
+
+  /* ===== SHELVES NAV ===== */
+  var railEl = document.getElementById('rail');
+  function renderRail() {
+    var h = '<div class="lab">views</div>';
+    h += railBtn('start', 'start here', 'the newcomer\u2019s shelf · a view', 'var(--ember)', state.view === 'start', '');
+    h += railBtn('all', 'everything', 'the register, flat · ' + Object.keys(ENTRIES).length + ' entries', 'var(--rule)', state.view === 'all', '');
+    h += '<div class="div"></div><div class="lab">shelves · the register</div>';
+    SHELVES.forEach(function(s) {
+      var cls = s.empty ? ' empty' : '';
+      var meta = s.range + ' · <span class="k">' + s.kingdom + '</span>';
+      h += railBtn(s.id, s.name, meta, s.hue || 'var(--rule)', state.view === s.id, cls);
+    });
+    h += '<div class="div"></div><div class="lab">outside the register</div>';
+    OUTSIDE.forEach(function(z) {
+      var gated = TIER_RANK[state.tier] < TIER_RANK[z.tier];
+      h += '<button class="railbtn outside' + (gated ? ' gated' : '') + '" aria-current="' + (state.view === z.id) + '" data-view="' + z.id + '">' +
+        '<div class="t">' + z.name + (gated ? ' ' + LOCK : '') + '</div><div class="m">' + z.meta + (gated ? ' · member view' : '') + '</div></button>';
+    });
+    h += '<div class="div"></div>';
+    h += railBtn('about', 'about this surface', 'provenance & live-deploy notes', 'var(--rule)', state.view === 'about', '');
+    railEl.innerHTML = h;
+  }
+  function railBtn(id, t, m, hue, cur, cls) {
+    return '<button class="railbtn' + cls + '" style="--hue:' + hue + '" aria-current="' + cur + '" data-view="' + id + '">' +
+      '<div class="t">' + t + '</div><div class="m">' + m + '</div></button>';
+  }
+
+  /* ===== LIST ===== */
+  var listEl = document.getElementById('list');
+  function entryRow(id) {
+    var e = ENTRIES[id];
+    if (!e) return '';
+    if (state.q && e.name.toLowerCase().indexOf(state.q) === -1 && e.kind.indexOf(state.q) === -1) return '';
+    var vis = visible(e);
+    return '<button class="entrybtn' + (vis ? '' : ' scoped') + '" aria-current="' + (state.entry === id && state.view !== 'about') + '" data-entry="' + id + '">' +
+      '<span class="no">' + esc(e.no) + '</span>' +
+      '<span><span class="t">' + esc(e.name) + '</span><div class="s">' + esc(e.status) + '</div></span>' +
+      '<span class="tier">' + (vis ? esc(e.tier) : LOCK + ' ' + esc(e.tier)) + '</span></button>';
+  }
+  function searchBox() {
+    return '<div class="search"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+      '<input id="q" type="text" placeholder="filter entries" value="' + esc(state.q) + '" aria-label="Filter entries"></div>';
+  }
+  function renderList() {
+    if (state.nav === 'graph') return;
+    var h = '';
+    if (state.view === 'about') {
+      listEl.innerHTML = '<div class="head"><div class="t">about this surface</div>' +
+        '<div class="d">What this page is, what it is not, and how the live data connects.</div></div>' +
+        '<p class="note">The plate holds the notes.</p>';
+      return;
+    }
+    if (state.view === 'wave' || state.view === 'door') {
+      var z = OUTSIDE.filter(function(o) { return o.id === state.view; })[0];
+      var gated = TIER_RANK[state.tier] < TIER_RANK[z.tier];
+      h = '<div class="head"><div class="t">' + z.name + '</div>' +
+        '<div class="d">' + (gated ? 'Scoped to the member view.' : z.desc) + '</div>' +
+        '<div class="m">' + z.meta + '</div></div>';
+      listEl.innerHTML = h + (gated ? '<p class="note">Switch viewing-as to member to review — a simulation of the membrane.</p>' : '<p class="note">Details at right.</p>');
+      return;
+    }
+    if (state.view === 'start') {
+      h = '<div class="head"><div class="t">start here</div>' +
+        '<div class="d">The newcomer\u2019s shelf: a curatorial view over the same register. Same entries, different arrangement.</div>' +
+        '<div class="m">a view, not a branch</div></div>';
+      h += searchBox();
+      START.entries.forEach(function(id) { h += entryRow(id); });
+      h += '<button class="entrybtn" style="border:1px dashed var(--rule)" data-view="candidate"><span class="no">?</span>' +
+        '<span><span class="t">' + START.candidate.name + '</span><div class="s">candidate · not yet in the register</div></span>' +
+        '<span class="tier">open</span></button>';
+      h += '<button class="entrybtn" data-view="seasons"><span class="no">\u2192</span>' +
+        '<span><span class="t">' + START.season.name + '</span><div class="s">' + START.season.d + '</div></span>' +
+        '<span class="tier">shelf</span></button>';
+      listEl.innerHTML = h; bindSearch(); return;
+    }
+    if (state.view === 'all') {
+      h = '<div class="head"><div class="t">everything</div>' +
+        '<div class="d">The register, flat: ' + Object.keys(ENTRIES).length + ' entries in accession order.</div>' +
+        '<div class="m">live from the commons vault</div></div>';
+      h += searchBox();
+      Object.keys(ENTRIES).sort().forEach(function(id) { h += entryRow(id); });
+      listEl.innerHTML = h; bindSearch(); return;
+    }
+    var s = shelfById(state.view);
+    if (!s) { listEl.innerHTML = ''; return; }
+    h = '<div class="head"><div class="t">' + esc(s.name) + '</div>' +
+      '<div class="d">' + esc(s.desc) + '</div>' +
+      '<div class="m">' + esc(s.range) + ' · kingdom: ' + esc(s.kingdom) + '</div></div>';
+    if (s.empty) {
+      h += '<p class="note">An empty shelf with a stated reason is content, not absence.</p>' +
+        '<p class="note">first accession expected · ' + esc(s.expect) + ' · steward · ' + esc(s.steward) + '</p>';
+    } else {
+      h += searchBox();
+      s.entries.forEach(function(id) { h += entryRow(id); });
+    }
+    listEl.innerHTML = h;
+    if (!s.empty) bindSearch();
+  }
+  function bindSearch() {
+    var q = document.getElementById('q');
+    if (!q) return;
+    q.addEventListener('input', function() {
+      state.q = q.value.toLowerCase();
+      var pos = q.selectionStart;
+      renderList();
+      var nq = document.getElementById('q');
+      if (nq) { nq.focus(); nq.setSelectionRange(pos, pos); }
+    });
+  }
+
+  /* ===== PLATE ===== */
+  var plateEl = document.getElementById('plate');
+  function frow(k, v, serif) {
+    return '<div class="frow"><div class="k">' + esc(k) + '</div><div class="v' + (serif ? ' serif' : '') + '">' + v + '</div></div>';
+  }
+  function scopedPanel(name, tier) {
+    return '<div class="ph"><div><div class="no">scoped</div><h2>' + name + '</h2></div>' +
+      chipHtml('scoped · ' + tier + ' view', 'info') + '</div>' +
+      '<div class="scopepanel"><div class="t">' + LOCK + ' beyond this view</div>' +
+      '<div class="d">This plate is proposed for the ' + esc(tier) + ' tier. The name stays visible so the catalog never keeps a shadow inventory; the content waits for the right threshold.</div></div>';
+  }
+
+  function renderPlate() {
+    if (state.view === 'about') {
+      plateEl.innerHTML =
+        '<div class="ph"><div><div class="no">colophon · live encyclopedia</div><h2>About this surface</h2></div>' +
+        chipHtml('live · vault.techne', 'ok') + '</div>' +
+        '<div class="body">This page is a live view of the Techne commons vault at our.parachute.computer/vault/techne — the ratified and published work of the cooperative, one register, many shelves, two navigations. The hierarchy panel and the force graph are twin projections of one state. Shelves are views; entries are postings; the vault is the journal.</div>' +
+        '<div class="scopepanel"><div class="t">' + LOCK + ' the tiers are simulated</div>' +
+        '<div class="d">The viewing-as control demonstrates three visibility tiers for design review. A client-side page cannot enforce access; live tier enforcement requires server-side authorization. Each tier assignment is a proposed default; the board owns visibility.</div></div>' +
+        frow('data source', '<a href="https://our.parachute.computer" target="_blank" rel="noopener">our.parachute.computer</a> &middot; vault/techne &middot; read token (public tier)', true) +
+        frow('graph', 'D3-force v7 (Bostock et al., cdnjs). Drag to tidy; scroll to zoom.', true) +
+        frow('address', '<a href="https://journal.techne.coop/encyclopedia" target="_blank" rel="noopener">journal.techne.coop/encyclopedia</a>', true) +
+        frow('provenance', 'Built from the encyclopedia definition and first-accessions register, July 2026. Adapted from working surface v3. Live vault wiring by Nou.', true) +
+        frow('companions', 'the PRD &middot; working surfaces v1\u2013v3 &middot; the daybook', false);
+      return;
+    }
+    if (state.view === 'candidate') {
+      plateEl.innerHTML =
+        '<div class="ph"><div><div class="no">open question · surfaced in review</div><h2>' + esc(START.candidate.name) + '</h2></div>' +
+        chipHtml('candidate · undecided', 'warn') + '</div>' +
+        '<div class="body">' + esc(START.candidate.d) + '</div>' +
+        frow('owner', esc(START.candidate.owner), false) +
+        '<p class="quiet">The slot sits on the start-here shelf so the decision stays visible instead of smoothed over.</p>';
+      return;
+    }
+    if (state.view === 'wave' || state.view === 'door') {
+      var z = OUTSIDE.filter(function(o) { return o.id === state.view; })[0];
+      if (TIER_RANK[state.tier] < TIER_RANK[z.tier]) { plateEl.innerHTML = scopedPanel(z.name, z.tier); return; }
+      var hh = '<div class="ph"><div><div class="no">' + (z.id === 'wave' ? 'pending confirmation' : 'exclusions · by rule') + '</div><h2>' + esc(z.name) + '</h2></div></div>';
+      z.items.forEach(function(it) {
+        hh += '<div class="waverow"><span class="mark">\u00b7</span><div><div class="t">' + esc(it[0]) + '</div><div class="d">' + esc(it[1]) + '</div></div></div>';
+      });
+      if (z.flag) hh += '<p class="quiet">' + esc(z.flag) + '</p>';
+      plateEl.innerHTML = hh; return;
+    }
+    if (state.view === 'all' && !state.entry) {
+      plateEl.innerHTML =
+        '<div class="ph"><div><div class="no">the substrate</div><h2>The register</h2></div>' +
+        chipHtml('live · ' + Object.keys(ENTRIES).length + ' entries', 'ok') + '</div>' +
+        '<div class="body">One flat register: ' + Object.keys(ENTRIES).length + ' entries across ' + SHELVES.filter(function(s){ return !s.empty; }).length + ' filled shelves, ' + SHELVES.filter(function(s){ return s.empty; }).length + ' shelves open and empty with their reasons stated. Select any node or tree row to open a plate.</div>';
+      return;
+    }
+    var s = shelfById(state.view);
+    if (s && s.empty) {
+      plateEl.innerHTML = '<div class="ph"><div><div class="no">empty · by decision</div><h2>' + esc(s.name) + '</h2></div>' +
+        chipHtml('empty · reason stated', 'info') + '</div>' +
+        '<div class="body">' + esc(s.desc) + '</div>' +
+        frow('expected', esc(s.expect), false) +
+        frow('steward', esc(s.steward), false) +
+        '<p class="quiet">Nothing here yet is the honest state; the dashed border is the shelf saying so.</p>';
+      return;
+    }
+    var e = ENTRIES[state.entry];
+    if (!e) {
+      if (s) {
+        var hs = '<div class="ph"><div><div class="no">shelf · ' + esc(s.kingdom) + '</div><h2>' + esc(s.name) + '</h2></div></div>' +
+          '<div class="body">' + esc(s.desc) + '</div><div style="margin-top:16px;">';
+        s.entries.forEach(function(id) {
+          if (ENTRIES[id]) hs += '<button class="xlink" data-entry="' + id + '">' + id + ' · ' + esc((ENTRIES[id].name || '').split(' · ')[0]) + '</button>';
+        });
+        plateEl.innerHTML = hs + '</div>';
+      } else { plateEl.innerHTML = ''; }
+      return;
+    }
+    if (!visible(e)) { plateEl.innerHTML = scopedPanel(e.no + ' · ' + esc(e.name), e.tier); return; }
+    var h = '<div class="ph"><div><div class="no">accession ' + esc(e.no) + ' · ' + esc(e.tier) + '</div><h2>' + esc(e.name) + '</h2></div>' + chipHtml(e.status, e.status_kind) + '</div>';
+    h += frow('kind', esc(e.kind), false);
+    h += frow('steward', esc(e.steward), false);
+    h += frow('home', esc(e.home), false);
+    if (e.chosen) h += frow('chosen by', esc(e.chosen), false);
+    if (e.claimed) h += frow('claimed by', esc(e.claimed), false);
+    h += frow('provenance', esc(e.prov), true);
+    if (e.supersedes) h += frow('lineage', '<button class="xlink" data-entry="' + e.supersedes + '">supersedes ' + e.supersedes + ' \u2192</button>', false);
+    if (e.superseded_by) h += frow('lineage', '<button class="xlink" data-entry="' + e.superseded_by + '">superseded by ' + e.superseded_by + ' \u2192</button>', false);
+    if (e.note) h += '<div class="body">' + esc(e.note) + '</div>';
+    h += '<p class="quiet">Every field is confirmed by hands at accession; until then this plate is a proposal wearing the entry grammar.</p>';
+    plateEl.innerHTML = h;
+  }
+
+  /* ===== EVENTS ===== */
+  var mainEl = document.getElementById('main');
+  function renderAll() {
+    if (!loaded) return;
+    mainEl.setAttribute('data-nav', state.nav);
+    renderTree(); renderRail(); renderList(); renderPlate();
+    restyleGraph();
+  }
+
+  document.addEventListener('click', function(ev) {
+    var tg = ev.target.closest('[data-toggle]');
+    if (tg) { var id = tg.getAttribute('data-toggle'); expanded[id] = !expanded[id]; renderTree(); return; }
+    var ta = ev.target.closest('[data-treeall]');
+    if (ta) {
+      var open = ta.getAttribute('data-treeall') === '1';
+      SHELVES.forEach(function(s) { if (s.entries.length) expanded[s.id] = open; });
+      renderTree(); return;
+    }
+    var nb = ev.target.closest('button[data-nav]');
+    if (nb) {
+      state.nav = nb.getAttribute('data-nav');
+      document.querySelectorAll('button[data-nav]').forEach(function(b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-nav') === state.nav ? 'true' : 'false');
+      });
+      renderAll();
+      if (state.nav === 'graph' && graphBuilt && sim) {
+        measure();
+        if (!reducedMotion) sim.alpha(0.2).restart();
+        else { for (var i = 0; i < 60; i++) sim.tick(); tick(); }
+      }
+      return;
+    }
+    var tb = ev.target.closest('[data-tier]');
+    if (tb) {
+      state.tier = tb.getAttribute('data-tier');
+      document.querySelectorAll('[data-tier]').forEach(function(b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-tier') === state.tier ? 'true' : 'false');
+      });
+      renderAll(); return;
+    }
+    var t = ev.target.closest('[data-view],[data-entry]');
+    if (!t) return;
+    if (t.hasAttribute('data-entry')) {
+      state.entry = t.getAttribute('data-entry');
+      var sh = shelfOf(state.entry);
+      if (state.view !== 'start' && state.view !== 'all') state.view = sh;
+      if (sh) expanded[sh] = true;
+    } else {
+      var v = t.getAttribute('data-view');
+      state.view = v; state.q = '';
+      var sv = shelfById(v);
+      if (sv) { state.entry = null; if (sv.entries.length) expanded[v] = true; }
+      if (v === 'start') state.entry = START.entries[0];
+      if (v === 'all') state.entry = null;
+    }
+    renderAll();
+  });
+
+  /* ===== INIT ===== */
+  loadFromVault().then(function() {
+    buildGraphData();
+    buildGraph();
+    renderAll();
+  }).catch(function(err) {
+    console.error('Vault load failed:', err);
+    var errHtml = '<div class="errstate">' +
+      '<div class="t">vault unreachable</div>' +
+      '<div class="d">The commons vault at our.parachute.computer could not be reached. The register cannot be loaded.</div>' +
+      '</div>';
+    document.getElementById('tree').innerHTML = errHtml;
+    document.getElementById('graph').innerHTML = errHtml;
+    document.getElementById('footStatus').textContent = 'vault unreachable · ' + new Date().toLocaleTimeString();
+  });
+
+})();
+</script>
+</body>
+</html>
