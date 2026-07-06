@@ -509,13 +509,13 @@ footer {
       <p>The Daybook stores your entries privately. Entries begin private — visible only to members — until you choose to land them.</p>
     </div>
 
-    <div class="note">Membership required. Sign in with your @techne.coop email — a link will be sent to you.</div>
+    <div class="note">Sign in with your email — a one-time link will be sent to you.</div>
 
     <div id="setupStatus" class="status"></div>
 
     <div class="field">
       <label class="field-label" for="emailInput">Email</label>
-      <input class="field-input" type="email" id="emailInput" placeholder="you@techne.coop" autocomplete="email">
+      <input class="field-input" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
     </div>
 
     <div class="btn-row">
@@ -788,10 +788,6 @@ footer {
   document.getElementById('setupBtn').addEventListener('click', async () => {
     const email = document.getElementById('emailInput').value.trim().toLowerCase();
     if (!email) { setStatus('setupStatus', 'Email required.', 'error'); return; }
-    if (!email.endsWith('@techne.coop')) {
-      setStatus('setupStatus', 'Access requires a @techne.coop email address.', 'error');
-      return;
-    }
 
     const btn = document.getElementById('setupBtn');
     btn.textContent = 'Sending…';
