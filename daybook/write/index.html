@@ -4,204 +4,437 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Daybook — write a new entry. Reflection, Contribution, Exchange, or Clearing. Entries begin private.">
+<meta name="description" content="Daybook — write a new entry. Entries begin private.">
 <title>Daybook · write · Techne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --serif:"Libre Baskerville",Georgia,serif;
-    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
-    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
-    --kind-reflection:#EAB668;
-    --kind-contribution:#E09A52;
-    --kind-exchange:#D1755A;
-    --kind-clearing:#6A9A6A;
-  }
-  html[data-mode="dark"]{
-    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
-    --line:#2A2A30;--rule:#3A3A42;
-    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
-    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
-    --ok:#6A9A6A;--warn:#C46A6A;
-  }
-  html[data-mode="light"]{
-    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
-    --line:#D8D3C8;--rule:#9A958A;
-    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
-    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
-    --ok:#4A7A4A;--warn:#A84F4C;
-    --kind-reflection:#87621F;
-    --kind-contribution:#8C581D;
-    --kind-exchange:#9C4636;
-    --kind-clearing:#4A7A4A;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{color-scheme:dark light}
-  body{background:var(--bg);color:var(--text);font:400 17px/1.72 var(--serif);
-    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);
-    min-height:100vh}
-  :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-  ::selection{background:var(--blue);color:var(--bg)}
-  a{color:var(--blue-text);text-decoration:none}
-  a:hover{text-decoration:underline}
+/* ── tokens ── */
+:root {
+  --serif: "Libre Baskerville", Georgia, serif;
+  --mono:  "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur: .4s; --micro: .15s; --ease: cubic-bezier(.4,0,.2,1);
+}
 
-  /* topbar */
-  .topbar{display:flex;align-items:center;justify-content:space-between;
-    padding:0 var(--s5);height:52px;border-bottom:1px solid var(--line);
-    position:sticky;top:0;background:var(--bg);z-index:100}
-  .topbar-left{display:flex;align-items:center;gap:var(--s3)}
-  .topbar-brand{font:500 12px/1 var(--mono);color:var(--heading);text-decoration:none}
-  .topbar-brand:hover{color:var(--ember-text);text-decoration:none}
-  .topbar-sep{color:var(--faint);font:400 12px/1 var(--mono)}
-  .topbar-sub{font:400 12px/1 var(--mono);color:var(--muted)}
-  .topbar-right{display:flex;align-items:center;gap:var(--s3)}
-  .nav-link{font:500 11px/1 var(--mono);color:var(--muted);text-decoration:none;
-    padding:5px 10px;border-radius:2px;transition:color var(--micro) var(--ease)}
-  .nav-link:hover{color:var(--heading);text-decoration:none}
-  .mode-btn{font:500 11px/1 var(--mono);color:var(--muted);background:var(--surface);
-    border:1px solid var(--rule);border-radius:2px;padding:6px 12px;cursor:pointer;
-    transition:background var(--micro) var(--ease),color var(--micro) var(--ease)}
-  .mode-btn:hover{background:var(--raised);color:var(--heading)}
+html[data-mode="dark"] {
+  --bg:      #0F0F12;
+  --inset:   #08080A;
+  --surface: #16161B;
+  --raised:  #232329;
+  --line:    #2A2A30;
+  --rule:    #3A3A42;
+  --heading: #E8E4DF;
+  --text:    #CFCBC4;
+  --muted:   #8A857E;
+  --faint:   #5A554F;
+  --blue:    #6A8AC4;
+  --blue-t:  #97B5E8;
+  --ember:   #C4956A;
+  --ember-t: #D4A57A;
+  --ok:      #6A9A6A;
+  --warn:    #C46A6A;
+  --k-ref:   #EAB668;
+  --k-con:   #E09A52;
+  --k-exc:   #D1755A;
+  --k-cle:   #6A9A6A;
+}
 
-  /* layout */
-  .wrap{max-width:720px;margin:0 auto;padding:var(--s7) var(--s5) var(--s8)}
+html[data-mode="light"] {
+  --bg:      #F7F5F0;
+  --inset:   #EBE7DF;
+  --surface: #FCFBF8;
+  --raised:  #FEFDFB;
+  --line:    #D8D3C8;
+  --rule:    #9A958A;
+  --heading: #1A1A1F;
+  --text:    #2E2C28;
+  --muted:   #646058;
+  --faint:   #A39E92;
+  --blue:    #4A6FB0;
+  --blue-t:  #39588F;
+  --ember:   #8A6A4A;
+  --ember-t: #6F5436;
+  --ok:      #4A7A4A;
+  --warn:    #A84F4C;
+  --k-ref:   #87621F;
+  --k-con:   #8C581D;
+  --k-exc:   #9C4636;
+  --k-cle:   #4A7A4A;
+}
 
-  /* setup screen */
-  .setup{display:none}
-  .setup-head{padding:var(--s7) 0 var(--s5);border-bottom:1px solid var(--rule);margin-bottom:var(--s6)}
-  .kicker{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;
-    letter-spacing:.14em;margin-bottom:var(--s3)}
-  .setup h1{font:700 32px/1.08 var(--serif);color:var(--heading);letter-spacing:-.015em;
-    margin-bottom:var(--s4)}
-  .setup p{font:400 16px/1.72 var(--serif);color:var(--text);max-width:56ch;margin-bottom:var(--s4)}
-  .setup p:last-child{margin-bottom:0}
-  .note{font:400 13px/1.6 var(--mono);color:var(--muted);padding:var(--s4) var(--s5);
-    background:var(--inset);border:1px solid var(--line);border-radius:2px;margin:var(--s5) 0}
+/* ── reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark light; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.72 var(--serif);
+  min-height: 100vh;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+a { color: var(--blue-t); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+::selection { background: var(--blue); color: var(--bg); }
 
-  .field{margin-bottom:var(--s5)}
-  .field label{display:block;font:500 11px/1.6 var(--mono);color:var(--muted);
-    text-transform:uppercase;letter-spacing:.1em;margin-bottom:var(--s2)}
-  .field input[type="text"],.field input[type="password"],.field textarea,.field select{
-    width:100%;background:var(--surface);border:1px solid var(--rule);border-radius:2px;
-    color:var(--heading);font:400 14px/1.5 var(--mono);padding:var(--s3) var(--s4);
-    transition:border-color var(--micro) var(--ease)}
-  .field input[type="text"]:focus,.field input[type="password"):focus,.field textarea:focus,.field select:focus{
-    border-color:var(--blue);outline:none}
-  .field textarea{resize:vertical;min-height:80px}
-  .field select option{background:var(--bg)}
+/* ── topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s5);
+  height: 52px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: var(--s3); }
+.brand { font: 500 12px/1 var(--mono); color: var(--heading); text-decoration: none; }
+.brand:hover { color: var(--ember-t); text-decoration: none; }
+.sep { font: 400 12px/1 var(--mono); color: var(--faint); }
+.topbar-sub { font: 400 12px/1 var(--mono); color: var(--muted); }
+.topbar-right { display: flex; align-items: center; gap: var(--s3); }
+.nav-link {
+  font: 500 11px/1 var(--mono);
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 2px;
+}
+.nav-link:hover { color: var(--heading); text-decoration: none; }
+.mode-btn {
+  font: 500 11px/1 var(--mono);
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.mode-btn:hover { background: var(--raised); color: var(--heading); }
 
-  .btn-row{display:flex;gap:var(--s3);margin-top:var(--s6)}
-  .btn{font:500 12px/1 var(--mono);padding:10px 20px;border-radius:2px;cursor:pointer;
-    border:1px solid transparent;transition:all var(--micro) var(--ease)}
-  .btn-primary{background:var(--ember);color:var(--bg);border-color:var(--ember)}
-  .btn-primary:hover{filter:brightness(1.1)}
-  .btn-ghost{background:transparent;color:var(--muted);border-color:var(--rule)}
-  .btn-ghost:hover{color:var(--heading);border-color:var(--heading)}
+/* ── page wrap ── */
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--s7) var(--s5) var(--s8);
+}
 
-  /* compose screen */
-  .compose{display:none}
-  .compose-head{padding:var(--s6) 0 var(--s5);border-bottom:1px solid var(--rule);margin-bottom:var(--s6)}
-  .compose h1{font:700 28px/1.1 var(--serif);color:var(--heading);letter-spacing:-.012em}
+/* ── screens ── */
+.screen { display: none; }
+.screen.active { display: block; }
 
-  /* kind selector */
-  .kind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s2);margin-bottom:var(--s5)}
-  @media(max-width:600px){.kind-grid{grid-template-columns:repeat(2,1fr)}}
-  .kind-card{position:relative;cursor:pointer}
-  .kind-card input{position:absolute;opacity:0;pointer-events:none}
-  .kind-label{display:block;padding:var(--s3) var(--s4);border:1px solid var(--line);
-    border-radius:2px;text-align:center;transition:all var(--micro) var(--ease);
-    user-select:none}
-  .kind-label .kind-name{font:600 11px/1.6 var(--mono);text-transform:uppercase;
-    letter-spacing:.1em;display:block;margin-bottom:4px}
-  .kind-label .kind-desc{font:400 11px/1.4 var(--mono);color:var(--muted);display:block}
-  .kind-card input:checked + .kind-label{border-width:2px}
-  .kind-card[data-kind="reflection"] input:checked + .kind-label{
-    border-color:var(--kind-reflection);background:color-mix(in srgb,var(--kind-reflection) 8%,transparent)}
-  .kind-card[data-kind="reflection"] .kind-name{color:var(--kind-reflection)}
-  .kind-card[data-kind="contribution"] input:checked + .kind-label{
-    border-color:var(--kind-contribution);background:color-mix(in srgb,var(--kind-contribution) 8%,transparent)}
-  .kind-card[data-kind="contribution"] .kind-name{color:var(--kind-contribution)}
-  .kind-card[data-kind="exchange"] input:checked + .kind-label{
-    border-color:var(--kind-exchange);background:color-mix(in srgb,var(--kind-exchange) 8%,transparent)}
-  .kind-card[data-kind="exchange"] .kind-name{color:var(--kind-exchange)}
-  .kind-card[data-kind="clearing"] input:checked + .kind-label{
-    border-color:var(--kind-clearing);background:color-mix(in srgb,var(--kind-clearing) 8%,transparent)}
-  .kind-card[data-kind="clearing"] .kind-name{color:var(--kind-clearing)}
+/* ── setup ── */
+.page-head {
+  padding-bottom: var(--s6);
+  margin-bottom: var(--s6);
+  border-bottom: 1px solid var(--rule);
+}
+.kicker {
+  font: 500 11px/1.6 var(--mono);
+  color: var(--ember-t);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  margin-bottom: var(--s3);
+}
+.page-head h1 {
+  font: 700 34px/1.08 var(--serif);
+  color: var(--heading);
+  letter-spacing: -.015em;
+  margin-bottom: var(--s4);
+}
+.page-head p {
+  font: 400 16px/1.72 var(--serif);
+  color: var(--text);
+  max-width: 52ch;
+}
+.note {
+  font: 400 13px/1.6 var(--mono);
+  color: var(--muted);
+  padding: var(--s4) var(--s5);
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--faint);
+  border-radius: 2px;
+  margin: var(--s5) 0;
+}
 
-  .body-field{margin-bottom:var(--s5)}
-  .body-field label{display:block;font:500 11px/1.6 var(--mono);color:var(--muted);
-    text-transform:uppercase;letter-spacing:.1em;margin-bottom:var(--s2)}
-  .body-textarea{width:100%;background:var(--surface);border:1px solid var(--rule);
-    border-radius:2px;color:var(--heading);font:400 16px/1.72 var(--serif);
-    padding:var(--s4) var(--s5);min-height:200px;resize:vertical;
-    transition:border-color var(--micro) var(--ease)}
-  .body-textarea:focus{border-color:var(--blue);outline:none}
-  .body-textarea::placeholder{color:var(--faint)}
+/* ── form fields ── */
+.field { margin-bottom: var(--s5); }
+.field-label {
+  display: block;
+  font: 600 11px/1.6 var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: var(--s2);
+}
+.field-input {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--heading);
+  font: 400 14px/1.5 var(--mono);
+  padding: 10px var(--s4);
+  transition: border-color var(--micro) var(--ease);
+}
+.field-input:focus { border-color: var(--blue); outline: none; }
 
-  .optional-block{border-top:1px solid var(--line);padding-top:var(--s5);margin-top:var(--s2)}
-  .optional-label{font:500 10px/1.6 var(--mono);color:var(--faint);text-transform:uppercase;
-    letter-spacing:.12em;margin-bottom:var(--s4)}
+/* ── buttons ── */
+.btn-row { display: flex; gap: var(--s3); margin-top: var(--s6); }
+.btn {
+  font: 600 12px/1 var(--mono);
+  padding: 12px 24px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--micro) var(--ease);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.btn-primary { background: var(--ember); color: var(--bg); border-color: var(--ember); }
+.btn-primary:hover:not(:disabled) { opacity: .88; }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--rule); }
+.btn-ghost:hover { color: var(--heading); border-color: var(--heading); }
 
-  select{width:100%;background:var(--surface);border:1px solid var(--rule);border-radius:2px;
-    color:var(--heading);font:400 13px/1 var(--mono);padding:var(--s3) var(--s4);
-    appearance:none;cursor:pointer}
-  select:focus{border-color:var(--blue);outline:none}
+/* ── status messages ── */
+.status {
+  display: none;
+  font: 400 13px/1.5 var(--mono);
+  padding: var(--s3) var(--s4);
+  border-radius: 2px;
+  margin-bottom: var(--s4);
+  border: 1px solid transparent;
+}
+.status.error { color: var(--warn); background: #2a1010; border-color: #5a2020; }
+.status.ok    { color: var(--ok);   background: #101a10; border-color: #204020; }
+.status.show  { display: block; }
 
-  .action-row{display:flex;align-items:center;gap:var(--s3);padding-top:var(--s5);
-    border-top:1px solid var(--line);margin-top:var(--s5)}
-  .private-badge{font:500 10px/1.6 var(--mono);color:var(--muted);text-transform:uppercase;
-    letter-spacing:.1em;padding:4px 8px;border:1px solid var(--line);border-radius:2px;
-    margin-left:auto}
+/* ── compose: kind selector ── */
+.section-label {
+  font: 600 11px/1.6 var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: var(--s3);
+}
+.kind-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s2);
+  margin-bottom: var(--s6);
+}
+@media (max-width: 560px) {
+  .kind-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.kind-btn {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: var(--s3) var(--s4);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--micro) var(--ease), background var(--micro) var(--ease);
+}
+.kind-btn:hover { border-color: var(--rule); background: var(--raised); }
+.kind-btn .k-name {
+  display: block;
+  font: 600 11px/1.6 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 4px;
+}
+.kind-btn .k-desc {
+  display: block;
+  font: 400 11px/1.4 var(--mono);
+  color: var(--muted);
+}
 
-  .save-btn{font:500 12px/1 var(--mono);background:var(--ember);color:var(--bg);
-    border:1px solid var(--ember);border-radius:2px;padding:10px 24px;cursor:pointer;
-    transition:all var(--micro) var(--ease)}
-  .save-btn:hover:not(:disabled){filter:brightness(1.1)}
-  .save-btn:disabled{opacity:.5;cursor:not-allowed}
+/* selected states per kind */
+.kind-btn[data-kind="reflection"].selected  { border-color: var(--k-ref); border-width: 2px; }
+.kind-btn[data-kind="contribution"].selected { border-color: var(--k-con); border-width: 2px; }
+.kind-btn[data-kind="exchange"].selected    { border-color: var(--k-exc); border-width: 2px; }
+.kind-btn[data-kind="clearing"].selected    { border-color: var(--k-cle); border-width: 2px; }
 
-  .discard-btn{font:500 12px/1 var(--mono);background:transparent;color:var(--muted);
-    border:1px solid var(--rule);border-radius:2px;padding:10px 18px;cursor:pointer;
-    transition:all var(--micro) var(--ease)}
-  .discard-btn:hover{color:var(--heading);border-color:var(--heading)}
+.kind-btn[data-kind="reflection"]  .k-name { color: var(--k-ref); }
+.kind-btn[data-kind="contribution"] .k-name { color: var(--k-con); }
+.kind-btn[data-kind="exchange"]    .k-name { color: var(--k-exc); }
+.kind-btn[data-kind="clearing"]    .k-name { color: var(--k-cle); }
 
-  /* success screen */
-  .success{display:none;text-align:center;padding:var(--s8) 0}
-  .success-icon{font-size:32px;margin-bottom:var(--s4)}
-  .success h2{font:700 24px/1.12 var(--serif);color:var(--heading);margin-bottom:var(--s3)}
-  .success p{font:400 15px/1.72 var(--serif);color:var(--text);max-width:44ch;margin:0 auto var(--s5)}
-  .success-links{display:flex;justify-content:center;gap:var(--s4);flex-wrap:wrap}
-  .success-links a{font:500 11px/1 var(--mono);color:var(--blue-text)}
+/* ── body textarea ── */
+.body-label {
+  display: block;
+  font: 600 11px/1.6 var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: var(--s2);
+}
+.body-input {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--heading);
+  font: 400 16px/1.72 var(--serif);
+  padding: var(--s4) var(--s5);
+  min-height: 220px;
+  resize: vertical;
+  transition: border-color var(--micro) var(--ease);
+  margin-bottom: var(--s6);
+}
+.body-input:focus { border-color: var(--blue); outline: none; }
+.body-input::placeholder { color: var(--faint); }
 
-  /* error/status */
-  .status-bar{font:400 13px/1.5 var(--mono);padding:var(--s3) var(--s4);border-radius:2px;
-    margin-bottom:var(--s4);display:none}
-  .status-bar.error{color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent);
-    border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
-  .status-bar.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,transparent);
-    border:1px solid color-mix(in srgb,var(--ok) 30%,transparent)}
+/* ── optional / work ref ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: var(--s2) 0 var(--s5);
+}
+.optional-label {
+  font: 600 10px/1.6 var(--mono);
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  margin-bottom: var(--s4);
+}
+.work-select {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--heading);
+  font: 400 14px/1 var(--mono);
+  padding: 10px var(--s4);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.work-select:focus { border-color: var(--blue); outline: none; }
 
-  /* settings link */
-  .settings-strip{font:400 12px/1.5 var(--mono);color:var(--faint);text-align:right;
-    padding:var(--s4) 0 0}
+/* ── action bar ── */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding-top: var(--s5);
+  margin-top: var(--s5);
+  border-top: 1px solid var(--line);
+}
+.save-btn {
+  font: 600 13px/1 var(--mono);
+  background: var(--ember);
+  color: var(--bg);
+  border: 1px solid var(--ember);
+  border-radius: 2px;
+  padding: 14px 28px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  transition: opacity var(--micro) var(--ease);
+}
+.save-btn:hover:not(:disabled) { opacity: .88; }
+.save-btn:disabled { opacity: .45; cursor: not-allowed; }
+.discard-btn {
+  font: 600 13px/1 var(--mono);
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 14px 22px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  transition: color var(--micro) var(--ease), border-color var(--micro) var(--ease);
+}
+.discard-btn:hover { color: var(--heading); border-color: var(--heading); }
+.private-tag {
+  margin-left: auto;
+  font: 500 10px/1 var(--mono);
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+.settings-note {
+  text-align: right;
+  margin-top: var(--s4);
+}
+.settings-note a {
+  font: 400 11px/1 var(--mono);
+  color: var(--faint);
+}
+.settings-note a:hover { color: var(--muted); }
 
-  /* footer */
-  footer{border-top:1px solid var(--line);padding:var(--s6) 0;margin-top:var(--s8)}
-  .footer-note{font:400 12px/1.6 var(--mono);color:var(--faint);text-align:center}
-  .footer-note a{color:var(--faint)}
-  .footer-note a:hover{color:var(--muted)}
+/* ── success ── */
+.success-wrap {
+  text-align: center;
+  padding: var(--s8) 0;
+}
+.success-mark {
+  font-size: 28px;
+  color: var(--ok);
+  margin-bottom: var(--s5);
+}
+.success-wrap h2 {
+  font: 700 26px/1.1 var(--serif);
+  color: var(--heading);
+  margin-bottom: var(--s3);
+}
+.success-wrap p {
+  font: 400 15px/1.72 var(--serif);
+  color: var(--text);
+  max-width: 44ch;
+  margin: 0 auto var(--s6);
+}
+.success-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--s5);
+  flex-wrap: wrap;
+}
+.success-links a {
+  font: 500 12px/1 var(--mono);
+  color: var(--blue-t);
+}
+
+/* ── footer ── */
+footer {
+  border-top: 1px solid var(--line);
+  padding: var(--s6) 0;
+  margin-top: var(--s8);
+}
+.footer-note {
+  font: 400 12px/1.6 var(--mono);
+  color: var(--faint);
+  text-align: center;
+}
+.footer-note a { color: var(--faint); }
+.footer-note a:hover { color: var(--muted); }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-left">
-    <a href="/" class="topbar-brand">Techne</a>
-    <span class="topbar-sep">·</span>
+    <a href="/" class="brand">Techne</a>
+    <span class="sep">·</span>
     <span class="topbar-sub">daybook</span>
-    <span class="topbar-sep">·</span>
+    <span class="sep">·</span>
     <span class="topbar-sub">write</span>
   </div>
   <div class="topbar-right">
@@ -213,27 +446,26 @@
 
 <div class="wrap">
 
-  <!-- ── Setup screen ── -->
-  <div class="setup" id="setup">
-    <div class="setup-head">
+  <!-- ── Setup ── -->
+  <div class="screen" id="screenSetup">
+    <div class="page-head">
       <div class="kicker">Daybook · first time</div>
       <h1>Connect your vault</h1>
+      <p>The Daybook stores your entries privately in the Techne vault. Entries begin private — visible only to you — until you choose to land them.</p>
     </div>
 
-    <p>The Daybook stores your entries privately in the Techne Parachute vault. Entries begin private — visible only to you — until you choose to land them.</p>
-    <p>You need a write-capable vault token to get started. Paste it below and it will be saved to this browser only.</p>
+    <div class="note">Your token is stored in this browser's localStorage only. It is sent only to our.parachute.computer to authenticate your requests.</div>
 
-    <div class="note">Your token is stored in this browser's localStorage. It never leaves your device except to authenticate with the Parachute vault at our.parachute.computer.</div>
-
-    <div id="setupStatus" class="status-bar"></div>
+    <div id="setupStatus" class="status"></div>
 
     <div class="field">
-      <label for="tokenInput">Vault token</label>
-      <input type="password" id="tokenInput" placeholder="eyJhbGci…" autocomplete="off" spellcheck="false">
+      <label class="field-label" for="tokenInput">Vault token</label>
+      <input class="field-input" type="password" id="tokenInput" placeholder="eyJhbGci…" autocomplete="off" spellcheck="false">
     </div>
+
     <div class="field">
-      <label for="authorInput">Your name <span style="font-weight:400;text-transform:none;letter-spacing:0">(shown on landed entries)</span></label>
-      <input type="text" id="authorInput" placeholder="e.g. Todd Youngblood" autocomplete="name">
+      <label class="field-label" for="authorInput">Your name</label>
+      <input class="field-input" type="text" id="authorInput" placeholder="e.g. Todd Youngblood" autocomplete="name">
     </div>
 
     <div class="btn-row">
@@ -241,87 +473,72 @@
     </div>
   </div>
 
-  <!-- ── Compose screen ── -->
-  <div class="compose" id="compose">
-    <div class="compose-head">
+  <!-- ── Compose ── -->
+  <div class="screen" id="screenCompose">
+    <div class="page-head">
       <div class="kicker">Daybook · <span id="dateDisplay"></span></div>
       <h1>New entry</h1>
     </div>
 
-    <div id="composeStatus" class="status-bar"></div>
+    <div id="composeStatus" class="status"></div>
 
     <!-- Kind -->
-    <div style="margin-bottom:var(--s2)">
-      <div style="font:500 11px/1.6 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:var(--s3)">Kind</div>
-      <div class="kind-grid">
-        <div class="kind-card" data-kind="reflection">
-          <input type="radio" name="kind" value="reflection" id="k-reflection">
-          <label class="kind-label" for="k-reflection">
-            <span class="kind-name">Reflection</span>
-            <span class="kind-desc">witness and perception</span>
-          </label>
-        </div>
-        <div class="kind-card" data-kind="contribution">
-          <input type="radio" name="kind" value="contribution" id="k-contribution" checked>
-          <label class="kind-label" for="k-contribution">
-            <span class="kind-name">Contribution</span>
-            <span class="kind-desc">labor or skill given</span>
-          </label>
-        </div>
-        <div class="kind-card" data-kind="exchange">
-          <input type="radio" name="kind" value="exchange" id="k-exchange">
-          <label class="kind-label" for="k-exchange">
-            <span class="kind-name">Exchange</span>
-            <span class="kind-desc">goods or services traded</span>
-          </label>
-        </div>
-        <div class="kind-card" data-kind="clearing">
-          <input type="radio" name="kind" value="clearing" id="k-clearing">
-          <label class="kind-label" for="k-clearing">
-            <span class="kind-name">Clearing</span>
-            <span class="kind-desc">settlement or closure</span>
-          </label>
-        </div>
-      </div>
+    <div class="section-label">Kind</div>
+    <div class="kind-grid">
+      <button class="kind-btn selected" data-kind="contribution" type="button">
+        <span class="k-name">Contribution</span>
+        <span class="k-desc">labor or skill given</span>
+      </button>
+      <button class="kind-btn" data-kind="reflection" type="button">
+        <span class="k-name">Reflection</span>
+        <span class="k-desc">witness and perception</span>
+      </button>
+      <button class="kind-btn" data-kind="exchange" type="button">
+        <span class="k-name">Exchange</span>
+        <span class="k-desc">goods or services traded</span>
+      </button>
+      <button class="kind-btn" data-kind="clearing" type="button">
+        <span class="k-name">Clearing</span>
+        <span class="k-desc">settlement or closure</span>
+      </button>
     </div>
 
     <!-- Body -->
-    <div class="body-field">
-      <label for="bodyInput">Entry</label>
-      <textarea class="body-textarea" id="bodyInput" placeholder="What happened. What you observed. What you gave." rows="8"></textarea>
-    </div>
+    <label class="body-label" for="bodyInput">Entry</label>
+    <textarea class="body-input" id="bodyInput" placeholder="What happened. What you observed. What you gave." rows="9"></textarea>
 
-    <!-- Optional fields -->
-    <div class="optional-block">
-      <div class="optional-label">Optional</div>
-      <div class="field">
-        <label for="workRefSelect">Linked work item</label>
-        <select id="workRefSelect">
-          <option value="">— none —</option>
-        </select>
-      </div>
+    <!-- Optional -->
+    <hr class="divider">
+    <div class="optional-label">Optional</div>
+    <div class="field">
+      <label class="field-label" for="workRefSelect">Linked work item</label>
+      <select class="work-select" id="workRefSelect">
+        <option value="">— none —</option>
+      </select>
     </div>
 
     <!-- Actions -->
-    <div class="action-row">
-      <button class="discard-btn" id="discardBtn">Discard</button>
-      <button class="save-btn" id="saveBtn">Save entry</button>
-      <span class="private-badge">private</span>
+    <div class="action-bar">
+      <button class="discard-btn" id="discardBtn" type="button">Discard</button>
+      <button class="save-btn" id="saveBtn" type="button">Save entry</button>
+      <span class="private-tag">private</span>
     </div>
 
-    <div class="settings-strip">
-      <a href="#" id="settingsLink" style="color:var(--faint);font:400 11px/1 var(--mono)">change token or name</a>
+    <div class="settings-note">
+      <a href="#" id="settingsLink">change token or name</a>
     </div>
   </div>
 
-  <!-- ── Success screen ── -->
-  <div class="success" id="success">
-    <div class="success-icon">◆</div>
-    <h2>Entry saved</h2>
-    <p>Your entry is private. It will stay that way until you choose to land it.</p>
-    <div class="success-links">
-      <a href="#" id="writeAnotherLink">write another</a>
-      <a href="/daybook/today/">see today</a>
+  <!-- ── Success ── -->
+  <div class="screen" id="screenSuccess">
+    <div class="success-wrap">
+      <div class="success-mark">◆</div>
+      <h2>Entry saved</h2>
+      <p>Your entry is private. It will stay that way until you land it.</p>
+      <div class="success-links">
+        <a href="#" id="writeAnotherLink">write another</a>
+        <a href="/daybook/today/">see today</a>
+      </div>
     </div>
   </div>
 
@@ -329,22 +546,27 @@
 
 <footer>
   <div class="wrap">
-    <p class="footer-note"><a href="https://journal.techne.coop">journal.techne.coop</a> · <a href="https://techne.coop">techne.coop</a></p>
+    <p class="footer-note">
+      <a href="https://journal.techne.coop">journal.techne.coop</a> ·
+      <a href="https://techne.coop">techne.coop</a>
+    </p>
   </div>
 </footer>
 
 <script>
-(function(){
-  const VAULT = 'https://our.parachute.computer/vault/techne/api';
-  const TOKEN_KEY = 'daybook-vault-token';
+(function () {
+  'use strict';
+
+  const VAULT      = 'https://our.parachute.computer/vault/techne/api';
+  const TOKEN_KEY  = 'daybook-vault-token';
   const AUTHOR_KEY = 'daybook-author';
 
   /* ── mode toggle ── */
   const root = document.documentElement;
   const modeBtn = document.getElementById('modeBtn');
-  const saved = localStorage.getItem('techne-mode') || 'dark';
-  root.setAttribute('data-mode', saved);
-  modeBtn.textContent = saved === 'dark' ? 'light' : 'dark';
+  const initMode = localStorage.getItem('techne-mode') || 'dark';
+  root.setAttribute('data-mode', initMode);
+  modeBtn.textContent = initMode === 'dark' ? 'light' : 'dark';
   modeBtn.addEventListener('click', () => {
     const next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-mode', next);
@@ -353,66 +575,71 @@
   });
 
   /* ── screens ── */
-  const $setup   = document.getElementById('setup');
-  const $compose = document.getElementById('compose');
-  const $success = document.getElementById('success');
-
-  function show(screen) {
-    $setup.style.display   = screen === 'setup'   ? 'block' : 'none';
-    $compose.style.display = screen === 'compose' ? 'block' : 'none';
-    $success.style.display = screen === 'success' ? 'block' : 'none';
+  function show(id) {
+    ['screenSetup', 'screenCompose', 'screenSuccess'].forEach(s => {
+      document.getElementById(s).classList.toggle('active', s === id);
+    });
   }
 
-  /* ── status bars ── */
-  function setStatus(id, msg, type) {
-    const el = document.getElementById(id);
+  /* ── status ── */
+  function setStatus(elId, msg, type) {
+    const el = document.getElementById(elId);
     el.textContent = msg;
-    el.className = 'status-bar ' + (type || '');
-    el.style.display = msg ? 'block' : 'none';
+    el.className = 'status' + (msg ? ' show ' + (type || '') : '');
   }
 
-  /* ── date display ── */
+  /* ── date ── */
   const now = new Date();
   document.getElementById('dateDisplay').textContent =
-    now.toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  /* ── token management ── */
+  /* ── kind selector ── */
+  let selectedKind = 'contribution';
+  document.querySelectorAll('.kind-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.kind-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedKind = btn.dataset.kind;
+    });
+  });
+
+  /* ── token helpers ── */
   function getToken()  { return localStorage.getItem(TOKEN_KEY) || ''; }
   function getAuthor() { return localStorage.getItem(AUTHOR_KEY) || 'member'; }
 
   async function verifyToken(token) {
-    const res = await fetch(`${VAULT}/notes?limit=1`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return res.ok;
-  }
-
-  /* ── work items for dropdown ── */
-  async function loadWorkItems(token) {
     try {
-      const res = await fetch(`${VAULT}/notes?tag=work&include_content=false&limit=100`, {
+      const r = await fetch(`${VAULT}/notes?limit=1`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok) return [];
-      const data = await res.json();
-      return Array.isArray(data) ? data : (data.notes || []);
-    } catch { return []; }
+      return r.ok;
+    } catch { return false; }
   }
 
-  function populateWorkSelect(items) {
-    const sel = document.getElementById('workRefSelect');
-    items
-      .filter(n => n.metadata?.status !== 'resolved')
-      .sort((a,b) => (a.metadata?.title||'').localeCompare(b.metadata?.title||''))
-      .forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n.path;
-        opt.textContent = n.metadata?.title || n.path;
-        sel.appendChild(opt);
+  /* ── work items ── */
+  async function loadWorkItems() {
+    const token = getToken();
+    try {
+      const r = await fetch(`${VAULT}/notes?tag=work&include_content=false&limit=100`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (!r.ok) return;
+      const data = await r.json();
+      const items = Array.isArray(data) ? data : (data.notes || []);
+      const sel = document.getElementById('workRefSelect');
+      items
+        .filter(n => n.metadata?.status !== 'resolved')
+        .sort((a, b) => (a.metadata?.title || '').localeCompare(b.metadata?.title || ''))
+        .forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n.path;
+          opt.textContent = n.metadata?.title || n.path;
+          sel.appendChild(opt);
+        });
+    } catch { /* non-fatal */ }
   }
 
-  /* ── setup flow ── */
+  /* ── setup ── */
   document.getElementById('setupBtn').addEventListener('click', async () => {
     const token  = document.getElementById('tokenInput').value.trim();
     const author = document.getElementById('authorInput').value.trim();
@@ -432,91 +659,90 @@
 
     localStorage.setItem(TOKEN_KEY, token);
     if (author) localStorage.setItem(AUTHOR_KEY, author);
-    await enterCompose();
+    enterCompose();
   });
 
   document.getElementById('settingsLink').addEventListener('click', e => {
     e.preventDefault();
     document.getElementById('tokenInput').value = getToken();
     document.getElementById('authorInput').value = getAuthor();
-    show('setup');
+    setStatus('setupStatus', '', '');
+    show('screenSetup');
   });
 
-  /* ── compose flow ── */
-  async function enterCompose() {
-    show('compose');
-    const token = getToken();
-    const items = await loadWorkItems(token);
-    populateWorkSelect(items);
+  function enterCompose() {
+    show('screenCompose');
+    loadWorkItems();
     document.getElementById('bodyInput').focus();
   }
 
   /* ── save ── */
-  document.getElementById('saveBtn').addEventListener('click', saveEntry);
-  document.getElementById('bodyInput').addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveEntry();
-  });
-
   async function saveEntry() {
     const body = document.getElementById('bodyInput').value.trim();
     if (!body) { setStatus('composeStatus', 'Write something before saving.', 'error'); return; }
 
-    const kind     = document.querySelector('input[name="kind"]:checked')?.value || 'reflection';
-    const workRef  = document.getElementById('workRefSelect').value || null;
-    const token    = getToken();
-    const author   = getAuthor();
-    const now      = new Date();
-    const ts       = now.toISOString().replace(/[-:T]/g,'').slice(0,12); // YYYYMMDDHHmm
-    const path     = `daybook/entries/${ts}-${kind}`;
+    const token   = getToken();
+    const author  = getAuthor();
+    const ts      = new Date();
+    const pad     = n => String(n).padStart(2, '0');
+    const pathTs  = `${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}`;
+    const path    = `daybook/entries/${pathTs}-${selectedKind}`;
+    const workRef = document.getElementById('workRefSelect').value || null;
 
-    const btn = document.getElementById('saveBtn');
-    btn.textContent = 'Saving…';
-    btn.disabled = true;
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.textContent = 'Saving…';
+    saveBtn.disabled = true;
     setStatus('composeStatus', '', '');
 
     try {
-      const payload = {
-        path,
-        content: body,
-        tags: ['daybook-entry'],
-        metadata: {
-          kind,
-          visibility: 'private',
-          author,
-          created_at: now.toISOString(),
-          ...(workRef ? { work_ref: workRef } : {})
-        }
-      };
-
       const res = await fetch(`${VAULT}/notes`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          path,
+          content: body,
+          tags: ['daybook-entry'],
+          metadata: {
+            kind: selectedKind,
+            visibility: 'private',
+            author,
+            created_at: ts.toISOString(),
+            ...(workRef ? { work_ref: workRef } : {})
+          }
+        })
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `${res.status} ${res.statusText}`);
+        throw new Error(err.error || `${res.status}`);
       }
 
-      show('success');
-    } catch(e) {
-      setStatus('composeStatus', `Could not save: ${e.message}`, 'error');
-      btn.textContent = 'Save entry';
-      btn.disabled = false;
+      show('screenSuccess');
+    } catch (e) {
+      setStatus('composeStatus', 'Could not save: ' + e.message, 'error');
+      saveBtn.textContent = 'Save entry';
+      saveBtn.disabled = false;
     }
   }
 
+  document.getElementById('saveBtn').addEventListener('click', saveEntry);
+  document.getElementById('bodyInput').addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveEntry();
+  });
+
   /* ── discard ── */
   document.getElementById('discardBtn').addEventListener('click', () => {
-    if (!document.getElementById('bodyInput').value.trim() ||
-        confirm('Discard this entry?')) {
+    const body = document.getElementById('bodyInput').value.trim();
+    if (!body || confirm('Discard this entry?')) {
       document.getElementById('bodyInput').value = '';
       document.getElementById('workRefSelect').value = '';
-      document.querySelector('input[name="kind"][value="contribution"]').checked = true;
+      document.querySelectorAll('.kind-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelector('.kind-btn[data-kind="contribution"]').classList.add('selected');
+      selectedKind = 'contribution';
+      setStatus('composeStatus', '', '');
     }
   });
 
@@ -525,19 +751,21 @@
     e.preventDefault();
     document.getElementById('bodyInput').value = '';
     document.getElementById('workRefSelect').value = '';
-    document.querySelector('input[name="kind"][value="contribution"]').checked = true;
+    document.querySelectorAll('.kind-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.kind-btn[data-kind="contribution"]').classList.add('selected');
+    selectedKind = 'contribution';
     setStatus('composeStatus', '', '');
-    show('compose');
+    show('screenCompose');
     document.getElementById('bodyInput').focus();
   });
 
   /* ── init ── */
-  const token = getToken();
-  if (token) {
+  if (getToken()) {
     enterCompose();
   } else {
-    show('setup');
+    show('screenSetup');
   }
+
 })();
 </script>
 </body>
