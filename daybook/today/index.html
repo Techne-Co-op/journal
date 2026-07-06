@@ -4,159 +4,196 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Daybook — today's entries. The bloom shows when and how often. Private entries are yours alone until you land them.">
+<meta name="description" content="Daybook — today's entries. The bloom shows when and how often.">
 <title>Daybook · today · Techne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --serif:"Libre Baskerville",Georgia,serif;
-    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
-    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
-    --kind-reflection:#EAB668;
-    --kind-contribution:#E09A52;
-    --kind-exchange:#D1755A;
-    --kind-clearing:#6A9A6A;
-  }
-  html[data-mode="dark"]{
-    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
-    --line:#2A2A30;--rule:#3A3A42;
-    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
-    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
-    --ok:#6A9A6A;--warn:#C46A6A;
-  }
-  html[data-mode="light"]{
-    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
-    --line:#D8D3C8;--rule:#9A958A;
-    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
-    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
-    --ok:#4A7A4A;--warn:#A84F4C;
-    --kind-reflection:#87621F;
-    --kind-contribution:#8C581D;
-    --kind-exchange:#9C4636;
-    --kind-clearing:#4A7A4A;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{color-scheme:dark light}
-  body{background:var(--bg);color:var(--text);font:400 17px/1.72 var(--serif);
-    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);
-    min-height:100vh}
-  :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-  ::selection{background:var(--blue);color:var(--bg)}
-  a{color:var(--blue-text);text-decoration:none}
-  a:hover{text-decoration:underline}
+:root {
+  --serif: "Libre Baskerville", Georgia, serif;
+  --mono:  "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:.4s; --micro:.15s; --ease:cubic-bezier(.4,0,.2,1);
+  --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A;
+  --sun-rose:#B45C7C; --sun-violet:#6E5494;
+}
+html[data-mode="dark"] {
+  --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+  --line:#2A2A30; --rule:#3A3A42;
+  --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+  --blue:#6A8AC4; --blue-t:#97B5E8; --ember:#C4956A; --ember-t:#D4A57A;
+  --ok:#6A9A6A; --warn:#C46A6A;
+  --petal:.5;
+}
+html[data-mode="light"] {
+  --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+  --line:#D8D3C8; --rule:#9A958A;
+  --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+  --blue:#4A6FB0; --blue-t:#39588F; --ember:#8A6A4A; --ember-t:#6F5436;
+  --ok:#4A7A4A; --warn:#A84F4C;
+  --petal:.62;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark light; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.72 var(--serif);
+  min-height: 100vh;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+a { color: var(--blue-t); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+::selection { background: var(--blue); color: var(--bg); }
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;
-    padding:0 var(--s5);height:52px;border-bottom:1px solid var(--line);
-    position:sticky;top:0;background:var(--bg);z-index:100}
-  .topbar-left{display:flex;align-items:center;gap:var(--s3)}
-  .topbar-brand{font:500 12px/1 var(--mono);color:var(--heading);text-decoration:none}
-  .topbar-brand:hover{color:var(--ember-text);text-decoration:none}
-  .topbar-sep{color:var(--faint);font:400 12px/1 var(--mono)}
-  .topbar-sub{font:400 12px/1 var(--mono);color:var(--muted)}
-  .topbar-right{display:flex;align-items:center;gap:var(--s3)}
-  .nav-link{font:500 11px/1 var(--mono);color:var(--muted);text-decoration:none;
-    padding:5px 10px;border-radius:2px;transition:color var(--micro) var(--ease)}
-  .nav-link:hover{color:var(--heading);text-decoration:none}
-  .mode-btn{font:500 11px/1 var(--mono);color:var(--muted);background:var(--surface);
-    border:1px solid var(--rule);border-radius:2px;padding:6px 12px;cursor:pointer;
-    transition:background var(--micro) var(--ease),color var(--micro) var(--ease)}
-  .mode-btn:hover{background:var(--raised);color:var(--heading)}
+/* topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--s5); height: 52px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: var(--bg); z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: var(--s3); }
+.brand { font: 500 12px/1 var(--mono); color: var(--heading); text-decoration: none; }
+.brand:hover { color: var(--ember-t); text-decoration: none; }
+.sep { font: 400 12px/1 var(--mono); color: var(--faint); }
+.topbar-sub { font: 400 12px/1 var(--mono); color: var(--muted); }
+.topbar-right { display: flex; align-items: center; gap: var(--s3); }
+.nav-link { font: 500 11px/1 var(--mono); color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 2px; }
+.nav-link:hover { color: var(--heading); text-decoration: none; }
+.mode-btn {
+  font: 500 11px/1 var(--mono); color: var(--muted); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 7px 14px; cursor: pointer;
+}
+.mode-btn:hover { background: var(--raised); color: var(--heading); }
 
-  .wrap{max-width:780px;margin:0 auto;padding:var(--s6) var(--s5) var(--s8)}
+.wrap { max-width: 780px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s8); }
 
-  /* no-token screen */
-  .no-token{display:none;padding:var(--s7) 0;text-align:center}
-  .no-token h2{font:700 24px/1.1 var(--serif);color:var(--heading);margin-bottom:var(--s4)}
-  .no-token p{font:400 15px/1.72 var(--serif);color:var(--text);max-width:44ch;margin:0 auto var(--s5)}
+/* screens */
+.screen { display: none; }
+.screen.active { display: block; }
 
-  /* main view */
-  .main-view{display:none}
+/* no-token */
+.no-token-wrap { text-align: center; padding: var(--s8) 0; }
+.no-token-wrap h2 { font: 700 24px/1.1 var(--serif); color: var(--heading); margin-bottom: var(--s4); }
+.no-token-wrap p { font: 400 15px/1.72 var(--serif); color: var(--text); max-width: 44ch; margin: 0 auto var(--s5); }
+.cta-link {
+  display: inline-block;
+  font: 600 12px/1 var(--mono);
+  color: var(--ember-t);
+  border: 1px solid var(--ember);
+  border-radius: 2px;
+  padding: 12px 22px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.cta-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
 
-  /* header */
-  .day-head{padding:var(--s6) 0 var(--s5);border-bottom:1px solid var(--rule);margin-bottom:var(--s6)}
-  .kicker{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;
-    letter-spacing:.14em;margin-bottom:var(--s3)}
-  .day-head h1{font:700 30px/1.1 var(--serif);color:var(--heading);letter-spacing:-.012em;margin-bottom:var(--s3)}
-  .day-meta{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
-  .day-count{font:400 12px/1 var(--mono);color:var(--muted)}
-  .write-link{font:500 11px/1 var(--mono);color:var(--ember-text);padding:5px 10px;
-    border:1px solid var(--ember);border-radius:2px;text-decoration:none;
-    transition:all var(--micro) var(--ease)}
-  .write-link:hover{background:var(--ember);color:var(--bg);text-decoration:none}
+/* day head */
+.day-head { padding-bottom: var(--s5); margin-bottom: var(--s5); border-bottom: 1px solid var(--rule); }
+.kicker { font: 500 11px/1.6 var(--mono); color: var(--ember-t); text-transform: uppercase; letter-spacing: .14em; margin-bottom: var(--s3); }
+.day-head h1 { font: 700 30px/1.1 var(--serif); color: var(--heading); letter-spacing: -.012em; margin-bottom: var(--s3); }
+.day-meta { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.day-count { font: 400 12px/1 var(--mono); color: var(--muted); }
+.write-link {
+  font: 600 11px/1 var(--mono); color: var(--ember-t);
+  border: 1px solid var(--ember); border-radius: 2px;
+  padding: 7px 14px; text-decoration: none; text-transform: uppercase; letter-spacing: .06em;
+}
+.write-link:hover { background: var(--ember); color: var(--bg); text-decoration: none; }
 
-  /* bloom */
-  .bloom-wrap{display:flex;justify-content:center;padding:var(--s6) 0 var(--s7)}
-  .bloom-svg{width:280px;height:280px}
-  @media(max-width:480px){.bloom-svg{width:220px;height:220px}}
+/* bloom */
+.bloom-wrap { display: flex; justify-content: center; padding: var(--s5) 0 var(--s6); }
+#dial { width: 480px; height: 480px; max-width: 100%; overflow: visible; }
 
-  /* entry list */
-  .entry-list{display:flex;flex-direction:column;gap:var(--s3)}
+/* bloom SVG classes */
+.ring   { fill: none; stroke: var(--line); stroke-width: 1; }
+.arcseg { fill: none; stroke-width: 2.5; stroke-linecap: round; opacity: .6; }
+.horizon { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 5; opacity: .5; }
+.cardlbl { fill: var(--muted); font: 400 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.nowline { stroke: var(--heading); stroke-width: 1; opacity: .4; }
+.nowlbl  { fill: var(--muted); font: 400 9px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.c-time  { fill: var(--heading); font: 700 14px/1 var(--serif); }
+.c-mer   { fill: var(--muted); font: 400 11px/1 var(--mono); }
+.petal   { transition: opacity var(--micro) var(--ease); }
+.petal .lobe { opacity: var(--petal); }
+.matter .edge { fill: none; stroke-width: 1.2; opacity: .7; }
+.matter .fillp { stroke: none; }
 
-  .entry-card{background:var(--surface);border:1px solid var(--line);border-radius:2px;
-    padding:var(--s4) var(--s5);transition:border-color var(--micro) var(--ease)}
-  .entry-card:hover{border-color:var(--rule)}
-  .entry-card.public{border-left:3px solid var(--ok)}
+/* legend */
+.legend { display: flex; gap: var(--s4); justify-content: center; flex-wrap: wrap; margin-bottom: var(--s6); }
+.legend-item { display: flex; align-items: center; gap: 6px; font: 400 11px/1 var(--mono); color: var(--muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.legend-dot.open { background: transparent; border: 1.5px solid var(--muted); }
 
-  .entry-top{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s3);flex-wrap:wrap}
-  .entry-kind{font:600 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
-    padding:3px 8px;border-radius:2px;border:1px solid currentColor}
-  .entry-kind.reflection{color:var(--kind-reflection)}
-  .entry-kind.contribution{color:var(--kind-contribution)}
-  .entry-kind.exchange{color:var(--kind-exchange)}
-  .entry-kind.clearing{color:var(--kind-clearing)}
-  .entry-time{font:400 11px/1 var(--mono);color:var(--muted)}
-  .entry-vis{font:400 10px/1 var(--mono);color:var(--faint);margin-left:auto}
-  .entry-vis.public{color:var(--ok)}
+/* status */
+.status {
+  display: none; font: 400 13px/1.5 var(--mono); padding: var(--s3) var(--s4);
+  border-radius: 2px; margin-bottom: var(--s4); border: 1px solid transparent;
+}
+.status.error { display: block; color: var(--warn); background: #2a1010; border-color: #5a2020; }
+.status.ok    { display: block; color: var(--ok);   background: #101a10; border-color: #204020; }
 
-  .entry-body{font:400 15px/1.72 var(--serif);color:var(--text);margin-bottom:var(--s3)}
-  .entry-body.preview{overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+/* entry list */
+.entry-list { display: flex; flex-direction: column; gap: var(--s3); }
+.entry-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 2px;
+  padding: var(--s4) var(--s5);
+}
+.entry-card.public { border-left: 3px solid var(--ok); }
+.entry-top {
+  display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); flex-wrap: wrap;
+}
+.entry-kind {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .1em;
+  padding: 3px 9px; border-radius: 2px; border: 1px solid currentColor;
+}
+.entry-kind.reflection  { color: #EAB668; }
+.entry-kind.contribution { color: #E09A52; }
+.entry-kind.exchange    { color: #D1755A; }
+.entry-kind.clearing    { color: #6A9A6A; }
+html[data-mode="light"] .entry-kind.reflection  { color: #87621F; }
+html[data-mode="light"] .entry-kind.contribution { color: #8C581D; }
+html[data-mode="light"] .entry-kind.exchange    { color: #9C4636; }
+html[data-mode="light"] .entry-kind.clearing    { color: #4A7A4A; }
+.entry-time { font: 400 11px/1 var(--mono); color: var(--muted); }
+.entry-vis  { font: 400 10px/1 var(--mono); color: var(--faint); margin-left: auto; }
+.entry-vis.public { color: var(--ok); }
+.entry-body { font: 400 15px/1.72 var(--serif); color: var(--text); margin-bottom: var(--s3); }
+.entry-body.clamped { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.entry-actions { display: flex; align-items: center; gap: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.work-ref { font: 400 11px/1 var(--mono); color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expand-btn { font: 400 11px/1 var(--mono); color: var(--faint); background: none; border: none; cursor: pointer; padding: 4px 0; }
+.expand-btn:hover { color: var(--muted); }
+.land-btn {
+  font: 600 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em;
+  background: transparent; color: var(--ok); border: 1px solid var(--ok);
+  border-radius: 2px; padding: 6px 12px; cursor: pointer;
+}
+.land-btn:hover:not(:disabled) { background: var(--ok); color: var(--bg); }
+.land-btn:disabled { opacity: .4; cursor: not-allowed; }
 
-  .entry-actions{display:flex;align-items:center;gap:var(--s3);padding-top:var(--s3);
-    border-top:1px solid var(--line)}
-  .entry-work-ref{font:400 11px/1 var(--mono);color:var(--muted);flex:1;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* empty / loading */
+.empty { text-align: center; padding: var(--s7) 0; color: var(--muted); }
+.empty p { font: 400 15px/1.72 var(--serif); margin-bottom: var(--s4); }
+.loading { text-align: center; padding: var(--s7) 0; font: 400 13px/1 var(--mono); color: var(--faint); }
 
-  .land-btn{font:500 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
-    background:transparent;color:var(--ok);border:1px solid var(--ok);border-radius:2px;
-    padding:5px 10px;cursor:pointer;transition:all var(--micro) var(--ease)}
-  .land-btn:hover:not(:disabled){background:var(--ok);color:var(--bg)}
-  .land-btn:disabled{opacity:.4;cursor:not-allowed}
-  .expand-btn{font:400 11px/1 var(--mono);color:var(--faint);background:none;border:none;
-    cursor:pointer;padding:4px 0}
-  .expand-btn:hover{color:var(--muted)}
-
-  /* empty */
-  .empty{text-align:center;padding:var(--s7) 0;color:var(--muted)}
-  .empty p{font:400 15px/1.72 var(--serif);margin-bottom:var(--s4)}
-
-  /* loading */
-  .loading{text-align:center;padding:var(--s7) 0;font:400 13px/1 var(--mono);color:var(--faint)}
-
-  /* status */
-  .status-bar{font:400 13px/1.5 var(--mono);padding:var(--s3) var(--s4);border-radius:2px;
-    margin-bottom:var(--s4);display:none}
-  .status-bar.error{color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent);
-    border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
-  .status-bar.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,transparent);
-    border:1px solid color-mix(in srgb,var(--ok) 30%,transparent)}
-
-  footer{border-top:1px solid var(--line);padding:var(--s6) 0;margin-top:var(--s8)}
-  .footer-note{font:400 12px/1.6 var(--mono);color:var(--faint);text-align:center}
-  .footer-note a{color:var(--faint)}
-  .footer-note a:hover{color:var(--muted)}
+footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: var(--s8); }
+.footer-note { font: 400 12px/1.6 var(--mono); color: var(--faint); text-align: center; }
+.footer-note a { color: var(--faint); }
+.footer-note a:hover { color: var(--muted); }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-left">
-    <a href="/" class="topbar-brand">Techne</a>
-    <span class="topbar-sep">·</span>
+    <a href="/" class="brand">Techne</a>
+    <span class="sep">·</span>
     <span class="topbar-sub">daybook</span>
-    <span class="topbar-sep">·</span>
+    <span class="sep">·</span>
     <span class="topbar-sub">today</span>
   </div>
   <div class="topbar-right">
@@ -169,31 +206,50 @@
 <div class="wrap">
 
   <!-- no token -->
-  <div class="no-token" id="noToken">
-    <h2>No vault connected</h2>
-    <p>Set up your vault token in the write surface to start keeping your daybook.</p>
-    <a href="/daybook/write/" style="font:500 12px/1 var(--mono);color:var(--ember-text);border:1px solid var(--ember);padding:10px 20px;border-radius:2px;text-decoration:none">Connect vault →</a>
+  <div class="screen" id="screenNoToken">
+    <div class="no-token-wrap">
+      <h2>No vault connected</h2>
+      <p>Set up your vault token in the write surface to start your daybook.</p>
+      <a href="/daybook/write/" class="cta-link">Connect vault →</a>
+    </div>
   </div>
 
-  <!-- main view -->
-  <div class="main-view" id="mainView">
+  <!-- main -->
+  <div class="screen" id="screenMain">
 
     <div class="day-head">
       <div class="kicker">Daybook</div>
       <h1 id="dayHeading"></h1>
       <div class="day-meta">
-        <span class="day-count" id="dayCount"></span>
+        <span class="day-count" id="dayCount">loading…</span>
         <a href="/daybook/write/" class="write-link">+ write</a>
       </div>
     </div>
 
-    <div id="globalStatus" class="status-bar"></div>
+    <div id="globalStatus" class="status"></div>
 
     <!-- Bloom -->
     <div class="bloom-wrap">
-      <svg class="bloom-svg" id="bloomSvg" viewBox="0 0 280 280" aria-label="Bloom — today's entries arranged on a clock face">
-        <!-- hour labels rendered by JS -->
-      </svg>
+      <svg id="dial" viewBox="0 0 480 480" aria-label="Bloom — today's entries on a 24-hour dial"></svg>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#E09A52"></div> Contribution
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#EAB668"></div> Reflection
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#D1755A"></div> Exchange
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#6A9A6A"></div> Clearing
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot open"></div> Private (not yet landed)
+      </div>
     </div>
 
     <!-- Entry list -->
@@ -201,348 +257,398 @@
     <div class="entry-list" id="entryList"></div>
     <div class="empty" id="emptyMsg" style="display:none">
       <p>No entries today.</p>
-      <a href="/daybook/write/" style="font:500 11px/1 var(--mono);color:var(--ember-text)">Write your first entry →</a>
+      <a href="/daybook/write/" style="font:500 11px/1 var(--mono);color:var(--ember-t)">Write your first entry →</a>
     </div>
 
   </div>
-
 </div>
 
 <footer>
   <div class="wrap">
-    <p class="footer-note"><a href="https://journal.techne.coop">journal.techne.coop</a> · <a href="https://techne.coop">techne.coop</a></p>
+    <p class="footer-note">
+      <a href="https://journal.techne.coop">journal.techne.coop</a> ·
+      <a href="https://techne.coop">techne.coop</a>
+    </p>
   </div>
 </footer>
 
 <script>
-(function(){
-  const VAULT      = 'https://our.parachute.computer/vault/techne/api';
-  const TOKEN_KEY  = 'daybook-vault-token';
-  const AUTHOR_KEY = 'daybook-author';
+(function () {
+  'use strict';
 
-  const KIND_COLOR = {
-    reflection:   'var(--kind-reflection)',
-    contribution: 'var(--kind-contribution)',
-    exchange:     'var(--kind-exchange)',
-    clearing:     'var(--kind-clearing)'
-  };
+  var VAULT     = 'https://our.parachute.computer/vault/techne/api';
+  var TOKEN_KEY = 'daybook-vault-token';
 
   /* ── mode toggle ── */
-  const root = document.documentElement;
-  const modeBtn = document.getElementById('modeBtn');
-  const saved = localStorage.getItem('techne-mode') || 'dark';
-  root.setAttribute('data-mode', saved);
-  modeBtn.textContent = saved === 'dark' ? 'light' : 'dark';
-  modeBtn.addEventListener('click', () => {
-    const next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
+  var root = document.documentElement;
+  var modeBtn = document.getElementById('modeBtn');
+  var initMode = localStorage.getItem('techne-mode') || 'dark';
+  root.setAttribute('data-mode', initMode);
+  modeBtn.textContent = initMode === 'dark' ? 'light' : 'dark';
+  modeBtn.addEventListener('click', function () {
+    var next = root.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-mode', next);
     localStorage.setItem('techne-mode', next);
     modeBtn.textContent = next === 'dark' ? 'light' : 'dark';
+    if (lastEntries) renderBloom(lastEntries);
   });
 
+  /* ── screens ── */
+  function show(id) {
+    ['screenNoToken', 'screenMain'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('active', s === id);
+    });
+  }
+
   function setStatus(msg, type) {
-    const el = document.getElementById('globalStatus');
+    var el = document.getElementById('globalStatus');
     el.textContent = msg;
-    el.className = 'status-bar ' + (type || '');
-    el.style.display = msg ? 'block' : 'none';
+    el.className = 'status' + (msg ? ' ' + (type || '') : '');
+  }
+
+  /* ── bloom constants (canonical from reference) ── */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var cx = 240, cy = 240, R = 148, H = 50, LBL = R + 54;
+  var dxh = Math.sqrt(R * R - H * H);
+  var thR = Math.atan2(dxh / R, -H / R);
+  var sunset  = 12 + thR / (Math.PI / 12);
+  var sunrise = 12 - thR / (Math.PI / 12);
+
+  function thOf(t)  { return (t - 12) * Math.PI / 12; }
+  function ptA(r, a){ return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) }; }
+  function ptT(r, t){ var a = thOf(t); return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) }; }
+
+  /* sunset ramp — color from hour */
+  var GOLD=[234,182,104], AMBER=[224,154,82], CORAL=[209,117,90], ROSE=[180,92,124], VIOLET=[110,84,148];
+  var ramp=[
+    [0,VIOLET],[sunrise,ROSE],[7,CORAL],[10.5,AMBER],[12.5,GOLD],
+    [15,AMBER],[18,CORAL],[sunset,ROSE],[21.5,VIOLET],[24,VIOLET]
+  ];
+  function colorAt(t) {
+    t = ((t % 24) + 24) % 24;
+    var a = ramp[0], b = ramp[ramp.length - 1];
+    for (var i = 0; i < ramp.length - 1; i++) {
+      if (t >= ramp[i][0] && t <= ramp[i+1][0]) { a = ramp[i]; b = ramp[i+1]; break; }
+    }
+    var f = (b[0] === a[0]) ? 0 : (t - a[0]) / (b[0] - a[0]);
+    var c = [0, 1, 2].map(function (k) { return Math.round(a[1][k] + (b[1][k] - a[1][k]) * f); });
+    return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+  }
+
+  /* kind → small angular offset (from canonical spec) */
+  var KIND_OFF = { reflection: -0.04, contribution: -0.014, exchange: 0.014, clearing: 0.04 };
+
+  /* ── petal path (cubic Bezier teardrop — canonical) ── */
+  function petalPath(a, L, W) {
+    var ax = Math.sin(a), ay = -Math.cos(a), px = Math.cos(a), py = Math.sin(a);
+    var B = ptA(R, a);
+    function P(al, pe) { return { x: B.x + ax * al + px * pe, y: B.y + ay * al + py * pe }; }
+    var T   = P(L, 0);
+    var cA1 = P(L * 0.30,  W);
+    var cA2 = P(L * 0.86,  W * 0.42);
+    var cB1 = P(L * 0.86, -W * 0.42);
+    var cB2 = P(L * 0.30, -W);
+    return 'M '  + B.x.toFixed(1)   + ' ' + B.y.toFixed(1) +
+      ' C ' + cA1.x.toFixed(1) + ' ' + cA1.y.toFixed(1) +
+      ' '   + cA2.x.toFixed(1) + ' ' + cA2.y.toFixed(1) +
+      ' '   + T.x.toFixed(1)   + ' ' + T.y.toFixed(1) +
+      ' C ' + cB1.x.toFixed(1) + ' ' + cB1.y.toFixed(1) +
+      ' '   + cB2.x.toFixed(1) + ' ' + cB2.y.toFixed(1) +
+      ' '   + B.x.toFixed(1)   + ' ' + B.y.toFixed(1) + ' Z';
+  }
+
+  function mkEl(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* ── render bloom ── */
+  function renderBloom(entries) {
+    var svg = document.getElementById('dial');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    /* ring */
+    svg.appendChild(mkEl('circle', { class: 'ring', cx: cx, cy: cy, r: R }));
+
+    /* sunrise-to-sunset arc segments */
+    var arcStops = ['var(--sun-rose)','var(--sun-coral)','var(--sun-amber)','var(--sun-amber)','var(--sun-coral)','var(--sun-rose)'];
+    for (var i = 0; i < 6; i++) {
+      var s  = -thR + (2 * thR) * i / 6;
+      var e2 = -thR + (2 * thR) * (i + 1) / 6;
+      var p0 = ptA(R, s), p1 = ptA(R, e2);
+      var arc = mkEl('path', {
+        class: 'arcseg',
+        d: 'M ' + p0.x.toFixed(1) + ' ' + p0.y.toFixed(1) +
+           ' A ' + R + ' ' + R + ' 0 0 1 ' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1)
+      });
+      arc.style.stroke = arcStops[i];
+      svg.appendChild(arc);
+    }
+
+    /* horizon line */
+    svg.appendChild(mkEl('line', { class: 'horizon', x1: cx - dxh, y1: cy + H, x2: cx + dxh, y2: cy + H }));
+
+    /* cardinal labels */
+    function card(t, label, dy) {
+      var lp = ptA(LBL, thOf(t));
+      var tx = mkEl('text', { class: 'cardlbl', x: lp.x.toFixed(1), y: (lp.y + (dy || 0)).toFixed(1), 'text-anchor': 'middle' });
+      tx.textContent = label;
+      svg.appendChild(tx);
+    }
+    card(12, 'noon', -2);
+    card(sunrise, 'sunrise', 3);
+    card(sunset, 'sunset', 3);
+    card(0, 'midnight', 9);
+
+    /* settled (public) entries — solid fill petals */
+    entries.filter(function (e) { return e.metadata && e.metadata.visibility === 'public'; })
+      .forEach(function (e) {
+        var h   = hourOf(e.metadata.created_at);
+        var kind = e.metadata.kind || 'reflection';
+        var off  = KIND_OFF[kind] || 0;
+        var w    = 1; /* each entry has unit weight */
+        var L    = 15 + w * 8, W = 4.5 + w * 2.2;
+        var col  = colorAt(h);
+        var g    = mkEl('g', { class: 'petal' });
+        var p    = mkEl('path', { class: 'lobe', d: petalPath(thOf(h) + off, L, W) });
+        p.style.fill = col;
+        g.appendChild(p);
+        svg.appendChild(g);
+      });
+
+    /* open (private) entries — outline + semi-fill */
+    entries.filter(function (e) { return !e.metadata || e.metadata.visibility !== 'public'; })
+      .forEach(function (e) {
+        var h    = hourOf(e.metadata && e.metadata.created_at);
+        var kind = (e.metadata && e.metadata.kind) || 'reflection';
+        var off  = KIND_OFF[kind] || 0;
+        var ripe = 0.30; /* fresh private entry */
+        var ew   = 1 + ripe * 2.0;
+        var L    = 15 + ew * 8, W = 4.5 + ew * 2.2;
+        var col  = colorAt(h);
+        var dpath = petalPath(thOf(h) + off, L, W);
+        var g    = mkEl('g', { class: 'matter' });
+        var fp   = mkEl('path', { class: 'fillp', d: dpath });
+        fp.style.fill    = col;
+        fp.style.opacity = (ripe * 0.55).toFixed(3);
+        g.appendChild(fp);
+        var ed   = mkEl('path', { class: 'edge', d: dpath });
+        ed.style.stroke  = col;
+        g.appendChild(ed);
+        svg.appendChild(g);
+      });
+
+    /* "now" indicator */
+    var nowD = new Date();
+    var tn   = nowD.getHours() + nowD.getMinutes() / 60;
+    var day  = (tn >= sunrise && tn <= sunset);
+    var io   = ptT(R - 26, tn), oo = ptT(R, tn);
+    svg.appendChild(mkEl('line', {
+      class: 'nowline',
+      x1: io.x.toFixed(1), y1: io.y.toFixed(1),
+      x2: oo.x.toFixed(1), y2: oo.y.toFixed(1)
+    }));
+    var sp = ptT(R, tn);
+    if (day) {
+      var ring = mkEl('circle', { class: 'sun', cx: sp.x.toFixed(1), cy: sp.y.toFixed(1), r: 7 });
+      ring.style.fill = 'none'; ring.style.stroke = 'var(--sun-gold)'; ring.style.opacity = '.45';
+      svg.appendChild(ring);
+    }
+    var dot = mkEl('circle', { cx: sp.x.toFixed(1), cy: sp.y.toFixed(1), r: 4.5 });
+    dot.style.fill   = day ? 'var(--sun-gold)' : 'var(--surface)';
+    dot.style.stroke = day ? 'var(--sun-gold)' : 'var(--muted)';
+    dot.style.strokeWidth = '1';
+    svg.appendChild(dot);
+    var nlp = ptA(LBL, thOf(tn));
+    var nl  = mkEl('text', { class: 'nowlbl', x: nlp.x.toFixed(1), y: (nlp.y + 3).toFixed(1), 'text-anchor': 'middle' });
+    nl.textContent = 'now';
+    svg.appendChild(nl);
+
+    /* center text */
+    var n = entries.length;
+    var ct = mkEl('text', { class: 'c-time', x: cx, y: cy + 2, 'text-anchor': 'middle' });
+    ct.textContent = n === 0 ? 'the day' : n === 1 ? '1 entry' : n + ' entries';
+    svg.appendChild(ct);
+    var cm = mkEl('text', { class: 'c-mer', x: cx, y: cy + 20, 'text-anchor': 'middle' });
+    cm.textContent = entries.filter(function(e){ return e.metadata && e.metadata.visibility !== 'public'; }).length + ' open';
+    svg.appendChild(cm);
   }
 
   /* ── helpers ── */
-  function todayPrefix() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
-    return `${y}${m}${day}`;
+  function hourOf(isoStr) {
+    if (!isoStr) return 12;
+    var d = new Date(isoStr);
+    return d.getHours() + d.getMinutes() / 60;
   }
 
   function formatTime(isoStr) {
     if (!isoStr) return '';
-    const d = new Date(isoStr);
-    return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
+    return new Date(isoStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   }
 
-  function hourFromIso(isoStr) {
-    if (!isoStr) return 12;
-    const d = new Date(isoStr);
-    return d.getHours() + d.getMinutes() / 60;
+  function isToday(isoStr) {
+    if (!isoStr) return false;
+    var d = new Date(isoStr), now = new Date();
+    return d.getFullYear() === now.getFullYear() &&
+           d.getMonth()    === now.getMonth()    &&
+           d.getDate()     === now.getDate();
   }
 
-  /* ── bloom ── */
-  const NS = 'http://www.w3.org/2000/svg';
-  const CX = 140, CY = 140, R_INNER = 55, R_PETAL = 80;
-  const PETAL_W = 12;
+  /* ── landing ── */
+  function landEntry(entry, card, topEl, actionsEl) {
+    var token  = localStorage.getItem(TOKEN_KEY) || '';
+    var author = localStorage.getItem('daybook-author') || 'member';
+    var now    = new Date().toISOString();
+    var updated = Object.assign({}, entry.metadata, { visibility: 'public', published_at: now, published_by: author });
 
-  function resolveColor(cssVar) {
-    // Resolve CSS variable to actual value for SVG
-    const map_dark = {
-      'var(--kind-reflection)':   '#EAB668',
-      'var(--kind-contribution)': '#E09A52',
-      'var(--kind-exchange)':     '#D1755A',
-      'var(--kind-clearing)':     '#6A9A6A'
-    };
-    const map_light = {
-      'var(--kind-reflection)':   '#87621F',
-      'var(--kind-contribution)': '#8C581D',
-      'var(--kind-exchange)':     '#9C4636',
-      'var(--kind-clearing)':     '#4A7A4A'
-    };
-    const mode = document.documentElement.getAttribute('data-mode') || 'dark';
-    return (mode === 'dark' ? map_dark : map_light)[cssVar] || '#888';
-  }
-
-  function renderBloom(entries) {
-    const svg = document.getElementById('bloomSvg');
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-
-    // Background circle
-    const bg = document.createElementNS(NS, 'circle');
-    bg.setAttribute('cx', CX); bg.setAttribute('cy', CY); bg.setAttribute('r', R_INNER - 8);
-    bg.setAttribute('fill', 'none');
-    bg.setAttribute('stroke', 'var(--line)'); bg.setAttribute('stroke-width', '1');
-    svg.appendChild(bg);
-
-    // Hour tick marks
-    for (let h = 0; h < 24; h++) {
-      const angle = (h / 24) * 2 * Math.PI - Math.PI / 2;
-      const r1 = R_INNER - 4, r2 = R_INNER;
-      const x1 = CX + r1 * Math.cos(angle);
-      const y1 = CY + r1 * Math.sin(angle);
-      const x2 = CX + r2 * Math.cos(angle);
-      const y2 = CY + r2 * Math.sin(angle);
-      const tick = document.createElementNS(NS, 'line');
-      tick.setAttribute('x1', x1.toFixed(2)); tick.setAttribute('y1', y1.toFixed(2));
-      tick.setAttribute('x2', x2.toFixed(2)); tick.setAttribute('y2', y2.toFixed(2));
-      tick.setAttribute('stroke', h % 6 === 0 ? 'var(--faint)' : 'var(--line)');
-      tick.setAttribute('stroke-width', h % 6 === 0 ? '1.5' : '0.8');
-      svg.appendChild(tick);
-    }
-
-    // Hour labels (6, 12, 18, 0)
-    [[6,'6'], [12,'12'], [18,'18'], [0,'0']].forEach(([h, label]) => {
-      const angle = (h / 24) * 2 * Math.PI - Math.PI / 2;
-      const r = R_INNER - 18;
-      const x = CX + r * Math.cos(angle);
-      const y = CY + r * Math.sin(angle);
-      const txt = document.createElementNS(NS, 'text');
-      txt.setAttribute('x', x.toFixed(2)); txt.setAttribute('y', y.toFixed(2));
-      txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'central');
-      txt.setAttribute('font-family', 'IBM Plex Mono, monospace');
-      txt.setAttribute('font-size', '9'); txt.setAttribute('fill', 'var(--faint)');
-      txt.textContent = label;
-      svg.appendChild(txt);
-    });
-
-    // Center dot
-    const dot = document.createElementNS(NS, 'circle');
-    dot.setAttribute('cx', CX); dot.setAttribute('cy', CY); dot.setAttribute('r', '3');
-    dot.setAttribute('fill', 'var(--faint)');
-    svg.appendChild(dot);
-
-    if (!entries.length) return;
-
-    // Petals
-    entries.forEach(entry => {
-      const hour = hourFromIso(entry.metadata?.created_at || entry.createdAt);
-      const angle = (hour / 24) * 2 * Math.PI - Math.PI / 2;
-      const color = resolveColor(KIND_COLOR[entry.metadata?.kind] || KIND_COLOR.reflection);
-      const isPublic = entry.metadata?.visibility === 'public';
-
-      // Petal as elongated ellipse along the radius
-      const rx = R_PETAL - R_INNER;
-      const ry = PETAL_W / 2;
-      const midR = R_INNER + rx / 2;
-      const px = CX + midR * Math.cos(angle);
-      const py = CY + midR * Math.sin(angle);
-      const deg = (angle * 180 / Math.PI) + 90;
-
-      const petal = document.createElementNS(NS, 'ellipse');
-      petal.setAttribute('cx', px.toFixed(2)); petal.setAttribute('cy', py.toFixed(2));
-      petal.setAttribute('rx', (rx/2).toFixed(1)); petal.setAttribute('ry', (ry).toFixed(1));
-      petal.setAttribute('transform', `rotate(${deg.toFixed(1)} ${px.toFixed(2)} ${py.toFixed(2)})`);
-
-      if (isPublic) {
-        petal.setAttribute('fill', color);
-        petal.setAttribute('opacity', '0.85');
-      } else {
-        petal.setAttribute('fill', 'none');
-        petal.setAttribute('stroke', color);
-        petal.setAttribute('stroke-width', '1.5');
-        petal.setAttribute('opacity', '0.7');
-      }
-      svg.appendChild(petal);
+    return fetch(VAULT + '/notes/' + entry.path, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metadata: updated })
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || r.status); });
+      card.classList.add('public');
+      topEl.querySelector('.entry-vis').textContent  = 'public';
+      topEl.querySelector('.entry-vis').classList.add('public');
+      var lb = actionsEl.querySelector('.land-btn');
+      if (lb) lb.remove();
+      setStatus('Entry landed — now public.', 'ok');
+      setTimeout(function () { setStatus('', ''); }, 4000);
+    }).catch(function (e) {
+      setStatus('Could not land entry: ' + e.message, 'error');
+      var lb = actionsEl.querySelector('.land-btn');
+      if (lb) { lb.textContent = 'Land'; lb.disabled = false; }
     });
   }
 
   /* ── entry cards ── */
-  function buildCard(entry, onLand) {
-    const meta    = entry.metadata || {};
-    const kind    = meta.kind || 'reflection';
-    const isPublic = meta.visibility === 'public';
-    const time    = formatTime(meta.created_at || entry.createdAt);
-    const body    = entry.content || '';
-    const workRef = meta.work_ref || '';
+  function buildCard(entry) {
+    var meta    = entry.metadata || {};
+    var kind    = meta.kind || 'reflection';
+    var isPublic = meta.visibility === 'public';
+    var time    = formatTime(meta.created_at || entry.createdAt);
+    var body    = entry.content || '';
 
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'entry-card' + (isPublic ? ' public' : '');
 
-    const top = document.createElement('div');
+    var top = document.createElement('div');
     top.className = 'entry-top';
-    top.innerHTML = `
-      <span class="entry-kind ${kind}">${kind}</span>
-      <span class="entry-time">${time}</span>
-      <span class="entry-vis ${isPublic ? 'public' : ''}">${isPublic ? 'public' : 'private'}</span>
-    `;
+    top.innerHTML =
+      '<span class="entry-kind ' + kind + '">' + kind + '</span>' +
+      '<span class="entry-time">' + time + '</span>' +
+      '<span class="entry-vis' + (isPublic ? ' public' : '') + '">' + (isPublic ? 'public' : 'private') + '</span>';
     card.appendChild(top);
 
-    const bodyEl = document.createElement('div');
-    bodyEl.className = 'entry-body' + (body.length > 300 ? ' preview' : '');
+    var bodyEl = document.createElement('div');
+    var clamped = body.length > 320;
+    bodyEl.className = 'entry-body' + (clamped ? ' clamped' : '');
     bodyEl.textContent = body;
     card.appendChild(bodyEl);
 
-    const actions = document.createElement('div');
+    var actions = document.createElement('div');
     actions.className = 'entry-actions';
 
+    var workRef = meta.work_ref || '';
     if (workRef) {
-      const wr = document.createElement('span');
-      wr.className = 'entry-work-ref';
+      var wr = document.createElement('span');
+      wr.className = 'work-ref';
       wr.textContent = '→ ' + workRef.replace('work/', '');
       actions.appendChild(wr);
     } else {
       actions.appendChild(document.createElement('span'));
     }
 
-    if (body.length > 300) {
-      const exp = document.createElement('button');
+    if (clamped) {
+      var exp = document.createElement('button');
       exp.className = 'expand-btn';
       exp.textContent = 'read more';
-      exp.addEventListener('click', () => {
-        bodyEl.classList.remove('preview');
+      exp.addEventListener('click', function () {
+        bodyEl.classList.remove('clamped');
         exp.style.display = 'none';
       });
       actions.appendChild(exp);
     }
 
     if (!isPublic) {
-      const landBtn = document.createElement('button');
-      landBtn.className = 'land-btn';
-      landBtn.textContent = 'Land';
-      landBtn.title = 'Make this entry public';
-      landBtn.addEventListener('click', async () => {
-        if (!confirm(`Land this ${kind} entry? It will become public and cannot be made private again.`)) return;
-        landBtn.textContent = 'Landing…';
-        landBtn.disabled = true;
-        await onLand(entry, card, top, actions);
+      var lb = document.createElement('button');
+      lb.className = 'land-btn';
+      lb.textContent = 'Land';
+      lb.title = 'Make this entry public';
+      lb.addEventListener('click', function () {
+        if (!confirm('Land this ' + kind + ' entry? It will become public.')) return;
+        lb.textContent = 'Landing…';
+        lb.disabled = true;
+        landEntry(entry, card, top, actions);
       });
-      actions.appendChild(landBtn);
+      actions.appendChild(lb);
     }
 
     card.appendChild(actions);
     return card;
   }
 
-  /* ── landing ── */
-  async function landEntry(entry, card, top, actions) {
-    const token = localStorage.getItem(TOKEN_KEY) || '';
-    const author = localStorage.getItem(AUTHOR_KEY) || 'member';
-    const now = new Date().toISOString();
-
-    const updated = {
-      ...entry.metadata,
-      visibility: 'public',
-      published_at: now,
-      published_by: author
-    };
-
-    try {
-      const res = await fetch(`${VAULT}/notes/${entry.path}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ metadata: updated })
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `${res.status}`);
-      }
-
-      // Update card in place
-      card.classList.add('public');
-      top.querySelector('.entry-vis').textContent = 'public';
-      top.querySelector('.entry-vis').classList.add('public');
-      const landBtn = actions.querySelector('.land-btn');
-      if (landBtn) landBtn.remove();
-      setStatus('Entry landed — now public.', 'ok');
-      setTimeout(() => setStatus('', ''), 4000);
-    } catch(e) {
-      setStatus(`Could not land entry: ${e.message}`, 'error');
-      const landBtn = actions.querySelector('.land-btn');
-      if (landBtn) { landBtn.textContent = 'Land'; landBtn.disabled = false; }
-    }
-  }
-
   /* ── fetch entries ── */
-  async function fetchTodayEntries(token) {
-    const prefix = todayPrefix();
-    const res = await fetch(
-      `${VAULT}/notes?tag=daybook-entry&include_content=true&limit=200&path_prefix=daybook/entries/${prefix}`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
-    );
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    const data = await res.json();
-    let notes = Array.isArray(data) ? data : (data.notes || []);
-    // Sort chronologically
-    notes.sort((a,b) => {
-      const ta = a.metadata?.created_at || a.createdAt || '';
-      const tb = b.metadata?.created_at || b.createdAt || '';
-      return ta.localeCompare(tb);
+  var lastEntries = null;
+
+  function fetchTodayEntries(token) {
+    return fetch(VAULT + '/notes?tag=daybook-entry&include_content=true&limit=200', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+      return r.json();
+    }).then(function (data) {
+      var notes = Array.isArray(data) ? data : (data.notes || []);
+      /* filter to today */
+      notes = notes.filter(function (n) {
+        return isToday(n.metadata && n.metadata.created_at ? n.metadata.created_at : n.createdAt);
+      });
+      notes.sort(function (a, b) {
+        var ta = (a.metadata && a.metadata.created_at) || a.createdAt || '';
+        var tb = (b.metadata && b.metadata.created_at) || b.createdAt || '';
+        return ta.localeCompare(tb);
+      });
+      return notes;
     });
-    return notes;
   }
 
   /* ── init ── */
-  const token = localStorage.getItem(TOKEN_KEY);
+  var token = localStorage.getItem(TOKEN_KEY);
   if (!token) {
-    document.getElementById('noToken').style.display = 'block';
-  } else {
-    document.getElementById('mainView').style.display = 'block';
-
-    const now = new Date();
-    document.getElementById('dayHeading').textContent =
-      now.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
-
-    fetchTodayEntries(token).then(entries => {
-      document.getElementById('loadingMsg').style.display = 'none';
-      document.getElementById('dayCount').textContent =
-        entries.length === 0 ? 'no entries today' :
-        entries.length === 1 ? '1 entry' :
-        `${entries.length} entries`;
-
-      renderBloom(entries);
-
-      // re-render bloom on mode change
-      document.getElementById('modeBtn').addEventListener('click', () => {
-        setTimeout(() => renderBloom(entries), 10);
-      });
-
-      if (!entries.length) {
-        document.getElementById('emptyMsg').style.display = 'block';
-        return;
-      }
-
-      const list = document.getElementById('entryList');
-      entries.forEach(entry => {
-        list.appendChild(buildCard(entry, (e, card, top, actions) => landEntry(e, card, top, actions)));
-      });
-    }).catch(err => {
-      document.getElementById('loadingMsg').style.display = 'none';
-      setStatus(`Could not load entries: ${err.message}`, 'error');
-      document.getElementById('emptyMsg').style.display = 'block';
-    });
+    show('screenNoToken');
+    return;
   }
+
+  show('screenMain');
+  var now = new Date();
+  document.getElementById('dayHeading').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  fetchTodayEntries(token).then(function (entries) {
+    lastEntries = entries;
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('dayCount').textContent =
+      entries.length === 0 ? 'no entries yet' :
+      entries.length === 1 ? '1 entry' : entries.length + ' entries';
+
+    renderBloom(entries);
+
+    if (!entries.length) {
+      document.getElementById('emptyMsg').style.display = 'block';
+      return;
+    }
+
+    var list = document.getElementById('entryList');
+    entries.forEach(function (e) { list.appendChild(buildCard(e)); });
+
+  }).catch(function (err) {
+    document.getElementById('loadingMsg').style.display = 'none';
+    setStatus('Could not load entries: ' + err.message, 'error');
+    document.getElementById('emptyMsg').style.display = 'block';
+    renderBloom([]);
+  });
+
 })();
 </script>
 </body>
