@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="The bloom is a 24-hour radial visualization that maps cooperative rhythm to a clock face. A complete specification: geometry, color ramp, petal algorithm, two-layer architecture, and design principles.">
+<meta name="robots" content="index,follow">
+<title>The Bloom &middot; Design System &middot; Techne Co-op</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --serif:"Libre Baskerville",Georgia,serif;
+    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
+    --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;--sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
+  }
+  html[data-mode="dark"] {
+    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
+    --line:#2A2A30;--rule:#3A3A42;
+    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
+    --blue:#6A8AC4;--blue-text:#97B5E8;
+    --ember:#C4956A;--ember-text:#D4A57A;
+    --ok:#6A9A6A;--info:#6A8AC4;--warn:#C46A6A;
+    --sun-gold-t:#EAB668;--sun-amber-t:#E5A562;--sun-coral-t:#DE8872;--sun-rose-t:#CF7C9A;--sun-violet-t:#9E86C4;--sun-blue-t:#8FAEE0;
+    --petal:0.5;
+  }
+  html[data-mode="light"] {
+    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
+    --line:#D8D3C8;--rule:#9A958A;
+    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
+    --blue:#4A6FB0;--blue-text:#39588F;
+    --ember:#8A6A4A;--ember-text:#6F5436;
+    --ok:#4A7A4A;--info:#4A6FB0;--warn:#A84F4C;
+    --sun-gold-t:#87621F;--sun-amber-t:#8C581D;--sun-coral-t:#9C4636;--sun-rose-t:#8C3D58;--sun-violet-t:#4C3870;--sun-blue-t:#3A5694;
+    --petal:0.64;
+  }
+  *{box-sizing:border-box;}
+  html{color-scheme:dark light;}
+  body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.75 var(--serif);transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);}
+  .wrap{max-width:920px;margin:0 auto;padding:0 var(--s5);}
+
+  em{font-style:italic;color:var(--heading);}
+  code{font:400 .85em/1 var(--mono);color:var(--ember-text);background:var(--inset);padding:2px 5px;border-radius:2px;}
+  pre{background:var(--inset);border:1px solid var(--line);border-radius:3px;padding:var(--s4) var(--s5);overflow-x:auto;font:400 13px/1.7 var(--mono);color:var(--text);margin:0;}
+  pre code{background:none;padding:0;color:inherit;}
+  a{color:var(--blue-text);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;}
+  a:hover{text-decoration-thickness:2px;}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+  /* masthead */
+  .mast{border-bottom:1px solid var(--rule);padding:var(--s8) 0 var(--s6);margin-bottom:var(--s7);}
+  .mast .nav{font:500 11px/1.6 var(--mono);color:var(--muted);margin-bottom:var(--s4);}
+  .mast .nav a{color:var(--muted);text-decoration:none;}
+  .mast .nav a:hover{color:var(--text);}
+  .mast .kick{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;letter-spacing:.12em;}
+  .mast h1{font:700 38px/1.1 var(--serif);color:var(--heading);margin:var(--s3) 0 var(--s3);letter-spacing:-.01em;}
+  .mast p{font:400 17px/1.6 var(--serif);color:var(--text);margin:0;max-width:64ch;}
+  .mast .meta{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin-top:var(--s5);font:400 11px/1.6 var(--mono);color:var(--muted);}
+  .mast .meta b{color:var(--blue-text);font-weight:600;}
+  .mast .meta .em{color:var(--ember-text);}
+  .mast .band{display:flex;gap:0;height:6px;margin:var(--s5) 0 0;border:1px solid var(--line);}
+  .mast .band span{flex:1;}
+  .modebtn{position:fixed;top:20px;right:24px;font:500 10px/1 var(--mono);color:var(--muted);background:none;border:1px solid var(--line);border-radius:2px;padding:5px 10px;cursor:pointer;letter-spacing:.06em;z-index:10;transition:color var(--micro) var(--ease),border-color var(--micro) var(--ease);}
+  .modebtn:hover{color:var(--text);border-color:var(--rule);}
+
+  /* sections */
+  .sec{padding:var(--s7) 0 0;}
+  .sec .addr{font:600 12px/1 var(--mono);color:var(--shue-t);margin-bottom:var(--s2);}
+  .sec h2{font:700 25px/1.2 var(--serif);color:var(--heading);margin:0 0 var(--s4);letter-spacing:-.01em;padding-left:14px;border-left:3px solid var(--shue);}
+  .sec h3{font:600 13px/1.5 var(--mono);color:var(--heading);text-transform:lowercase;letter-spacing:.02em;margin:var(--s6) 0 var(--s3);padding-bottom:6px;border-bottom:1px solid var(--shue);}
+  .sec p{max-width:68ch;margin:0 0 var(--s4);}
+  .sec p:last-child{margin-bottom:0;}
+
+  #s0,#s1{--shue:var(--sun-gold);--shue-t:var(--sun-gold-t);}
+  #s2,#s3{--shue:var(--sun-amber);--shue-t:var(--sun-amber-t);}
+  #s4,#s5{--shue:var(--sun-coral);--shue-t:var(--sun-coral-t);}
+  #s6,#s7{--shue:var(--sun-rose);--shue-t:var(--sun-rose-t);}
+  #s8,#s9{--shue:var(--sun-violet);--shue-t:var(--sun-violet-t);}
+
+  /* callout */
+  .callout{border-left:3px solid var(--ember);background:var(--inset);padding:var(--s4) var(--s5);margin:var(--s5) 0;font:400 15px/1.7 var(--serif);color:var(--text);max-width:68ch;}
+  .callout em{color:var(--ember-text);}
+
+  /* spec table */
+  .spec{width:100%;border-collapse:collapse;margin:var(--s4) 0;font:400 13px/1.6 var(--mono);}
+  .spec th{text-align:left;font-weight:600;color:var(--heading);border-bottom:1px solid var(--rule);padding:6px 12px 6px 0;}
+  .spec td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top;}
+  .spec td:first-child{color:var(--ember-text);white-space:nowrap;}
+  .spec tr:last-child td{border-bottom:none;}
+
+  /* swatch row */
+  .swatches{display:flex;gap:0;margin:var(--s4) 0;border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+  .sw{flex:1;display:flex;flex-direction:column;align-items:center;padding:var(--s3) var(--s2);}
+  .sw .dot{width:28px;height:28px;border-radius:50%;margin-bottom:8px;}
+  .sw .name{font:500 9px/1.3 var(--mono);color:var(--heading);text-align:center;}
+  .sw .hex{font:400 9px/1.2 var(--mono);color:var(--muted);text-align:center;}
+  .sw .hrs{font:400 8.5px/1.2 var(--mono);color:var(--faint);text-align:center;margin-top:2px;}
+
+  /* kind grid */
+  .kinds{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin:var(--s4) 0;}
+  @media(max-width:600px){.kinds{grid-template-columns:1fr;}}
+  .kind-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:var(--s4);}
+  .kind-card .k-name{font:600 12px/1 var(--mono);color:var(--heading);text-transform:lowercase;letter-spacing:.04em;margin-bottom:6px;}
+  .kind-card .k-offset{font:400 10px/1 var(--mono);color:var(--ember-text);margin-bottom:8px;}
+  .kind-card .k-window{font:400 11px/1.5 var(--mono);color:var(--muted);}
+  .kind-card .k-desc{font:400 13px/1.6 var(--serif);color:var(--text);margin-top:8px;}
+
+  /* live bloom demo */
+  .demo-wrap{background:var(--inset);border:1px solid var(--line);border-radius:4px;padding:var(--s6) var(--s5);margin:var(--s5) 0;display:flex;flex-direction:column;align-items:center;gap:var(--s4);}
+  .demo-wrap svg{max-width:460px;width:100%;}
+  .demo-label{font:400 11px/1.6 var(--mono);color:var(--muted);text-align:center;max-width:52ch;}
+  .demo-controls{display:flex;gap:var(--s3);flex-wrap:wrap;justify-content:center;}
+  .dcbtn{font:500 10px/1 var(--mono);color:var(--muted);background:none;border:1px solid var(--line);border-radius:2px;padding:5px 12px;cursor:pointer;letter-spacing:.04em;transition:color var(--micro) var(--ease),border-color var(--micro) var(--ease);}
+  .dcbtn:hover,.dcbtn.on{color:var(--heading);border-color:var(--rule);}
+
+  /* layer diagram */
+  .layers{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin:var(--s4) 0;}
+  @media(max-width:600px){.layers{grid-template-columns:1fr;}}
+  .layer-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:var(--s4);}
+  .layer-card .l-tag{font:500 10px/1 var(--mono);color:var(--ember-text);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+  .layer-card h4{font:700 16px/1.2 var(--serif);color:var(--heading);margin:0 0 8px;}
+  .layer-card p{font:400 13px/1.6 var(--serif);color:var(--text);margin:0;}
+
+  /* footer */
+  .foot{border-top:1px solid var(--line);margin-top:var(--s8);padding:var(--s6) 0;font:400 11px/1.8 var(--mono);color:var(--faint);}
+  .foot a{color:var(--muted);text-decoration:none;}
+  .foot a:hover{color:var(--text);}
+
+  @media(max-width:640px){
+    .mast h1{font-size:28px;}
+    .swatches{flex-wrap:wrap;}
+    .sw{min-width:80px;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<button class="modebtn" id="modeBtn">light</button>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div class="nav"><a href="../../">journal</a> &rsaquo; <a href="../">design system</a> &rsaquo; bloom</div>
+    <div class="kick">Communications Aid</div>
+    <h1>The Bloom</h1>
+    <p>A 24-hour radial visualization that maps cooperative rhythm to a clock face. Petals show <em>when</em> and <em>how often</em> — never <em>what</em>. Two layers: what has been settled, and what is still ripening toward a decision a person must land.</p>
+    <div class="meta">
+      <span><b>surface</b> Daybook</span>
+      <span><b>kind</b> SVG / JavaScript</span>
+      <span class="em">canvas 480&times;480 &middot; viewBox centered</span>
+      <span><b>canonical commit</b> fca80aa</span>
+    </div>
+    <div class="band">
+      <span style="background:#6E5494"></span>
+      <span style="background:#B45C7C"></span>
+      <span style="background:#D1755A"></span>
+      <span style="background:#E09A52"></span>
+      <span style="background:#EAB668"></span>
+      <span style="background:#E09A52"></span>
+      <span style="background:#D1755A"></span>
+      <span style="background:#B45C7C"></span>
+      <span style="background:#6E5494"></span>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="demo-wrap" id="demoWrap">
+    <svg id="dial" viewBox="0 0 480 480" role="img" aria-label="The bloom — a radial visualization of cooperative rhythm across 24 hours"></svg>
+    <div class="demo-controls">
+      <button class="dcbtn on" id="btn-both">both layers</button>
+      <button class="dcbtn" id="btn-settled">settled only</button>
+      <button class="dcbtn" id="btn-ripening">ripening only</button>
+    </div>
+    <div class="demo-label">Solid petals are <span style="color:var(--heading)">settled</span> — events posted to the ledger. Outlines are <span style="color:var(--sun-amber)">open matters</span>, filled 0–100% by ripeness. Colour is the hour of day, not the kind.</div>
+  </div>
+
+  <!-- SECTION 1: What the bloom communicates -->
+  <div class="sec" id="s0">
+    <div class="addr">#s0</div>
+    <h2>What the bloom communicates</h2>
+    <p>The bloom is a clock. Twelve o'clock is noon; six o'clock is midnight at the bottom; three o'clock is sunset on the right, nine o'clock is sunrise on the left. A petal grows outward from the ring at the hour it happened.</p>
+    <p>It communicates three things: <em>when</em> the cooperative tends to act (the clock position), <em>how often</em> (petal width), and <em>whether something is still open</em> (outline vs. solid). It never communicates content. What a contribution says, what an exchange transfers, what a reflection names — none of that appears in the bloom.</p>
+    <div class="callout">
+      <em>The bloom does not fill itself.</em> A ripening matter can reach 100% and signal readiness — that is the bloom's job. Writing the authoritative event still takes a named person's landing action. Augmentation, not automation.
+    </div>
+
+    <h3>Three questions it answers</h3>
+    <table class="spec">
+      <tr><th>Question</th><th>How the bloom answers</th></tr>
+      <tr><td>When?</td><td>Clock angle — hour maps directly to position on the 24h ring</td></tr>
+      <tr><td>How often?</td><td>Petal density at a given hour; petal width scales with entry weight</td></tr>
+      <tr><td>How close?</td><td>Outline fill 0–100% for open matters; solid for settled events</td></tr>
+    </table>
+
+    <h3>What it does not communicate</h3>
+    <table class="spec">
+      <tr><td>Content</td><td>What a contribution says, what an exchange transfers — absent by design</td></tr>
+      <tr><td>Identity</td><td>Whose petal it is — the bloom is collective, not individual</td></tr>
+      <tr><td>Value</td><td>How much — amounts, hours, dollars do not appear</td></tr>
+      <tr><td>Outcome</td><td>Whether a decision went well — only that it landed</td></tr>
+    </table>
+  </div>
+
+  <!-- SECTION 2: Geometry -->
+  <div class="sec" id="s1">
+    <div class="addr">#s1</div>
+    <h2>Geometry</h2>
+    <p>The bloom lives in a square SVG viewport. All positions are computed from four constants: the center point, the ring radius, the horizon offset, and the label radius.</p>
+
+    <table class="spec">
+      <tr><th>Constant</th><th>Value</th><th>Role</th></tr>
+      <tr><td>cx, cy</td><td>240, 240</td><td>Center of the 480×480 viewport</td></tr>
+      <tr><td>R</td><td>148</td><td>Ring radius — petals root here</td></tr>
+      <tr><td>H</td><td>50</td><td>Horizon vertical offset below center — the day/night line</td></tr>
+      <tr><td>LBL</td><td>R + 54 = 202</td><td>Label radius for cardinal text</td></tr>
+    </table>
+
+    <h3>The clock transform</h3>
+    <p>Hours map to angles with noon at the top (north), matching a clock face. The transform converts a decimal hour to a radian angle, then to SVG x/y coordinates.</p>
+    <pre><code>// hour → angle (radians, from north)
+function thOf(t) { return (t - 12) * Math.PI / 12; }
+
+// angle → SVG point on ring radius R
+function pt(r, t)  { var th = thOf(t);  return { x: cx + r*Math.sin(th), y: cy - r*Math.cos(th) }; }
+function ptA(r, a) {                     return { x: cx + r*Math.sin(a),  y: cy - r*Math.cos(a) }; }</code></pre>
+
+    <h3>Horizon and arc</h3>
+    <p>The horizon is a dashed horizontal line at <code>y = cy + H</code>. It marks where the circle intersects this line — sunrise on the left, sunset on the right. The sunrise and sunset hours are derived from geometry, not from a calendar API.</p>
+    <pre><code>// derived from circle geometry
+var dxh     = Math.sqrt(R*R - H*H);          // half-width of horizon chord
+var thR     = Math.atan2(dxh/R, -H/R);       // angle to horizon intersection
+var sunset  = 12 + thR / (Math.PI / 12);     // ≈ 20.1h in summer geometry
+var sunrise = 12 - thR / (Math.PI / 12);     // ≈ 6.4h
+
+// horizon line
+x1: cx - dxh,  y1: cy + H
+x2: cx + dxh,  y2: cy + H</code></pre>
+
+    <p>Six arc segments span sunrise to sunset along the ring, each a different sunset color stepping rose→coral→amber→amber→coral→rose, visualizing the arc of daylight.</p>
+  </div>
+
+  <!-- SECTION 3: Color ramp -->
+  <div class="sec" id="s2">
+    <div class="addr">#s2</div>
+    <h2>Color ramp</h2>
+    <p>Petal color is determined by the hour of the entry, not by its kind. A contribution at 14:00 and a reflection at 14:00 wear the same amber. The ramp traces a twilight-to-sunset sky sweep across 24 hours, with violet at night and gold at noon.</p>
+
+    <div class="swatches">
+      <div class="sw" style="background:rgba(110,84,148,.12)"><div class="dot" style="background:#6E5494"></div><div class="name">violet</div><div class="hex">#6E5494</div><div class="hrs">0h – 6.4h<br>21.5h – 24h</div></div>
+      <div class="sw" style="background:rgba(180,92,124,.1)"><div class="dot" style="background:#B45C7C"></div><div class="name">rose</div><div class="hex">#B45C7C</div><div class="hrs">sunrise<br>≈ 6.4h</div></div>
+      <div class="sw" style="background:rgba(209,117,90,.1)"><div class="dot" style="background:#D1755A"></div><div class="name">coral</div><div class="hex">#D1755A</div><div class="hrs">7h &amp;<br>18h</div></div>
+      <div class="sw" style="background:rgba(224,154,82,.1)"><div class="dot" style="background:#E09A52"></div><div class="name">amber</div><div class="hex">#E09A52</div><div class="hrs">10.5h &amp;<br>15h</div></div>
+      <div class="sw" style="background:rgba(234,182,104,.12)"><div class="dot" style="background:#EAB668"></div><div class="name">gold</div><div class="hex">#EAB668</div><div class="hrs">noon<br>12.5h</div></div>
+    </div>
+
+    <h3>Ramp definition</h3>
+    <p>The ramp is a list of <code>[hour, RGB]</code> control points. Any hour between two points is linearly interpolated in RGB space. The array is symmetric around noon.</p>
+    <pre><code>var GOLD   = [234,182,104];
+var AMBER  = [224,154, 82];
+var CORAL  = [209,117, 90];
+var ROSE   = [180, 92,124];
+var VIOLET = [110, 84,148];
+
+var ramp = [
+  [ 0,       VIOLET ],
+  [ sunrise, ROSE   ],   // ≈ 6.4 — derived from horizon geometry
+  [ 7,       CORAL  ],
+  [ 10.5,    AMBER  ],
+  [ 12.5,    GOLD   ],
+  [ 15,      AMBER  ],
+  [ 18,      CORAL  ],
+  [ sunset,  ROSE   ],   // ≈ 20.1 — derived from horizon geometry
+  [ 21.5,    VIOLET ],
+  [ 24,      VIOLET ]
+];</code></pre>
+
+    <pre><code>function colorAt(t) {
+  t = ((t % 24) + 24) % 24;
+  var a = ramp[0], b = ramp[ramp.length-1];
+  for (var i = 0; i &lt; ramp.length-1; i++) {
+    if (t &gt;= ramp[i][0] &amp;&amp; t &lt;= ramp[i+1][0]) { a = ramp[i]; b = ramp[i+1]; break; }
+  }
+  var f = (b[0] === a[0]) ? 0 : (t - a[0]) / (b[0] - a[0]);
+  var c = [0,1,2].map(function(k) {
+    return Math.round(a[1][k] + (b[1][k] - a[1][k]) * f);
+  });
+  return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+}</code></pre>
+
+    <h3>CSS tokens</h3>
+    <p>The same hues are available as CSS custom properties throughout the design system. In light mode, the text-safe variants (<code>--sun-*-t</code>) are darkened for legibility on light backgrounds.</p>
+    <pre><code>--sun-gold:   #EAB668;
+--sun-amber:  #E09A52;
+--sun-coral:  #D1755A;
+--sun-rose:   #B45C7C;
+--sun-violet: #6E5494;
+--sun-blue:   #5476B8;
+
+/* dark mode: text-safe variants (same hue, higher lightness) */
+--sun-gold-t:   #EAB668;
+--sun-amber-t:  #E5A562;
+--sun-coral-t:  #DE8872;
+--sun-rose-t:   #CF7C9A;
+--sun-violet-t: #9E86C4;
+
+/* light mode: text-safe variants (darkened for contrast) */
+--sun-gold-t:   #87621F;
+--sun-amber-t:  #8C581D;
+--sun-coral-t:  #9C4636;
+--sun-rose-t:   #8C3D58;
+--sun-violet-t: #4C3870;</code></pre>
+  </div>
+
+  <!-- SECTION 4: Petal algorithm -->
+  <div class="sec" id="s3">
+    <div class="addr">#s3</div>
+    <h2>Petal algorithm</h2>
+    <p>Each petal is a teardrop shape built from two cubic Bézier curves that share a root on the ring and meet at a tip. The shape is generated procedurally from three parameters: angle, length, and width.</p>
+
+    <table class="spec">
+      <tr><th>Parameter</th><th>Meaning</th><th>Source</th></tr>
+      <tr><td>a</td><td>Angle (radians) — clock position</td><td><code>thOf(entry.h) + kind.offset</code></td></tr>
+      <tr><td>L</td><td>Length — how far the petal extends</td><td><code>15 + entry.weight × 8</code></td></tr>
+      <tr><td>W</td><td>Width — half-width at widest point</td><td><code>4.5 + entry.weight × 2.2</code></td></tr>
+    </table>
+
+    <h3>Bezier teardrop construction</h3>
+    <p>Two unit vectors are computed from the angle: an axial vector (pointing along the petal) and a perpendicular vector (pointing across it). Control points are placed at fixed fractions of L along the axis, offset by ±W along the perpendicular.</p>
+    <pre><code>function petalPath(a, L, W) {
+  // unit vectors: axial (along petal) and perpendicular (across)
+  var ax = Math.sin(a),  ay = -Math.cos(a);  // axial
+  var px = Math.cos(a),  py =  Math.sin(a);  // perpendicular
+
+  var B = ptA(R, a);  // root point on ring
+
+  // helper: point offset from root by (al) along axis, (pe) perpendicular
+  function P(al, pe) {
+    return { x: B.x + ax*al + px*pe,
+             y: B.y + ay*al + py*pe };
+  }
+
+  var T   = P(L,      0      );  // tip
+  var cA1 = P(L*0.30,  W     );  // right side, inner control
+  var cA2 = P(L*0.86,  W*0.42);  // right side, outer control
+  var cB1 = P(L*0.86, -W*0.42);  // left side, outer control
+  var cB2 = P(L*0.30, -W     );  // left side, inner control
+
+  // two cubic bezier curves: root → tip (right), tip → root (left)
+  return 'M '  + B.x  + ' ' + B.y  +
+    ' C ' + cA1.x + ' ' + cA1.y + ' ' + cA2.x + ' ' + cA2.y +
+        ' ' + T.x   + ' ' + T.y   +
+    ' C ' + cB1.x + ' ' + cB1.y + ' ' + cB2.x + ' ' + cB2.y +
+        ' ' + B.x   + ' ' + B.y   + ' Z';
+}</code></pre>
+
+    <h3>Size scaling</h3>
+    <p>Entry weight is an integer (typically 1–3) representing how significant or broad an entry is. Length and width scale linearly with weight, so heavier entries produce visibly larger petals at the same hour.</p>
+    <table class="spec">
+      <tr><th>Weight</th><th>Length L</th><th>Width W</th><th>Visual</th></tr>
+      <tr><td>1</td><td>23</td><td>6.7</td><td>Small — a quick note</td></tr>
+      <tr><td>2</td><td>31</td><td>8.9</td><td>Medium — a standard entry</td></tr>
+      <tr><td>3</td><td>39</td><td>11.1</td><td>Large — a full session</td></tr>
+    </table>
+  </div>
+
+  <!-- SECTION 5: Two layers -->
+  <div class="sec" id="s4">
+    <div class="addr">#s4</div>
+    <h2>Two layers</h2>
+    <p>The bloom renders two overlapping layers. Layer one (settled) is drawn first; layer two (ripening) sits on top. Both use the same petal shape and color math — the visual distinction is fill vs. outline.</p>
+
+    <div class="layers">
+      <div class="layer-card">
+        <div class="l-tag">Layer 1</div>
+        <h4>Settled bloom</h4>
+        <p>Petals filled with the hour's color at <code>opacity: var(--petal)</code> — 0.5 in dark mode, 0.64 in light. These are events that have been posted to the ledger: confirmed, witnessed, authoritative.</p>
+      </div>
+      <div class="layer-card">
+        <div class="l-tag">Layer 2</div>
+        <h4>Ripening matters</h4>
+        <p>Outline petals with a semi-transparent fill at <code>ripe × 0.55</code> opacity. The outline is drawn with a stroke that thickens as ripeness increases: <code>stroke-width: 1 + ripe × 2</code>. A fully ripe matter is unmistakable.</p>
+      </div>
+    </div>
+
+    <h3>Settled rendering</h3>
+    <pre><code>// CSS
+.petal .lobe { opacity: var(--petal); }  /* 0.5 dark / 0.64 light */
+
+// JS — solid filled path
+var p = createPath(petalPath(a, L, W));
+p.style.fill = colorAt(entry.h);
+p.classList.add('lobe');</code></pre>
+
+    <h3>Ripening rendering</h3>
+    <pre><code>// each matter has a ripe score 0..1
+// fill: the hour's color at reduced opacity shows how close
+var fp = createPath(petalPath(a, L, W));
+fp.style.fill    = colorAt(matter.h);
+fp.style.opacity = (matter.ripe * 0.55).toFixed(3);
+
+// outline: stroke only, width grows with ripeness
+var ed = createPath(petalPath(a, L, W));
+ed.style.fill         = 'none';
+ed.style.stroke       = colorAt(matter.h);
+ed.style.strokeWidth  = (1 + matter.ripe * 2).toFixed(2);
+ed.style.opacity      = '0.6';</code></pre>
+
+    <h3>Private entries (outline only)</h3>
+    <p>Private settled entries render as dashed outlines with no fill — the petal shape is visible but deliberately not solid. They count as part of the rhythm without fully revealing the moment.</p>
+    <pre><code>// private settled entry: dashed stroke, no fill
+.petal.private .lobe {
+  fill: none;
+  stroke: currentColor;
+  stroke-dasharray: 2 3;
+  opacity: 0.4;
+}</code></pre>
+  </div>
+
+  <!-- SECTION 6: Entry kinds -->
+  <div class="sec" id="s5">
+    <div class="addr">#s5</div>
+    <h2>Entry kinds and angular offsets</h2>
+    <p>Four kinds of entry populate the bloom. All four share the same clock face and color ramp. They are distinguished by a small angular offset from the hour angle — separating petals that would otherwise stack exactly on top of each other when they occur at the same time.</p>
+
+    <div class="kinds">
+      <div class="kind-card">
+        <div class="k-name">reflection</div>
+        <div class="k-offset">offset: −0.04 rad</div>
+        <div class="k-window">window: first light &amp; evening</div>
+        <div class="k-desc">Narrative — not posted to the ledger. Public by author choice, no circle assent needed. Always private until landed.</div>
+      </div>
+      <div class="kind-card">
+        <div class="k-name">contribution</div>
+        <div class="k-offset">offset: −0.014 rad</div>
+        <div class="k-window">window: working hours</div>
+        <div class="k-desc">Labor logged for the program budget. Self-confirmed by the member. Requires member's own landing action.</div>
+      </div>
+      <div class="kind-card">
+        <div class="k-name">exchange</div>
+        <div class="k-offset">offset: +0.014 rad</div>
+        <div class="k-window">window: mid-morning</div>
+        <div class="k-desc">Transfers and allocations of value between vaults. Requires the circle's assent before landing.</div>
+      </div>
+      <div class="kind-card">
+        <div class="k-name">clearing</div>
+        <div class="k-offset">offset: +0.04 rad</div>
+        <div class="k-window">window: night</div>
+        <div class="k-desc">Settlements between vaults at day's end. Both peers must confirm before the petal goes solid.</div>
+      </div>
+    </div>
+
+    <h3>Offset in context</h3>
+    <p>The angle used to place a petal is <code>thOf(hour) + kind.offset</code>. At 0.04 radians, the outermost kinds (reflection and clearing) sit about 5 minutes of clock arc apart from their neighbors. Enough to be visually distinct without obscuring the hour reading.</p>
+
+    <table class="spec">
+      <tr><th>Kind</th><th>Offset (rad)</th><th>Clock arc (~min)</th><th>Assent required</th></tr>
+      <tr><td>reflection</td><td>−0.04</td><td>≈ −8 min</td><td>none — author's choice</td></tr>
+      <tr><td>contribution</td><td>−0.014</td><td>≈ −3 min</td><td>self-confirmation</td></tr>
+      <tr><td>exchange</td><td>+0.014</td><td>≈ +3 min</td><td>circle's assent</td></tr>
+      <tr><td>clearing</td><td>+0.04</td><td>≈ +8 min</td><td>both peers</td></tr>
+    </table>
+  </div>
+
+  <!-- SECTION 7: Supporting elements -->
+  <div class="sec" id="s6">
+    <div class="addr">#s6</div>
+    <h2>Supporting elements</h2>
+    <p>Five structural elements frame the petals without competing with them. All are rendered before the petals in draw order — they sit behind.</p>
+
+    <table class="spec">
+      <tr><th>Element</th><th>Class</th><th>Specification</th></tr>
+      <tr><td>Ring</td><td><code>.ring</code></td><td>Circle at radius R, stroke only, 1px, <code>var(--line)</code></td></tr>
+      <tr><td>Arc segments</td><td><code>.arcseg</code></td><td>6 arcs sunrise→sunset, rose→coral→amber→amber→coral→rose, stroke 1.5px</td></tr>
+      <tr><td>Horizon</td><td><code>.horizon</code></td><td>Dashed line at <code>y = cy + H</code>, x from −dxh to +dxh, 1px, opacity 0.5</td></tr>
+      <tr><td>Now line</td><td><code>.nowline</code></td><td>Dashed radial from inner ring to outer ring at current time, 1px</td></tr>
+      <tr><td>Now marker</td><td><code>.sun</code></td><td>Circle at ring edge at current hour: gold filled if day, surface-filled with muted stroke if night. Outer halo ring at radius 7 when day.</td></tr>
+    </table>
+
+    <h3>Cardinal labels</h3>
+    <p>Four text labels are placed at radius LBL (202) at their respective clock positions. They are rendered in <code>var(--muted)</code> at 9px mono, uppercase.</p>
+    <pre><code>card(12,       'noon',     -2);   // top
+card(sunrise,  'sunrise',  +3);   // left
+card(sunset,   'sunset',   +3);   // right
+card(0,        'midnight', +9);   // bottom</code></pre>
+
+    <h3>Now marker states</h3>
+    <pre><code>// day (tn between sunrise and sunset)
+outer ring: r=7, fill=none, stroke=var(--sun-gold), opacity=0.45
+inner dot:  r=4.5, fill=var(--sun-gold), stroke=var(--sun-gold)
+
+// night
+inner dot:  r=4.5, fill=var(--surface), stroke=var(--muted)</code></pre>
+  </div>
+
+  <!-- SECTION 8: Data shape -->
+  <div class="sec" id="s7">
+    <div class="addr">#s7</div>
+    <h2>Data shape</h2>
+    <p>The bloom expects two arrays: one of settled entries grouped by kind, and one of open matters. Both are rendered on each draw call.</p>
+
+    <h3>Settled entries</h3>
+    <pre><code>// one object per kind, with a data array of settled entries
+var types = [
+  {
+    key:    'contribution',
+    label:  'Contribution',
+    off:    -0.014,
+    window: 'working hours',
+    desc:   'labor logged for the program budget',
+    data: [
+      { h: 9,    w: 1 },   // h = hour (decimal), w = weight (integer)
+      { h: 14,   w: 2 },
+      { h: 15.5, w: 3 }
+    ]
+  },
+  // … reflection, exchange, clearing
+];</code></pre>
+
+    <h3>Open matters</h3>
+    <pre><code>var matters = [
+  {
+    id:     'm1',
+    kind:   'exchange',          // maps to a kind for angular offset and color
+    h:      11.5,                // hour (decimal)
+    ripe:   0.78,                // 0..1 ripeness
+    awaits: 'the circle\'s assent',
+    face:   'allocation $1,500 → LearnVibe.Build',
+    cite:   'Bylaws §6',         // bylaw section authorizing this event type
+    act:    'signal'             // 'confirm' | 'post' | 'signal' | null
+  }
+];</code></pre>
+
+    <h3>Landing — from ripening to settled</h3>
+    <p>When a person takes the landing action, the matter is removed from the ripening layer and a new settled entry is appended to its kind's data array at the same hour. The petal goes solid immediately.</p>
+    <pre><code>function land(matter) {
+  var kindObj = byKey(matter.kind);
+  // find an existing petal nearby (within 24 minutes)
+  var near = kindObj.data.filter(function(d) {
+    return Math.abs(d.h - matter.h) &lt; 0.4;
+  })[0];
+  if (near) near.w += 1;               // widen existing petal
+  else kindObj.data.push({ h: matter.h, w: 2 });  // new petal
+  matters = matters.filter(function(x) { return x.id !== matter.id; });
+}</code></pre>
+  </div>
+
+  <!-- SECTION 9: Surfaces -->
+  <div class="sec" id="s8">
+    <div class="addr">#s8</div>
+    <h2>Surfaces and variants</h2>
+    <p>The same bloom algorithm renders across two Daybook surfaces with minor dimensional adjustments.</p>
+
+    <table class="spec">
+      <tr><th>Surface</th><th>ViewBox</th><th>cx, cy</th><th>R</th><th>Notes</th></tr>
+      <tr><td>Today</td><td>480×480</td><td>240, 240</td><td>148</td><td>Full size, primary surface. Live now marker.</td></tr>
+      <tr><td>Archive</td><td>440×440</td><td>220, 220</td><td>135</td><td>Date-navigation variant. Same algorithm, smaller canvas.</td></tr>
+      <tr><td>Onboarding</td><td>440×440</td><td>220, 220</td><td>135</td><td>Tutorial walkthrough. Static, no live now marker. Annotated with callout labels.</td></tr>
+    </table>
+
+    <h3>CSS petal opacity by mode</h3>
+    <pre><code>html[data-mode="dark"]  { --petal: 0.5;  }
+html[data-mode="light"] { --petal: 0.64; }</code></pre>
+
+    <p>Light mode petals are slightly more opaque because the light background provides less contrast. The value was tuned so petals read clearly in both modes without appearing heavy.</p>
+  </div>
+
+  <!-- SECTION 9: Design principles -->
+  <div class="sec" id="s9">
+    <div class="addr">#s9</div>
+    <h2>Design principles</h2>
+
+    <div class="callout">
+      Colour is the hour. Not the kind. This is the load-bearing decision. If color were per-kind, the bloom would become a pie chart — reading kind distribution, not rhythm. By binding color to time, it stays a clock.
+    </div>
+
+    <h3>The four principles</h3>
+    <table class="spec">
+      <tr><th>Principle</th><th>Expression in the bloom</th></tr>
+      <tr><td>Time over kind</td><td>Color encodes hour, not entry type. Kind is encoded only in angular offset (&lt;5 min of arc).</td></tr>
+      <tr><td>Rhythm over content</td><td>The bloom shows when and how often. Never what. Content is in the entry; the bloom is its silhouette.</td></tr>
+      <tr><td>Signal, don't act</td><td>A ripening matter can reach 100% and become unmistakably urgent. It still waits for a person to land it.</td></tr>
+      <tr><td>Collective, not individual</td><td>The bloom aggregates the whole cooperative. No member is singled out. Whose petal — absent by design.</td></tr>
+    </table>
+
+    <h3>On the absence of axes</h3>
+    <p>The bloom has no y-axis, no legend for scale, no numerical labels. Petal size encodes relative weight — heavier entries have wider petals — but there is no key translating size to hours or dollars. This is deliberate. Precision belongs in the ledger. The bloom conveys pattern.</p>
+
+    <h3>On private entries</h3>
+    <p>A private settled entry renders as a dashed outline. It says: something happened at this hour. It withholds what. The cooperative's rhythm is visible; its contents remain held. This is the bloom's way of honoring the difference between the cooperative's shared temporal life and each member's private authorship.</p>
+  </div>
+
+</div><!-- /wrap -->
+
+<div class="wrap">
+  <div class="foot">
+    <a href="../">Design System v4</a> &middot; <a href="../../">Journal</a> &middot; Techne Co-op &middot; 2026
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // mode toggle
+  var root=document.documentElement, mb=document.getElementById('modeBtn');
+  var m=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+  root.setAttribute('data-mode',m); mb.textContent=m==='dark'?'light':'dark';
+  mb.addEventListener('click',function(){ var n=root.getAttribute('data-mode')==='dark'?'light':'dark'; root.setAttribute('data-mode',n); mb.textContent=n==='dark'?'light':'dark'; draw(); });
+
+  // ── bloom engine ──────────────────────────────────────────────────
+  var SVGNS='http://www.w3.org/2000/svg';
+  var cx=240, cy=240, R=148, H=50, LBL=R+54;
+  function thOf(t){ return (t-12)*Math.PI/12; }
+  function ptA(r,a){ return { x:cx+r*Math.sin(a), y:cy-r*Math.cos(a) }; }
+  var dxh=Math.sqrt(R*R-H*H), thR=Math.atan2(dxh/R,-H/R);
+  var sunset=12+thR/(Math.PI/12), sunrise=12-thR/(Math.PI/12);
+
+  var GOLD=[234,182,104],AMBER=[224,154,82],CORAL=[209,117,90],ROSE=[180,92,124],VIOLET=[110,84,148];
+  var ramp=[[0,VIOLET],[sunrise,ROSE],[7,CORAL],[10.5,AMBER],[12.5,GOLD],[15,AMBER],[18,CORAL],[sunset,ROSE],[21.5,VIOLET],[24,VIOLET]];
+  function colorAt(t){
+    t=((t%24)+24)%24; var a=ramp[0],b=ramp[ramp.length-1];
+    for(var i=0;i<ramp.length-1;i++){ if(t>=ramp[i][0]&&t<=ramp[i+1][0]){a=ramp[i];b=ramp[i+1];break;} }
+    var f=(b[0]===a[0])?0:(t-a[0])/(b[0]-a[0]);
+    return 'rgb('+[0,1,2].map(function(k){return Math.round(a[1][k]+(b[1][k]-a[1][k])*f);}).join(',')+')';
+  }
+
+  var types=[
+    { key:'reflection',   off:-0.04,   data:[{h:5.5,w:2},{h:6.5,w:1},{h:20,w:2},{h:21.5,w:3},{h:22.5,w:2}] },
+    { key:'contribution', off:-0.014,  data:[{h:9,w:1},{h:10,w:2},{h:11,w:2},{h:13,w:2},{h:14,w:3},{h:15,w:2},{h:16,w:1}] },
+    { key:'exchange',     off:0.014,   data:[{h:9,w:2},{h:9.75,w:1},{h:10.5,w:2},{h:11,w:1},{h:11.5,w:1}] },
+    { key:'clearing',     off:0.04,    data:[{h:21,w:1},{h:22,w:3},{h:22.5,w:2},{h:23,w:1}] }
+  ];
+  var matters=[
+    { kind:'contribution', h:14.0, ripe:0.50 },
+    { kind:'exchange',     h:11.5, ripe:0.78 },
+    { kind:'contribution', h:15.5, ripe:1.0  },
+    { kind:'clearing',     h:22.2, ripe:0.20 }
+  ];
+
+  var nowD=new Date(), tn=nowD.getHours()+nowD.getMinutes()/60;
+  var svg=document.getElementById('dial');
+  var showMode='both'; // 'both' | 'settled' | 'ripening'
+
+  function el(tag,a){ var n=document.createElementNS(SVGNS,tag); for(var k in a) n.setAttribute(k,a[k]); return n; }
+
+  function petalPath(a,L,W){
+    var ax=Math.sin(a),ay=-Math.cos(a),px=Math.cos(a),py=Math.sin(a);
+    var B=ptA(R,a);
+    function P(al,pe){ return {x:B.x+ax*al+px*pe, y:B.y+ay*al+py*pe}; }
+    var T=P(L,0),cA1=P(L*.30,W),cA2=P(L*.86,W*.42),cB1=P(L*.86,-W*.42),cB2=P(L*.30,-W);
+    return 'M '+B.x.toFixed(1)+' '+B.y.toFixed(1)+
+      ' C '+cA1.x.toFixed(1)+' '+cA1.y.toFixed(1)+' '+cA2.x.toFixed(1)+' '+cA2.y.toFixed(1)+' '+T.x.toFixed(1)+' '+T.y.toFixed(1)+
+      ' C '+cB1.x.toFixed(1)+' '+cB1.y.toFixed(1)+' '+cB2.x.toFixed(1)+' '+cB2.y.toFixed(1)+' '+B.x.toFixed(1)+' '+B.y.toFixed(1)+' Z';
+  }
+
+  function draw(){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    // ring
+    svg.appendChild(el('circle',{cx:cx,cy:cy,r:R,fill:'none',stroke:'var(--line)',strokeWidth:1}));
+    // arc segments sunrise→sunset
+    var arcColors=['var(--sun-rose)','var(--sun-coral)','var(--sun-amber)','var(--sun-amber)','var(--sun-coral)','var(--sun-rose)'];
+    for(var i=0;i<6;i++){
+      var s2=-thR+(2*thR)*i/6, e2=-thR+(2*thR)*(i+1)/6;
+      var p0=ptA(R,s2), p1=ptA(R,e2);
+      var arc=el('path',{d:'M '+p0.x.toFixed(1)+' '+p0.y.toFixed(1)+' A '+R+' '+R+' 0 0 1 '+p1.x.toFixed(1)+' '+p1.y.toFixed(1),fill:'none',stroke:arcColors[i],strokeWidth:1.5});
+      svg.appendChild(arc);
+    }
+    // horizon
+    svg.appendChild(el('line',{x1:(cx-dxh).toFixed(1),y1:(cy+H).toFixed(1),x2:(cx+dxh).toFixed(1),y2:(cy+H).toFixed(1),stroke:'var(--rule)',strokeWidth:1,strokeDasharray:'2 5',opacity:.5}));
+    // cardinal labels
+    function card(t,label,dy){
+      var lp=ptA(LBL,thOf(t));
+      var tx=el('text',{x:lp.x.toFixed(1),y:(lp.y+(dy||0)).toFixed(1),'text-anchor':'middle',fill:'var(--muted)',style:'font:400 9px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase'});
+      tx.textContent=label; svg.appendChild(tx);
+    }
+    card(12,'noon',-2); card(sunrise,'sunrise',3); card(sunset,'sunset',3); card(0,'midnight',9);
+    // layer 1 — settled
+    if(showMode==='both'||showMode==='settled'){
+      types.forEach(function(ty){
+        ty.data.forEach(function(d){
+          var a=thOf(d.h)+ty.off, L=15+d.w*8, W=4.5+d.w*2.2, col=colorAt(d.h);
+          var p=el('path',{d:petalPath(a,L,W)});
+          p.style.fill=col; p.style.opacity='var(--petal)';
+          svg.appendChild(p);
+        });
+      });
+    }
+    // layer 2 — ripening
+    if(showMode==='both'||showMode==='ripening'){
+      matters.forEach(function(mm){
+        var kindObj=types.filter(function(t){return t.key===mm.kind;})[0];
+        var off=kindObj?kindObj.off:0;
+        var ew=1+mm.ripe*2.0, L=15+ew*8, W=4.5+ew*2.2, col=colorAt(mm.h);
+        var a=thOf(mm.h)+off, dpath=petalPath(a,L,W);
+        // fill
+        var fp=el('path',{d:dpath}); fp.style.fill=col; fp.style.opacity=(mm.ripe*.55).toFixed(3); fp.style.stroke='none'; svg.appendChild(fp);
+        // edge
+        var ed=el('path',{d:dpath}); ed.style.fill='none'; ed.style.stroke=col; ed.style.strokeWidth=(1+mm.ripe*2).toFixed(2); ed.style.opacity='.6'; svg.appendChild(ed);
+      });
+    }
+    // now line
+    var io=ptA(R-26,thOf(tn)), oo=ptA(R,thOf(tn));
+    svg.appendChild(el('line',{x1:io.x.toFixed(1),y1:io.y.toFixed(1),x2:oo.x.toFixed(1),y2:oo.y.toFixed(1),stroke:'var(--rule)',strokeWidth:1,strokeDasharray:'1 4',opacity:.5}));
+    // now marker
+    var sp=ptA(R,thOf(tn)), day=(tn>=sunrise&&tn<=sunset);
+    if(day){ var hh=el('circle',{cx:sp.x.toFixed(1),cy:sp.y.toFixed(1),r:7}); hh.style.fill='none'; hh.style.stroke='var(--sun-gold)'; hh.style.opacity='.45'; svg.appendChild(hh); }
+    var sc=el('circle',{cx:sp.x.toFixed(1),cy:sp.y.toFixed(1),r:4.5}); sc.style.fill=day?'var(--sun-gold)':'var(--surface)'; sc.style.stroke=day?'var(--sun-gold)':'var(--muted)'; svg.appendChild(sc);
+    // now label
+    var nlp=ptA(LBL,thOf(tn)); var nl=el('text',{x:nlp.x.toFixed(1),y:(nlp.y+3).toFixed(1),'text-anchor':'middle',fill:'var(--faint)',style:'font:400 8.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase'}); nl.textContent='now'; svg.appendChild(nl);
+  }
+
+  // demo controls
+  ['both','settled','ripening'].forEach(function(mode){
+    document.getElementById('btn-'+mode).addEventListener('click',function(){
+      showMode=mode;
+      ['both','settled','ripening'].forEach(function(m){ document.getElementById('btn-'+m).classList.toggle('on',m===mode); });
+      draw();
+    });
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>
