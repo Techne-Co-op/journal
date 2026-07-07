@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="The live work surface of Techne Studio — emergent contributions from offered through resolved, drawn from the cooperative's shared vault.">
+<meta name="description" content="The live work surface of Techne Studio — emergent contributions from offered through resolved, drawn from the cooperative's Common Work system.">
 <title>Common Work &middot; Techne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -205,7 +205,7 @@
 <section class="hero">
   <p class="hero-kicker">Common Work</p>
   <h1>Emergent work within Techne</h1>
-  <p>What the cooperative is doing — offered, active, and resolved — drawn live from the shared vault. Each entry moves through the full arc from first offer to completion.</p>
+  <p>What the cooperative is doing — offered, active, and resolved — drawn live from Common Work. Each item moves through the full arc: captured → offered → held → standing → socialized → resolved.</p>
 </section>
 
 <div class="counts" id="counts" style="display:none">
@@ -215,12 +215,12 @@
 </div>
 
 <main class="board" id="board">
-  <p class="loading" id="loadingMsg">Loading work from the vault&hellip;</p>
+  <p class="loading" id="loadingMsg">Loading work&hellip;</p>
 </main>
 
 <footer>
   <div class="footer" style="max-width:960px">
-    <p class="footer-note">Live from <a href="https://our.parachute.computer" target="_blank" rel="noopener">our.parachute.computer</a> · vault/techne</p>
+    <p class="footer-note">Live from <a href="/daybook/work/">daybook · common work</a> · <a href="/work/capture/">capture new work →</a></p>
     <p class="footer-note"><a href="https://journal.techne.coop">journal.techne.coop</a> · <a href="https://techne.coop">techne.coop</a></p>
   </div>
 </footer>
@@ -228,8 +228,19 @@
 <script>
 (function(){
   /* ── config ── */
-  const VAULT = 'https://our.parachute.computer/vault/techne/api';
-  const TOKEN = 'eyJhbGciOiJSUzI1NiIsImtpZCI6Im5zdmg5M21aUXY1R0JuNm9laXB6RFh0X0hyUTN1TVpTdVJFZDRhY0Nwd28ifQ.eyJzY29wZSI6InZhdWx0OnRlY2huZTpyZWFkIiwiY2xpZW50X2lkIjoicGFyYWNodXRlLWh1YiIsInZhdWx0X3Njb3BlIjpbInRlY2huZSJdLCJzdWIiOiJ0b2Rkcy12YXVsdC1hY2Nlc3MiLCJpc3MiOiJodHRwczovL291ci5wYXJhY2h1dGUuY29tcHV0ZXIiLCJpYXQiOjE3ODMzNTM3NjYsImV4cCI6MTc5MTEyOTc2NiwiYXVkIjoidmF1bHQudGVjaG5lIiwianRpIjoiMHZNYjd4ZDNzWjNUYXFHalBkYVhhQSJ9.QoNhr4Zy8q-ldaH7PtnPuXA2C2EnTyycIfE4FzGXEKKCHuACMMxL2yia-e17gx0qs4hEI_s1Ry7jgt5KEvLklzSBL9jzQvrFAaR0vB7A6ndrW74IZy09Fle4gEC4648wkIchq2wnRY-I4tD1d-RhbTWyECFf36cyvfKsddQZyaRl42Kxj-OoiBfbopo9mFn2MPU-Bp0zzAsDF0wIHOa5Yh2-pRJK2tlEQW_UU4KzBydgF9j79uGUk6g3-GGV02E2K41llFTfNuORNk3zo54tCRU9MJb-GgBKVPyPcdG10fKZNa1HNGITuHs53JbnWd7UtkgsFys7TCX7gwSBBFd8tw'; // vault:techne:read — expires 2026-10-04
+  const SB_URL  = 'https://kxprevuqghixwspucfqo.supabase.co';
+  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHJldnVxZ2hpeHdzcHVjZnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNjA3NTYsImV4cCI6MjA5ODkzNjc1Nn0.N8M9iaIdM1Eg_JGAZj54yStsrCIDYL9wi1RKSTHX4qI';
+  const SB_REST = SB_URL + '/rest/v1';
+
+  /* Stage → display bucket mapping per architecture spec */
+  const STAGE_BUCKET = {
+    captured:   'offered',
+    offered:    'offered',
+    held:       'active',
+    standing:   'active',
+    socialized: 'active',
+    resolved:   'resolved',
+  };
 
   const STATUSES = [
     { key:'offered',  label:'Offered',  desc:'Work that has been named and is waiting to begin.' },
@@ -251,37 +262,36 @@
 
   /* ── fetch ── */
   async function fetchWork(){
-    const res = await fetch(`${VAULT}/notes?tag=work&include_content=false&limit=200`,{
-      headers:{ 'Authorization':`Bearer ${TOKEN}` }
-    });
+    const res = await fetch(
+      `${SB_REST}/daybook_work_items?stage=not.eq.composted&order=created_at.asc&limit=200`,
+      { headers:{ 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
+    );
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    const data = await res.json();
-    return Array.isArray(data)?data:(data.notes||[]);
+    return res.json();
   }
 
   /* ── render ── */
   function fmtDate(iso){
     if(!iso) return '';
-    const d = new Date(iso+'T00:00:00');
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    try { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    catch(e){ return ''; }
   }
 
   function renderCard(item){
-    const m = item.metadata||{};
-    const daybookSlug = m.daybook_slug;
-    const daybookUrl = daybookSlug ? `https://journal.techne.coop/daybook/${daybookSlug}/` : null;
-    const dateStr = m.resolved ? fmtDate(m.resolved) : fmtDate(m.opened);
-    const dateLabel = m.resolved ? 'resolved' : 'opened';
+    const summary = item.essence || (item.description ? item.description.slice(0,160) + (item.description.length > 160 ? '…' : '') : '');
+    const dateStr   = item.resolved_at ? fmtDate(item.resolved_at) : fmtDate(item.created_at);
+    const dateLabel = item.resolved_at ? 'resolved' : 'opened';
+    const stageLabel = item.stage || '';
 
     return `<article class="card">
       <div class="card-head">
-        <h3 class="card-title">${esc(m.title||item.path||'Untitled')}</h3>
-        ${m.steward ? `<span class="card-steward">${esc(m.steward)}</span>` : ''}
+        <h3 class="card-title">${esc(item.title||item.path||'Untitled')}</h3>
+        ${item.assignee ? `<span class="card-steward">${esc(item.assignee)}</span>` : ''}
       </div>
-      ${m.summary ? `<p class="card-summary">${esc(m.summary)}</p>` : ''}
+      ${summary ? `<p class="card-summary">${esc(summary)}</p>` : ''}
       <div class="card-foot">
+        ${stageLabel ? `<span class="card-date" style="text-transform:uppercase;letter-spacing:.06em;">${esc(stageLabel)}</span>` : ''}
         ${dateStr ? `<span class="card-date">${dateLabel} ${dateStr}</span>` : ''}
-        ${daybookUrl ? `<a class="card-link" href="${daybookUrl}" target="_blank" rel="noopener">daybook entry →</a>` : ''}
       </div>
     </article>`;
   }
@@ -296,8 +306,8 @@
     const byStatus = {};
     STATUSES.forEach(s=>{ byStatus[s.key]=[]; });
     items.forEach(item=>{
-      const status = (item.metadata||{}).status;
-      if(byStatus[status]) byStatus[status].push(item);
+      const bucket = STAGE_BUCKET[item.stage];
+      if(bucket && byStatus[bucket]) byStatus[bucket].push(item);
     });
 
     document.getElementById('cOffered').textContent = byStatus.offered.length;
@@ -305,29 +315,28 @@
     document.getElementById('cResolved').textContent = byStatus.resolved.length;
 
     board.innerHTML = STATUSES.map(s=>{
-      const items = byStatus[s.key];
-      const cards = items.length
-        ? items.map(renderCard).join('')
+      const its = byStatus[s.key];
+      const cards = its.length
+        ? its.map(renderCard).join('')
         : `<div class="lane-empty">No ${s.key} work at this time.</div>`;
       return `<section class="lane" data-status="${s.key}">
         <div class="lane-header">
           <span class="lane-chip">${s.key}</span>
           <span class="lane-title">${s.label}</span>
-          <span class="lane-count">${items.length}</span>
+          <span class="lane-count">${its.length}</span>
         </div>
         <p style="font:400 13px/1.5 var(--serif);color:var(--muted);margin-bottom:var(--s4);">${s.desc}</p>
         <div class="cards">${cards}</div>
       </section>`;
     }).join('');
 
-    // show live indicator
     document.getElementById('liveDot').style.display='block';
     document.getElementById('liveLabel').textContent='live';
   }
 
   function renderError(err){
     const board = document.getElementById('board');
-    board.innerHTML = `<div class="error-msg">Could not load work from vault: ${esc(err.message)}</div>`;
+    board.innerHTML = `<div class="error-msg">Could not load work items: ${esc(err.message)}</div>`;
   }
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -338,3 +347,4 @@
 </script>
 </body>
 </html>
+
