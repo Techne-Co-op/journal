@@ -226,17 +226,17 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
 <header class="topbar">
   <div class="topbar-left">
-    <a href="/" class="brand">Techne</a>
+    <a href="/v1/" class="brand">Techne</a>
     <span class="sep">·</span>
     <span class="topbar-sub">daybook</span>
     <span class="sep">·</span>
     <span class="topbar-sub">today</span>
   </div>
   <div class="topbar-right">
-    <a href="/daybook/write/" class="nav-link">write</a>
-    <a href="/daybook/archive/" class="nav-link">archive</a>
-    <a href="/daybook/matters/" class="nav-link">matters</a>
-    <a href="/daybook/work/" class="nav-link">work</a>
+    <a href="/v1/daybook/write/" class="nav-link">write</a>
+    <a href="/v1/daybook/archive/" class="nav-link">archive</a>
+    <a href="/v1/daybook/matters/" class="nav-link">matters</a>
+    <a href="/v1/daybook/work/" class="nav-link">work</a>
     <button class="mode-btn" id="modeBtn">light</button>
   </div>
 </header>
@@ -245,7 +245,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
 
   <!-- observer banner (shown when no user token) -->
   <div id="observerBanner" style="display:none; background:var(--inset); border-bottom:1px solid var(--line); padding:10px var(--s5); font:400 12px/1.4 var(--mono); color:var(--muted);">
-    Observer view — public entries only. <a href="/daybook/write/" style="color:var(--ember-t);">Sign in</a> to write.
+    Observer view — public entries only. <a href="/v1/daybook/write/" style="color:var(--ember-t);">Sign in</a> to write.
   </div>
 
   <!-- main -->
@@ -256,7 +256,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
       <h1 id="dayHeading"></h1>
       <div class="day-meta">
         <span class="day-count" id="dayCount">loading…</span>
-        <a href="/daybook/write/" class="write-link">+ write</a>
+        <a href="/v1/daybook/write/" class="write-link">+ write</a>
       </div>
     </div>
 
@@ -291,7 +291,7 @@ footer { border-top: 1px solid var(--line); padding: var(--s6) 0; margin-top: va
     <div class="entry-list" id="entryList"></div>
     <div class="empty" id="emptyMsg" style="display:none">
       <p>No entries today.</p>
-      <a href="/daybook/write/" style="font:500 11px/1 var(--mono);color:var(--ember-t)">Write your first entry →</a>
+      <a href="/v1/daybook/write/" style="font:500 11px/1 var(--mono);color:var(--ember-t)">Write your first entry →</a>
     </div>
 
   </div>

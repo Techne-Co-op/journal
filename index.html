@@ -1,515 +1,436 @@
 <!DOCTYPE html>
-<html lang="en" data-mode="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="The journal of Techne — book of original entry for the cooperative. Daybook, Common Work, and the Encyclopedia of Artifacts. Built by RegenHub, LCA in Boulder, Colorado.">
-<title>The Journal &middot; Techne</title>
+<meta name="description" content="The Open World of Techne  --  federated bodies of work, held in common. Alpha.">
+<title>Open World &middot; Techne</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="theme-color" content="#0F0F12" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F7F5F0" media="(prefers-color-scheme: light)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    try {
+      var m = localStorage.getItem('techne-mode');
+      if (!m) m = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-mode', m);
+    } catch(e) {}
+  })();
+</script>
 <style>
-  :root{
-    --serif:"Libre Baskerville",Georgia,serif;
-    --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-    --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
-    --dur:.4s;--micro:.16s;--ease:cubic-bezier(.4,0,.2,1);
-    --sun-gold:#EAB668;--sun-amber:#E09A52;--sun-coral:#D1755A;--sun-rose:#B45C7C;--sun-violet:#6E5494;--sun-blue:#5476B8;
-  }
-  html[data-mode="dark"]{
-    --bg:#0F0F12;--inset:#08080A;--surface:#16161B;--raised:#232329;
-    --line:#2A2A30;--rule:#3A3A42;
-    --heading:#E8E4DF;--text:#CFCBC4;--muted:#8A857E;--faint:#5A554F;
-    --blue:#6A8AC4;--blue-text:#97B5E8;--ember:#C4956A;--ember-text:#D4A57A;
-    --ok:#6A9A6A;--warn:#C46A6A;--petal:.5;
-  }
-  html[data-mode="light"]{
-    --bg:#F7F5F0;--inset:#EBE7DF;--surface:#FCFBF8;--raised:#FEFDFB;
-    --line:#D8D3C8;--rule:#9A958A;
-    --heading:#1A1A1F;--text:#2E2C28;--muted:#646058;--faint:#A39E92;
-    --blue:#4A6FB0;--blue-text:#39588F;--ember:#8A6A4A;--ember-text:#6F5436;
-    --ok:#4A7A4A;--warn:#A84F4C;--petal:.62;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{color-scheme:dark light}
-  body{background:var(--bg);color:var(--text);font:400 17px/1.72 var(--serif);
-    transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease)}
-  em{font-style:italic;color:var(--heading)}
-  a{color:var(--blue-text);text-decoration:none}
-  a:hover{text-decoration:underline}
-  :focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-  ::selection{background:var(--blue);color:var(--bg)}
+/* Techne v4 tokens (shared with techne.coop) */
+:root {
+  --serif: 'Libre Baskerville', Georgia, serif;
+  --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  --dur: .4s; --micro: .16s; --ease: cubic-bezier(.4,0,.2,1);
+}
+html[data-mode="dark"] {
+  --bg: #0F0F12; --inset: #08080A; --surface: #16161B; --raised: #232329;
+  --line: #2A2A30; --rule: #3A3A42;
+  --heading: #E8E4DF; --text: #CFCBC4; --muted: #8A857E; --faint: #5A554F;
+  --blue: #6A8AC4; --blue-text: #97B5E8;
+  --ember: #C4956A; --ember-text: #D4A57A;
+  --blue-dim: rgba(106, 138, 196, 0.14);
+  --ember-dim: rgba(196, 149, 106, 0.14);
+  --ok: #6A9A6A; --warn: #C46A6A;
+  color-scheme: dark;
+}
+html[data-mode="light"] {
+  --bg: #F7F5F0; --inset: #EBE7DF; --surface: #FCFBF8; --raised: #FEFDFB;
+  --line: #D8D3C8; --rule: #9A958A;
+  --heading: #1A1A1F; --text: #2E2C28; --muted: #646058; --faint: #A39E92;
+  --blue: #4A6FB0; --blue-text: #39588F;
+  --ember: #8A6A4A; --ember-text: #6F5436;
+  --blue-dim: rgba(74, 111, 176, 0.10);
+  --ember-dim: rgba(138, 106, 74, 0.10);
+  --ok: #4A7A4A; --warn: #A84F4C;
+  color-scheme: light;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--mono); font-size: 14px; line-height: 1.6;
+  display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+header {
+  display: flex; align-items: baseline; gap: var(--s3);
+  padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line);
+}
+header h1 { font-family: var(--serif); font-size: 18px; color: var(--heading); font-weight: 400; }
+header .mark { font-size: 11px; color: var(--ember-text); letter-spacing: .08em; text-transform: uppercase; }
+header .spacer { flex: 1; }
+button.ghost {
+  background: none; border: 1px solid var(--line); color: var(--muted);
+  font-family: var(--mono); font-size: 12px; padding: var(--s1) var(--s3);
+  cursor: pointer; border-radius: 3px; transition: color var(--micro), border-color var(--micro);
+}
+button.ghost:hover { color: var(--heading); border-color: var(--rule); }
+main { flex: 1; overflow-y: auto; padding: var(--s6) var(--s5); max-width: 720px; width: 100%; margin: 0 auto; }
+h2 { font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--heading); margin-bottom: var(--s4); }
+p.lede { color: var(--text); margin-bottom: var(--s4); }
+p.dim { color: var(--muted); font-size: 13px; margin-bottom: var(--s4); }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  padding: var(--s4) var(--s5); margin-bottom: var(--s3);
+}
+.card .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.card .v { color: var(--heading); font-size: 15px; }
+.card.body-of-work { display: flex; align-items: baseline; gap: var(--s3); }
+.card.body-of-work .name { font-family: var(--serif); font-size: 16px; color: var(--heading); flex: 1; }
+.card.body-of-work .kind { font-size: 11px; color: var(--ember-text); letter-spacing: .06em; text-transform: uppercase; }
+form.signin { display: flex; gap: var(--s2); margin: var(--s4) 0; flex-wrap: wrap; }
+input[type=email] {
+  flex: 1; min-width: 220px; background: var(--inset); border: 1px solid var(--line);
+  color: var(--text); font-family: var(--mono); font-size: 14px; padding: var(--s2) var(--s3); border-radius: 3px;
+}
+button.act {
+  background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue-text);
+  font-family: var(--mono); font-size: 13px; padding: var(--s2) var(--s4);
+  cursor: pointer; border-radius: 3px;
+}
+.status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-bottom: var(--s4); }
+.status.warn { color: var(--warn); }
+.status.ok { color: var(--ok); }
+footer {
+  border-top: 1px solid var(--line); padding: var(--s3) var(--s5);
+  font-size: 11px; color: var(--faint); display: flex; gap: var(--s4); flex-wrap: wrap;
+}
+footer a { color: var(--muted); }
+.hidden { display: none; }
+section { margin-bottom: var(--s6); }
 
-  .toggle{position:fixed;top:16px;right:20px;z-index:100;font:500 11px/1 var(--mono);
-    color:var(--muted);background:var(--surface);border:1px solid var(--rule);
-    border-radius:2px;padding:8px 13px;cursor:pointer;
-    transition:background-color var(--micro) var(--ease),color var(--micro) var(--ease)}
-  .toggle:hover{background:var(--raised);color:var(--heading)}
+/* Proposed, not built. The estate's convention: dashed borders, hollow marks,
+   and a legend that says what the marks mean. Nothing in here reads a record. */
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font: 500 9.5px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 9px; border: 1px solid var(--line); border-radius: 2px;
+  background: var(--surface); color: var(--muted); vertical-align: middle;
+}
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
+.chip.proposed { color: var(--ember-text); border-color: var(--ember); border-style: dashed; }
+.chip.proposed .dot { background: transparent; border: 2px solid var(--ember); }
+.chip.example { color: var(--muted); border-style: dashed; }
+.chip.example .dot { background: transparent; border: 1px dashed var(--muted); }
 
-  .band{display:flex;height:5px}
-  .band span{flex:1}
+.card.proposed { border-style: dashed; background: none; }
+.stamps .rule-line { color: var(--muted); font-size: 13px; border-left: 2px solid var(--ember); padding-left: var(--s3); margin-bottom: var(--s4); }
 
-  .wrap{max-width:900px;margin:0 auto;padding:0 var(--s5) var(--s8)}
-
-  /* hero */
-  .hero{padding:var(--s8) 0 var(--s7);border-bottom:1px solid var(--rule)}
-  .origin{font:500 11px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;
-    letter-spacing:.13em;margin-bottom:var(--s4);display:flex;align-items:center;gap:10px}
-  .origin .tk{width:18px;height:2px;background:var(--ember);flex:none}
-  .hero h1{font:700 54px/1.04 var(--serif);color:var(--heading);letter-spacing:-.022em;
-    margin-bottom:var(--s5);max-width:16ch}
-  .hero h1 em{font-style:normal;color:var(--ember)}
-  .hero .lede{font:400 19px/1.65 var(--serif);color:var(--text);max-width:58ch;margin-bottom:var(--s5)}
-  .hero .lede em{color:var(--heading)}
-  .chips{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
-  .chip{font:500 10px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;
-    padding:6px 11px;border:1px solid var(--line);border-radius:2px;color:var(--muted)}
-  .chip.proto{color:var(--ember-text);border-color:var(--ember)}
-
-  .sec{padding:var(--s7) 0 0}
-  .sec-label{font:500 10px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;
-    letter-spacing:.14em;margin-bottom:var(--s3)}
-  .sec h2{font:700 30px/1.12 var(--serif);color:var(--heading);letter-spacing:-.015em;
-    margin-bottom:var(--s5)}
-  .sec p{font:400 16px/1.72 var(--serif);color:var(--text);max-width:64ch;margin-bottom:var(--s4)}
-  .sec p em{color:var(--heading)}
-  .sec p:last-child{margin-bottom:0}
-
-  .rule-block{background:var(--inset);border:1px solid var(--rule);border-left:3px solid var(--ember);
-    padding:var(--s5) var(--s6);margin:var(--s5) 0}
-  .rule-block .rb-label{font:600 9.5px/1 var(--mono);color:var(--ember-text);
-    text-transform:uppercase;letter-spacing:.12em;margin-bottom:var(--s3)}
-  .rule-block .rb-rule{font:700 22px/1.3 var(--serif);color:var(--heading);margin-bottom:var(--s3)}
-  .rule-block .rb-body{font:400 15px/1.68 var(--serif);color:var(--text);max-width:60ch}
-  .rule-block .rb-body em{color:var(--heading)}
-
-  .tools{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);margin-top:var(--s5)}
-  @media(max-width:760px){.tools{grid-template-columns:1fr 1fr}}
-  @media(max-width:480px){.tools{grid-template-columns:1fr}}
-  .tool{background:var(--surface);border:1px solid var(--line);padding:var(--s5)}
-  .tool-tag{font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-    color:var(--faint);margin-bottom:var(--s3)}
-  .tool h3{font:700 22px/1.15 var(--serif);color:var(--heading);letter-spacing:-.01em;
-    margin-bottom:var(--s3)}
-  .tool p{font:400 14px/1.65 var(--serif);color:var(--text);margin-bottom:var(--s3)}
-  .tool p em{color:var(--heading)}
-  .tool p:last-of-type{margin-bottom:var(--s4)}
-  .tlink{font:500 11px/1 var(--mono);color:var(--blue-text);display:inline-flex;
-    align-items:center;gap:6px;letter-spacing:.03em}
-  .tlink svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.8;fill:none;
-    stroke-linecap:round;stroke-linejoin:round}
-
-  .arc{display:flex;align-items:center;gap:3px;margin:var(--s4) 0 var(--s3);flex-wrap:wrap}
-  .arc-step{display:flex;flex-direction:column;align-items:center;gap:4px}
-  .arc-dot{width:9px;height:9px;border-radius:50%;flex:none}
-  .arc-lab{font:500 8.5px/1 var(--mono);color:var(--faint);text-transform:lowercase;letter-spacing:.03em}
-  .arc-arr{font-size:9px;color:var(--faint);flex:none;padding-bottom:13px}
-
-  .bloom-wrap{display:flex;justify-content:center;margin:var(--s4) 0}
-  .bloom-wrap svg{width:100%;max-width:260px;height:auto;overflow:visible}
-
-  .kinds{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-top:var(--s5)}
-  @media(max-width:560px){.kinds{grid-template-columns:1fr}}
-  .kind{padding:var(--s4);border:1px solid var(--line)}
-  .kind .kh{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-  .kind .kswatch{width:11px;height:11px;border-radius:50%;flex:none}
-  .kind .kname{font:600 11.5px/1 var(--mono);color:var(--heading);text-transform:uppercase;letter-spacing:.05em}
-  .kind .kbook{font:500 9px/1 var(--mono);color:var(--faint);letter-spacing:.05em;
-    text-transform:uppercase;padding:2px 5px;border:1px solid var(--line);border-radius:2px}
-  .kind p{font:400 13px/1.6 var(--serif);color:var(--text)}
-
-  .cta-block{background:var(--surface);border:1px solid var(--rule);padding:var(--s6);
-    margin-top:var(--s5);display:grid;grid-template-columns:1fr auto;gap:var(--s5);align-items:center}
-  @media(max-width:620px){.cta-block{grid-template-columns:1fr}}
-  .cta-block h3{font:700 22px/1.2 var(--serif);color:var(--heading);margin-bottom:var(--s3)}
-  .cta-block p{font:400 14px/1.65 var(--serif);color:var(--muted);max-width:48ch}
-  .cta-steps{display:flex;flex-direction:column;gap:6px;margin-top:var(--s3)}
-  .cta-step{display:grid;grid-template-columns:18px 1fr;gap:8px;font:400 12px/1.5 var(--mono);color:var(--muted)}
-  .cta-step .csn{color:var(--ember-text);font-weight:600}
-  .cta-btn{display:inline-flex;align-items:center;gap:9px;font:500 12px/1 var(--mono);
-    color:var(--blue-text);border:1px solid var(--blue);border-radius:2px;
-    padding:0 20px;height:42px;white-space:nowrap;text-decoration:none;
-    transition:background-color var(--micro) var(--ease)}
-  .cta-btn:hover{background:var(--raised);text-decoration:none}
-  .cta-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none;
-    stroke-linecap:round;stroke-linejoin:round}
-
-  .artifacts{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-top:var(--s4)}
-  @media(max-width:580px){.artifacts{grid-template-columns:1fr}}
-  .art{border:1px solid var(--line);padding:var(--s4);text-decoration:none;display:block;
-    transition:border-color var(--micro) var(--ease),background-color var(--micro) var(--ease)}
-  .art:hover{border-color:var(--rule);background:var(--surface);text-decoration:none}
-  .art-tag{font:500 8.5px/1 var(--mono);color:var(--faint);text-transform:uppercase;
-    letter-spacing:.1em;margin-bottom:var(--s2)}
-  .art h4{font:700 16px/1.2 var(--serif);color:var(--heading);margin-bottom:6px;
-    transition:color var(--micro) var(--ease)}
-  .art:hover h4{color:var(--blue-text)}
-  .art p{font:400 12.5px/1.55 var(--serif);color:var(--muted)}
-
-  .about{margin-top:var(--s7);padding-top:var(--s6);border-top:1px solid var(--rule);
-    display:grid;grid-template-columns:1fr 1fr;gap:var(--s6);align-items:start}
-  @media(max-width:580px){.about{grid-template-columns:1fr}}
-  .about h3{font:700 18px/1.2 var(--serif);color:var(--heading);margin-bottom:var(--s3)}
-  .about p{font:400 14px/1.68 var(--serif);color:var(--muted);margin-bottom:var(--s3)}
-  .about p:last-child{margin-bottom:0}
-  .ab-label{font:500 9px/1.6 var(--mono);color:var(--ember-text);text-transform:uppercase;
-    letter-spacing:.12em;margin-bottom:var(--s3)}
-
-  .foot{border-top:1px solid var(--line);margin-top:var(--s8);padding:var(--s5) 0 var(--s8);
-    font:400 11px/1.75 var(--mono);color:var(--faint)}
-  .foot b{color:var(--muted);font-weight:500}
-  .foot a{color:var(--blue-text)}
-  .foot a:hover{text-decoration:underline}
-
-  @media(max-width:480px){
-    .hero h1{font-size:38px}
-    .rule-block{padding:var(--s4) var(--s5)}
-    .cta-block{padding:var(--s5)}
-  }
-  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.book { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s3) 0 var(--s2); }
+.book .stamp {
+  width: 44px; height: 52px; border: 1px dashed var(--rule); border-radius: 2px;
+  background: none; display: flex; align-items: center; justify-content: center;
+}
+.book .stamp::after {
+  content: ''; width: 9px; height: 9px; border-radius: 50%;
+  border: 1px dashed var(--faint); background: none;
+}
+.stamps .classline {
+  display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+  padding: var(--s3) 0; border-bottom: 1px dashed var(--line);
+}
+.stamps .classline:last-child { border-bottom: 0; }
+.stamps .classline .cid { font-size: 12.5px; color: var(--heading); flex: 1 1 auto; }
+.stamps .classline .cid .name { color: var(--muted); }
+.stamps .classline .units { font-size: 12px; color: var(--muted); font-style: italic; flex: none; margin-left: auto; }
+.stamps .classline .sub { flex-basis: 100%; font-size: 11px; color: var(--faint); margin-top: 2px; }
+.stamps .classline .sub .carrier { letter-spacing: .07em; text-transform: uppercase; }
+.stamps .vars { font-size: 11px; color: var(--faint); }
+.legend {
+  font: 400 10px/1.8 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--faint); display: flex; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s4);
+}
 </style>
 </head>
 <body>
-<button class="toggle" id="toggle">light</button>
+<header>
+  <h1>Open World</h1>
+  <span class="mark">Techne &middot; alpha</span>
+  <span class="spacer"></span>
+  <button class="ghost" id="mode-toggle" aria-label="Toggle light or dark">mode</button>
+  <button class="ghost hidden" id="signout">sign out</button>
+</header>
 
-<div class="band">
-  <span style="background:var(--sun-gold)"></span>
-  <span style="background:var(--sun-amber)"></span>
-  <span style="background:var(--sun-coral)"></span>
-  <span style="background:var(--sun-rose)"></span>
-  <span style="background:var(--sun-violet)"></span>
-  <span style="background:var(--sun-blue)"></span>
-</div>
-
-<div class="wrap">
-
-  <header class="hero">
-    <div class="origin"><span class="tk"></span>RegenHub, LCA &middot; Boulder, Colorado &middot; Techne</div>
-    <h1>The journal:<br>where work <em>first lands</em>.</h1>
-    <p class="lede">The book of original entry for Techne &mdash; a cooperative of craft, art, and technology. The workshop with its door open: Common Work, the Daybook, and the Encyclopedia. What you see here is real and in motion, wearing its stage.</p>
-    <div class="chips">
-      <span class="chip proto">The workshop &middot; journal.techne.coop</span>
-      <span class="chip">July 2026</span>
-      <span class="chip">Launch August 14</span>
-    </div>
-  </header>
-
-
-  <section class="sec">
-    <div class="sec-label">The one rule that holds everything</div>
-    <div class="rule-block">
-      <div class="rb-label">The human landing rule</div>
-      <div class="rb-rule">Agents prepare. People land.</div>
-      <div class="rb-body">Software can draft, sort, suggest, and signal &mdash; but it cannot write anything authoritative on anyone&rsquo;s behalf. Nothing enters the official record &mdash; no stage advances, no decision settles, no page publishes &mdash; without a <em>named member choosing it</em>. The system is built to refuse otherwise. This is structure, not etiquette.</div>
-    </div>
-    <p>A record that allocates ownership and voice must be made of human decisions, or it allocates to no one. An assistant&rsquo;s draft is a draft; it becomes part of us only when one of us puts a name on it.</p>
-  </section>
-
-
-  <section class="sec">
-    <div class="sec-label">Three surfaces</div>
-    <h2>Three surfaces, one journal</h2>
-    <p>The journal has three surfaces. <em>Common Work</em> tracks the work the cooperative does together. <em>The Daybook</em> is where members write their own record — contributions, reflections, exchanges, clearings — and choose what lands. <em>The Encyclopedia</em> is the stock view: the cooperative&rsquo;s named things, organized and tended. All three feed the same logbook.</p>
-
-    <div class="tools">
-
-      <div class="tool">
-        <div class="tool-tag">Coordination surface</div>
-        <h3>Common Work</h3>
-        <p>A shared board where work moves through six stages &mdash; from a raw idea captured by one person, through collective holding and standing, to a resolved outcome the whole group can see.</p>
-        <p><em>Color tells you where something is.</em> The arc goes from gold at the start to blue at the end, through the full spectrum of a day. Work that finishes doesn&rsquo;t disappear &mdash; it composts, visible as provenance rather than hidden as deletion.</p>
-        <div class="arc">
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-gold)"></div>
-            <div class="arc-lab">captured</div>
-          </div>
-          <div class="arc-arr">&rarr;</div>
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-amber)"></div>
-            <div class="arc-lab">offered</div>
-          </div>
-          <div class="arc-arr">&rarr;</div>
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-coral)"></div>
-            <div class="arc-lab">held</div>
-          </div>
-          <div class="arc-arr">&rarr;</div>
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-rose)"></div>
-            <div class="arc-lab">standing</div>
-          </div>
-          <div class="arc-arr">&rarr;</div>
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-violet)"></div>
-            <div class="arc-lab">socialized</div>
-          </div>
-          <div class="arc-arr">&rarr;</div>
-          <div class="arc-step">
-            <div class="arc-dot" style="background:var(--sun-blue)"></div>
-            <div class="arc-lab">resolved</div>
-          </div>
-        </div>
-        <a class="tlink" href="./common-work/">Open Common Work <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-
-      <div class="tool">
-        <div class="tool-tag">Daily activity log</div>
-        <h3>The Daybook</h3>
-        <p>A member&rsquo;s personal record of the day &mdash; where what you did becomes visible to the cooperative, on your terms, at the moment you choose.</p>
-        <p>The Daybook shows the cooperative&rsquo;s activity as a <em>bloom</em>: a clock face where each petal sits at the hour it was made public, in the color of that hour. The bloom tells you <em>when</em> and <em>how often</em> &mdash; never <em>what</em>. Content stays private until you land it.</p>
-        <div class="bloom-wrap">
-          <svg id="bloom-static" viewBox="0 0 240 240" role="img" aria-label="a simplified daybook bloom showing petals at different hours in sunset colors"></svg>
-        </div>
-        <a class="tlink" href="./daybook/">Open The Daybook <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-
-      <div class="tool">
-        <div class="tool-tag">Artifact register</div>
-        <h3>The Encyclopedia</h3>
-        <p>The cooperative&rsquo;s named things &mdash; policies, practices, roles, agreements, and works &mdash; organized into nine shelves by kind. Each entry carries its status, its tier of visibility, and a record of who tends it.</p>
-        <p>Where the Daybook and Common Work are <em>flow</em>, the Encyclopedia is <em>stock</em>: a live view of what the cooperative has made and what it governs. Entries arrive by accession &mdash; a named act by a named member, not an automatic post.</p>
-        <a class="tlink" href="./encyclopedia/">Open the Encyclopedia <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-
+<main>
+  <!-- The Daybook door. Visible to every persona: the beta is a demonstration
+       surface, not the record, and says so on its own face. -->
+  <section id="daybook-door">
+    <div class="card">
+      <div class="k">The Daybook &middot; public beta</div>
+      <div class="v"><a href="/daybook/">One shared journal, read seven ways &rarr;</a></div>
+      <p class="dim" style="margin:var(--s2) 0 0">The cooperative's append-only journal: everything enters through the pen, a reader proposes structure, and a member always has the last word. This beta runs on an invented demonstration seed, entirely in memory &mdash; nothing you do there persists, and nothing touches the record.</p>
     </div>
   </section>
 
-
-  <section class="sec">
-    <div class="sec-label">What goes in the Daybook</div>
-    <h2>Four kinds of entry</h2>
-    <p>Everything in the Daybook is one of four kinds. Three of them touch the cooperative&rsquo;s books &mdash; recording labor, value moved, or settlements between members. The fourth is the one new thing: a reflection, which is yours alone until you choose to share it.</p>
-
-    <div class="kinds">
-      <div class="kind">
-        <div class="kh">
-          <div class="kswatch" style="background:var(--sun-gold)"></div>
-          <div class="kname">Reflection</div>
-          <span class="kbook">not in the books</span>
-        </div>
-        <p>A narrative entry &mdash; a thought, observation, or note on the day. Private to you by default. Making it public opens a petal in the bloom at the hour it happened. The content is never shared without your action.</p>
-      </div>
-      <div class="kind">
-        <div class="kh">
-          <div class="kswatch" style="background:var(--sun-amber)"></div>
-          <div class="kname">Contribution</div>
-          <span class="kbook">in the books</span>
-        </div>
-        <p>Labor logged against the cooperative&rsquo;s program. You record your hours, confirm the reading is right, then land it. That single act writes the event into the shared record and credits your account.</p>
-      </div>
-      <div class="kind">
-        <div class="kh">
-          <div class="kswatch" style="background:var(--sun-coral)"></div>
-          <div class="kname">Exchange</div>
-          <span class="kbook">in the books</span>
-        </div>
-        <p>A transfer or allocation of shared value &mdash; money, credits, or resources moved between members or programs. Requires the circle&rsquo;s assent before anyone can land it. Higher bar, more people involved.</p>
-      </div>
-      <div class="kind">
-        <div class="kh">
-          <div class="kswatch" style="background:var(--sun-rose)"></div>
-          <div class="kname">Clearing</div>
-          <span class="kbook">in the books</span>
-        </div>
-        <p>A settlement at day&rsquo;s end between two members&rsquo; accounts. Both parties confirm the line, and then one of them lands it. Two people, one closing action.</p>
-      </div>
+  <!-- Guest surface: published presentation only; no database read (AM: anon reads nothing) -->
+  <section id="guest">
+    <h2>Federated bodies of work, held in common</h2>
+    <p class="lede">Any participant in the community of practice can share their body of work as a project. Projects add to, and form, the net work: federated bodies of work with common peers of the cooperative &mdash; stewards, members, and guests.</p>
+    <p class="dim">A <em>project</em> is the open entry point. A <em>venture</em> is the same body of work read as an external relationship; a <em>program</em>, the same work read as an internal one. Any body of work can be all three at once. Stewards designate programs and ventures; any participant may share a project.</p>
+    <p class="dim">This is the alpha shell of the open-world application: a second door onto the cooperative's Common Information System. It invents no permission &mdash; what you can see here is exactly what the record already lets you see. Guests read this page; members sign in to read the record they are entitled to.</p>
+    <div class="card">
+      <div class="k">Sign in &middot; members and participants</div>
+      <form class="signin" id="signin-form">
+        <input type="email" id="email" placeholder="you@example.org" autocomplete="email" required>
+        <button class="act" type="submit">send magic link</button>
+      </form>
+      <div class="status" id="signin-status"></div>
+      <p class="dim" style="margin:0">Same identity as the <a href="https://techne.coop/intranet/">intranet</a>. No new account system.</p>
     </div>
   </section>
 
+  <!-- Member surface -->
+  <section id="member" class="hidden">
+    <h2>The net work</h2>
+    <p class="dim">Bodies of work the record holds today: designated programs of the cooperative. The projects rail &mdash; where any participant shares their own body of work &mdash; does not exist yet in the schema; until it does, this shelf shows only what stewards have designated.</p>
+    <div id="net-work"></div>
+    <section style="margin-top: var(--s6)">
+      <h2 style="font-size:18px">Your standing</h2>
+      <div class="card"><div class="k">Signed in as</div><div class="v" id="who">&mdash;</div></div>
+      <div class="card"><div class="k">Membership</div><div class="v" id="membership">&mdash;</div></div>
+      <div class="card"><div class="k">Roles</div><div class="v" id="roles">&mdash;</div></div>
+    </section>
 
-  <section class="sec">
-    <div class="sec-label">Start here</div>
-    <h2>A guided introduction</h2>
-    <p>The best way to understand these tools is to see them. The six-step guided introduction walks you through the Daybook from the outside in &mdash; observe before you participate, learn by doing, see what requires membership standing.</p>
+    <!-- Stamps. Member surface only. Renders entirely from a typed placeholder in
+         the script below: it reads no record, because there is no record to read.
+         Every mark in here is dashed or hollow on purpose. -->
+    <section class="stamps" style="margin-top: var(--s6)">
+      <h2 style="font-size:18px">Stamps <span class="chip proposed"><span class="dot"></span>proposed</span></h2>
+      <p class="dim">A stamp is a prepaid service credit. You would buy or be granted a block of them, and the cooperative would meter what it carries for you against a published rate card, the way a post office franks a letter. The meter prices carriage and never content: a stamp does not know what your letter says.</p>
+      <p class="rule-line">Your stamp standing is computed from your own acts and is never comparative.</p>
+      <p class="dim">None of this exists. No stamp has been issued, nothing is for sale, and no price has been set. The schema this section would read is drafted across four migrations and none of them are applied. What they wait on is not code: whether the cooperative hosts members' mail at all, whether the board grants the one carve-out that lets a member see a number about themselves, and whether counsel reads Colorado's gift-card escheat statute as blocking the sale of a credit. Those are the humans' to answer. The working record is techne.coop issue <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a> and the migration stop card that sits in front of 0031 through 0034.</p>
 
-    <div class="cta-block">
-      <div>
-        <h3>The guided introduction</h3>
-        <p>Walk through the cooperative&rsquo;s rhythm, learn the four kinds of entry, and make your first reflection &mdash; in six steps. No account required for the first three.</p>
-        <div class="cta-steps">
-          <div class="cta-step"><span class="csn">1</span><span>Observe the day the cooperative keeps &mdash; no account needed</span></div>
-          <div class="cta-step"><span class="csn">2</span><span>Learn the four kinds of entry</span></div>
-          <div class="cta-step"><span class="csn">3</span><span>See how nothing posts itself</span></div>
-          <div class="cta-step"><span class="csn">4</span><span>Open your own private daybook</span></div>
-          <div class="cta-step"><span class="csn">5</span><span>Write your first reflection and land it</span></div>
-          <div class="cta-step"><span class="csn">6</span><span>See what still requires membership standing</span></div>
-        </div>
+      <div class="card proposed">
+        <div class="k">Your stamp book <span class="chip example"><span class="dot"></span>example</span></div>
+        <div class="book" id="stamp-book" aria-hidden="true"></div>
+        <div id="stamp-standing" style="margin-bottom: var(--s3)"></div>
+        <p class="vars" style="margin:0">Example shape only. Every cell is hollow because no unit has been issued to anyone. When this is real, it would fold your own <code>credit.purchased</code>, <code>credit.granted</code> and <code>credit.consumed</code> events into a standing per class. There is no stored balance anywhere and there never will be: the standing is the fold, and no query takes a person and returns a number.</p>
       </div>
-      <a class="cta-btn" href="./daybook/onboarding/">
-        Begin the journey
-        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-    </div>
+
+      <div class="card proposed">
+        <div class="k">Rate card <span class="chip proposed"><span class="dot"></span>unpriced</span></div>
+        <div id="rate-card"></div>
+        <p class="vars" style="margin: var(--s3) 0 0">No coefficient is filled in, and that is deliberate rather than unfinished. A rate travels in the payload of an instrument the board adopts, never in code, and every figure published so far is a placeholder. The first honest audit of what delivery actually costs is the founding act, not a number typed here.</p>
+      </div>
+
+      <div class="legend">
+        <span>dashed &middot; proposed, not built</span>
+        <span>hollow &middot; no record exists</span>
+        <span>example &middot; shape only, not your data</span>
+      </div>
+    </section>
   </section>
+</main>
 
+<footer>
+  <span>alpha &middot; nothing here is adopted</span>
+  <a href="/v1/">the first journal &middot; preserved</a>
+  <span>the app caches its shell, never the record</span>
+  <a href="https://github.com/Techne-Co-op/open-world">source</a>
+  <a href="https://techne.coop/commons/authority-map/">authority map</a>
+</footer>
 
-  <section class="sec">
-    <div class="sec-label">All concept artifacts</div>
-    <h2>Explore the full set</h2>
-    <p>Seven artifacts, from live surfaces to technical specs. The encyclopedia is live vault data. The design system and architecture spec are the ground layers &mdash; everything else builds on them.</p>
-
-    <div class="artifacts">
-      <a class="art" href="./daybook/onboarding/">
-        <div class="art-tag">Interactive &middot; Start here</div>
-        <h4>Guided Introduction</h4>
-        <p>A six-step journey from guest observer to first reflection. The clearest path into both tools for someone encountering them for the first time.</p>
-      </a>
-      <a class="art" href="./daybook/two-layers/">
-        <div class="art-tag">Interactive &middot; Daybook</div>
-        <h4>Settled &amp; Ripening</h4>
-        <p>The two-layer bloom in action. Settled entries as solid petals, open matters filling toward a decision only a person can make.</p>
-      </a>
-      <a class="art" href="./common-work/">
-        <div class="art-tag">MVP Interface Concept</div>
-        <h4>Common Work</h4>
-        <p>The peer coordination board. Six-stage arc in the sunset palette, board view, field view, peer signals, and a capture form for new work.</p>
-      </a>
-      <a class="art" href="./daybook/">
-        <div class="art-tag">Module Specification</div>
-        <h4>The Daybook &mdash; Full Spec</h4>
-        <p>The technical specification: four entry kinds, ripening lifecycle, rhythm view schema, database tables, and the cite-as-you-enforce design principle applied throughout.</p>
-      </a>
-      <a class="art" href="./architecture/">
-        <div class="art-tag">Technical Architecture</div>
-        <h4>Unified Architecture</h4>
-        <p>Pre-implementation spec for both systems together: constants, schema, state machines, logic rules, cross-system bindings, invariants, and seven open questions deferred to board resolution.</p>
-      </a>
-      <a class="art" href="./design-system/">
-        <div class="art-tag">Reference</div>
-        <h4>Design System v4</h4>
-        <p>The canonical visual reference: tokens, type scale, rules vocabulary, document and instrument grammars, data visualization with sunset, accessibility requirements, and the site application protocol.</p>
-      </a>
-      <a class="art" href="./encyclopedia/">
-        <div class="art-tag">Live register &middot; Encyclopedia</div>
-        <h4>Encyclopedia of Artifacts</h4>
-        <p>The cooperative&rsquo;s named things in nine shelves, live from the Parachute vault. D3 force graph and hierarchy navigation. Three simulated visibility tiers: public, participant, member.</p>
-      </a>
-    </div>
-  </section>
-
-
-  <div class="about">
-    <div>
-      <div class="ab-label">What is RegenHub, LCA?</div>
-      <h3>A worker cooperative in Boulder</h3>
-      <p>RegenHub, LCA is a Colorado Limited Cooperative Association &mdash; a business owned and governed by the people who work in it. Members share profits, share decisions, and share responsibility for the space and the work it does.</p>
-      <p>In a cooperative, tracking contributions fairly matters: not for surveillance, but because the books are shared. Every member has a capital account, and what goes in it depends on what they&rsquo;ve done. These tools are an attempt to make that accounting legible &mdash; and to keep it in the hands of the people whose work it records.</p>
-    </div>
-    <div>
-      <div class="ab-label">Built by Techne</div>
-      <h3>The studio behind the tools</h3>
-      <p>Techne is the studio brand of RegenHub, LCA. These tools are live drafts &mdash; open to founding members, wearing their stage, not yet ratified. Work that finishes crossing to <a href="https://techne.coop">techne.coop</a> is the cooperative&rsquo;s signed voice; what you see here is the workshop.</p>
-      <p>The design system (Libre Baskerville, IBM Plex Mono, the sunrise color spectrum) is Techne v4. The guiding principle: legibility is a product, not a byproduct. If you can&rsquo;t see it, you can&rsquo;t govern it.</p>
-      <p><a href="./design-system/">Design System v4 reference &rarr;</a> &ensp; <a href="./architecture/">Architecture spec &rarr;</a></p>
-      <p><a href="https://techne.coop/legal/">Legal documents &rarr;</a> &ensp; <a href="https://techne.coop/">techne.coop &rarr;</a></p>
-    </div>
-  </div>
-
-  <div class="foot">
-    <b>Common Work &middot; Daybook &middot; Encyclopedia &middot; July 2026</b><br>
-    RegenHub, LCA, operating as Techne &middot; Colorado Public Benefit Limited Cooperative Association &middot; Boulder, CO.<br>
-    Open-draft. Not adopted policy. Launch August 14. Built on Techne Design System v4.<br>
-    <a href="./design-system/">Design System v4</a> &ensp;&middot;&ensp; <a href="./architecture/">Architecture</a> &ensp;&middot;&ensp; <a href="./common-work/">Common Work</a> &ensp;&middot;&ensp; <a href="./daybook/">Daybook</a> &ensp;&middot;&ensp; <a href="./encyclopedia/">Encyclopedia</a>
-  </div>
-
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-(function(){
-  "use strict";
-  var root=document.documentElement, btn=document.getElementById('toggle'), stored=null;
-  try{ stored=localStorage.getItem('techne-mode'); }catch(e){}
-  var m=stored||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
-  root.setAttribute('data-mode',m); btn.textContent=(m==='dark')?'light':'dark';
-  btn.addEventListener('click',function(){
-    var next=root.getAttribute('data-mode')==='dark'?'light':'dark';
-    root.setAttribute('data-mode',next); btn.textContent=(next==='dark')?'light':'dark';
-    try{ localStorage.setItem('techne-mode',next); }catch(e){}
-    drawBloom();
-  });
+const SUPABASE_URL = 'https://ujujwgopdwirebgcpekc.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqdWp3Z29wZHdpcmViZ2NwZWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3ODc3ODIsImV4cCI6MjA5OTM2Mzc4Mn0.v6atltp9vbEj0RN2stSuDrzOdWVHB9GGR6rwPCwBNEk';
 
-  var SVGNS='http://www.w3.org/2000/svg';
-  var cx=120,cy=120,R=74,H=25;
-  function thOf(t){ return (t-12)*Math.PI/12; }
-  function ptA(r,a){ return {x:cx+r*Math.sin(a),y:cy-r*Math.cos(a)}; }
-  var dxh=Math.sqrt(R*R-H*H), thR=Math.atan2(dxh/R,-H/R);
-  var sunset=12+thR/(Math.PI/12), sunrise=12-thR/(Math.PI/12);
+let sb = null;
+const $ = id => document.getElementById(id);
 
-  var GOLD=[234,182,104],AMBER=[224,154,82],CORAL=[209,117,90],ROSE=[180,92,124],VIOLET=[110,84,148];
-  var ramp=[[0,VIOLET],[sunrise,ROSE],[7,CORAL],[10.5,AMBER],[12.5,GOLD],[15,AMBER],[18,CORAL],[sunset,ROSE],[21.5,VIOLET],[24,VIOLET]];
-  function colorAt(t){
-    t=((t%24)+24)%24; var a=ramp[0],b=ramp[ramp.length-1];
-    for(var i=0;i<ramp.length-1;i++){if(t>=ramp[i][0]&&t<=ramp[i+1][0]){a=ramp[i];b=ramp[i+1];break;}}
-    var f=(b[0]===a[0])?0:(t-a[0])/(b[0]-a[0]);
-    return 'rgb('+[0,1,2].map(function(k){return Math.round(a[1][k]+(b[1][k]-a[1][k])*f);}).join(',')+')';
+/* The stamps placeholder. This is the whole data source for the Stamps section:
+   a literal, shipped in the shell, read by nobody and written by nobody.
+
+   The shape mirrors what post_my_credit_standing() would return if migration
+   0034 were ever applied: rows of (class, units). `units` is null in every row
+   and must stay null. A number here would be a lie that looks live. */
+const STAMPS = {
+  status: 'proposed',
+  bookCells: 12,
+  standing: [
+    { class: 'mail.carriage', units: null },
+    { class: 'unclassed', units: null }
+  ],
+  rateCard: {
+    instrument: 'RATE-CARD',
+    version: '0.1',
+    adopted_at: null,
+    classes: [
+      { id: 'mail.carriage', name: 'a mailbox at techne.coop', delivered_by: 'supplier',
+        variables: ['messages_in', 'messages_out', 'storage_gb_months'], meters_during_halt: true },
+      { id: 'mail.alias', name: 'aliases and forwarding', delivered_by: 'supplier',
+        variables: ['messages_forwarded'], meters_during_halt: true },
+      { id: 'domain.hosting', name: "a venture's custom domain", delivered_by: 'cooperative',
+        variables: ['bandwidth_gb', 'storage_gb_months'], meters_during_halt: false },
+      { id: 'outbound.transactional', name: 'metered outbound at volume', delivered_by: 'supplier',
+        variables: ['messages_out'], meters_during_halt: false },
+      { id: 'sms.rail', name: 'the SMS rail', delivered_by: 'supplier',
+        variables: ['segments_in', 'segments_out'], meters_during_halt: true }
+    ]
   }
-  function el(tag,a){var n=document.createElementNS(SVGNS,tag);for(var k in a)n.setAttribute(k,a[k]);return n;}
-  function petalPath(ang,L,W){
-    var ax=Math.sin(ang),ay=-Math.cos(ang),px=Math.cos(ang),py=Math.sin(ang);
-    var B=ptA(R,ang);
-    function P(al,pe){return {x:B.x+ax*al+px*pe,y:B.y+ay*al+py*pe};}
-    var T=P(L,0),cA1=P(L*.30,W),cA2=P(L*.86,W*.42),cB1=P(L*.86,-W*.42),cB2=P(L*.30,-W);
-    return ['M',B.x.toFixed(1),B.y.toFixed(1),'C',cA1.x.toFixed(1),cA1.y.toFixed(1),cA2.x.toFixed(1),cA2.y.toFixed(1),T.x.toFixed(1),T.y.toFixed(1),'C',cB1.x.toFixed(1),cB1.y.toFixed(1),cB2.x.toFixed(1),cB2.y.toFixed(1),B.x.toFixed(1),B.y.toFixed(1),'Z'].join(' ');
-  }
+};
 
-  var petals=[
-    {h:6.0,w:2,solid:true},{h:6.8,w:1.5,solid:true},
-    {h:9.2,w:2.5,solid:true},{h:10.0,w:1.5,solid:true},{h:11.0,w:2,solid:true},
-    {h:13.5,w:3,solid:true},{h:14.2,w:1.5,solid:true},{h:15.0,w:2,solid:true},
-    {h:20.5,w:2,solid:true},{h:21.5,w:3,solid:true},{h:22.5,w:2,solid:true},
-    {h:11.5,w:0,solid:false,ripe:.72},{h:14.8,w:0,solid:false,ripe:1.0}
-  ];
-  var nowH=new Date().getHours()+new Date().getMinutes()/60;
-
-  function drawBloom(){
-    var svg=document.getElementById('bloom-static');
-    while(svg.firstChild) svg.removeChild(svg.firstChild);
-    var isDark=root.getAttribute('data-mode')==='dark';
-    var lineCol=isDark?'#2A2A30':'#D8D3C8', ruleCol=isDark?'#3A3A42':'#9A958A';
-    var bgOpacity=isDark?'.35':'.5';
-
-    var bg=el('circle',{cx:cx,cy:cy,r:R}); bg.style.fill=isDark?'#08080A':'#EBE7DF'; bg.style.opacity=bgOpacity; svg.appendChild(bg);
-    var ring=el('circle',{cx:cx,cy:cy,r:R,fill:'none'}); ring.style.stroke=lineCol; ring.style.strokeWidth='1'; svg.appendChild(ring);
-
-    var stops=['#B45C7C','#D1755A','#E09A52','#E09A52','#D1755A','#B45C7C'];
-    for(var i=0;i<6;i++){
-      var s=-thR+(2*thR)*i/6, e2=-thR+(2*thR)*(i+1)/6, p0=ptA(R,s), p1=ptA(R,e2);
-      var pa=el('path',{d:'M '+p0.x.toFixed(1)+' '+p0.y.toFixed(1)+' A '+R+' '+R+' 0 0 1 '+p1.x.toFixed(1)+' '+p1.y.toFixed(1),fill:'none','stroke-width':'2.5','stroke-linecap':'round',opacity:'.6'});
-      pa.style.stroke=stops[i]; svg.appendChild(pa);
+function renderStamps() {
+  const book = $('stamp-book');
+  if (book && !book.childElementCount) {
+    for (let i = 0; i < STAMPS.bookCells; i++) {
+      const s = document.createElement('span');
+      s.className = 'stamp';
+      book.appendChild(s);
     }
-    var hl=el('line',{x1:(cx-dxh).toFixed(1),y1:(cy+H).toFixed(1),x2:(cx+dxh).toFixed(1),y2:(cy+H).toFixed(1)});
-    hl.style.stroke=ruleCol; hl.style.strokeWidth='1'; hl.style.strokeDasharray='2 5'; hl.style.opacity='.5'; svg.appendChild(hl);
+  }
+  const st = $('stamp-standing');
+  if (st && !st.childElementCount) {
+    for (const row of STAMPS.standing) {
+      const d = document.createElement('div');
+      d.className = 'classline';
+      const cid = document.createElement('span');
+      cid.className = 'cid';
+      cid.textContent = row.class;
+      const units = document.createElement('span');
+      units.className = 'units';
+      // units is null in every placeholder row and must stay null.
+      units.textContent = row.units === null ? 'no units issued' : String(row.units);
+      d.appendChild(cid); d.appendChild(units);
+      st.appendChild(d);
+    }
+  }
+  const rc = $('rate-card');
+  if (!rc || rc.childElementCount) return;
+  for (const c of STAMPS.rateCard.classes) {
+    const row = document.createElement('div');
+    row.className = 'classline';
+    const cid = document.createElement('span');
+    cid.className = 'cid';
+    cid.textContent = c.id + '   ';
+    const nm = document.createElement('span');
+    nm.className = 'name';
+    nm.textContent = c.name;
+    cid.appendChild(nm);
+    const units = document.createElement('span');
+    units.className = 'units';
+    units.textContent = 'not priced';
+    row.appendChild(cid); row.appendChild(units);
 
-    petals.forEach(function(p){
-      var col=colorAt(p.h), a=thOf(p.h);
-      if(p.solid){
-        var L=12+p.w*6, W=3.5+p.w*1.8;
-        var pe=el('path',{d:petalPath(a,L,W)}); pe.style.fill=col; pe.style.opacity=isDark?'.5':'.62'; svg.appendChild(pe);
-      } else {
-        var ew=1+p.ripe*2, L2=12+ew*6, W2=3.5+ew*1.8;
-        if(p.ripe>0){var fp=el('path',{d:petalPath(a,L2,W2)}); fp.style.fill=col; fp.style.opacity=(p.ripe*.45).toFixed(3); svg.appendChild(fp);}
-        var ep=el('path',{d:petalPath(a,L2,W2),fill:'none','stroke-width':'1',opacity:'.7'}); ep.style.stroke=col; svg.appendChild(ep);
-      }
+    const sub = document.createElement('div');
+    sub.className = 'sub';
+    const carrier = document.createElement('span');
+    carrier.className = 'carrier';
+    carrier.textContent = c.delivered_by === 'supplier' ? 'carried by supplier' : 'delivered by the cooperative';
+    sub.appendChild(carrier);
+    sub.appendChild(document.createTextNode(
+      ' · metered on ' + c.variables.join(', ')
+      + (c.meters_during_halt ? ' · keeps metering during a halt' : '')
+    ));
+    row.appendChild(sub);
+    rc.appendChild(row);
+  }
+}
+
+document.getElementById('mode-toggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-mode') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-mode', cur);
+  try { localStorage.setItem('techne-mode', cur); } catch(e) {}
+});
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+
+function setStatus(msg, cls) {
+  const el = $('signin-status');
+  el.textContent = msg; el.className = 'status ' + (cls || '');
+}
+
+async function api(path, session, opts) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, Object.assign({
+    headers: {
+      apikey: ANON_KEY,
+      Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json'
+    }
+  }, opts || {}));
+  if (!r.ok) throw new Error(`${path}: ${r.status}`);
+  return r.json();
+}
+
+async function renderMember(session) {
+  $('guest').classList.add('hidden');
+  $('member').classList.remove('hidden');
+  $('signout').classList.remove('hidden');
+  $('who').textContent = session.user.email || session.user.id;
+  renderStamps(); // static placeholder; no session is passed because none is needed
+  try {
+    const agents = await api(`agents?auth_user_id=eq.${session.user.id}&select=id,display_name,kind`, session);
+    if (!agents.length) { $('membership').textContent = 'no agent record'; return; }
+    const self = agents[0];
+    if (self.display_name) $('who').textContent = `${self.display_name} (${session.user.email})`;
+    const [ms, rg] = await Promise.all([
+      api(`memberships?agent_id=eq.${self.id}&select=state`, session),
+      api(`role_grants?agent_id=eq.${self.id}&revoked_at=is.null&select=role`, session)
+    ]);
+    $('membership').textContent = ms.length ? ms.map(m => m.state).join(', ') : 'none on record';
+    $('roles').textContent = rg.length ? rg.map(r => r.role).join(', ') : 'none';
+  } catch (e) {
+    $('membership').textContent = 'could not read your record: ' + e.message;
+  }
+  try {
+    const progs = await api('rpc/programs_roster', session, { method: 'POST', body: '{}' });
+    const holder = $('net-work');
+    holder.innerHTML = '';
+    if (!Array.isArray(progs) || !progs.length) {
+      holder.innerHTML = '<div class="card"><div class="v">No designated bodies of work are visible to you yet.</div></div>';
+      return;
+    }
+    for (const p of progs) {
+      const d = document.createElement('div');
+      d.className = 'card body-of-work';
+      const name = document.createElement('span'); name.className = 'name';
+      name.textContent = p.name || p.program_name || p.display_name || JSON.stringify(p);
+      const kind = document.createElement('span'); kind.className = 'kind'; kind.textContent = 'program';
+      d.appendChild(name); d.appendChild(kind);
+      holder.appendChild(d);
+    }
+  } catch (e) {
+    $('net-work').innerHTML = `<div class="card"><div class="v">The net work could not be read: ${e.message}</div></div>`;
+  }
+}
+
+function renderGuest() {
+  $('guest').classList.remove('hidden');
+  $('member').classList.add('hidden');
+  $('signout').classList.add('hidden');
+}
+
+async function main() {
+  sb = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+  $('signin-form').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    setStatus('sending…');
+    const { error } = await sb.auth.signInWithOtp({
+      email: $('email').value.trim(),
+      options: { emailRedirectTo: window.location.origin + '/' }
     });
+    if (error) setStatus(error.message, 'warn');
+    else setStatus('Magic link sent. Check your email.', 'ok');
+  });
+  $('signout').addEventListener('click', async () => { await sb.auth.signOut(); renderGuest(); });
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) renderMember(session); else renderGuest();
+  sb.auth.onAuthStateChange((_ev, s) => { if (s) renderMember(s); else renderGuest(); });
+}
 
-    var nang=thOf(nowH), io=ptA(R-16,nang), oo=ptA(R,nang);
-    var nl=el('line',{x1:io.x.toFixed(1),y1:io.y.toFixed(1),x2:oo.x.toFixed(1),y2:oo.y.toFixed(1)});
-    nl.style.stroke=ruleCol; nl.style.strokeWidth='1'; nl.style.strokeDasharray='1 3'; nl.style.opacity='.6'; svg.appendChild(nl);
-    var sp=ptA(R,nang), sc=el('circle',{cx:sp.x.toFixed(1),cy:sp.y.toFixed(1),r:'3.5'});
-    sc.style.fill='none'; sc.style.stroke='#EAB668'; sc.style.strokeWidth='1.3'; svg.appendChild(sc);
-
-    function card(t,label,dy){
-      var LBL=R+30, lp=ptA(LBL,thOf(t));
-      var tx=el('text',{x:lp.x.toFixed(1),y:(lp.y+(dy||0)).toFixed(1),'text-anchor':'middle'});
-      tx.setAttribute('style','fill:'+ruleCol+';font:400 7px/1 IBM Plex Mono,monospace;letter-spacing:.08em;text-transform:uppercase;');
-      tx.textContent=label; svg.appendChild(tx);
-    }
-    card(12,'noon',-2); card(0,'midnight',8); card(sunrise,'sunrise',3); card(sunset,'sunset',3);
-  }
-
-  drawBloom();
-})();
+if (window.supabase) main();
+else setStatus('Could not load the identity library. The shell works offline; the record needs the network.', 'warn');
 </script>
 </body>
 </html>
