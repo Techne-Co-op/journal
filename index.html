@@ -205,16 +205,14 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
     <div class="card">
       <div class="k">The Daybook &middot; public beta</div>
       <div class="v"><a class="door" href="/daybook/">One shared journal, read seven ways &rarr;</a></div>
-      <p class="dim" style="margin:0">The cooperative's append-only journal: everything enters through the pen, a reader proposes structure, and a member has the last word. Signed out, it is a signpost to the door, the public book, and the ways in. Signed in here, it reads and appends the beta relations of the record under your own name.</p>
+      <p class="dim" style="margin:0">Members write into one append-only record. A reader proposes; the member decides.</p>
     </div>
   </section>
 
   <!-- Guest surface: published presentation only; no database read (AM: anon reads nothing) -->
   <section id="guest">
-    <h2>Federated bodies of work, held in common</h2>
-    <p class="lede">Any participant can share their body of work as a project. Projects form the net work: federated bodies of work held in common by stewards, members, and guests.</p>
-    <p class="dim">A <em>project</em> is the open entry point. A <em>venture</em> is the same work read as an external relationship; a <em>program</em>, as an internal one. Stewards designate programs and ventures; any participant may share a project.</p>
-    <p class="dim">This shell is a second door onto the cooperative's Common Information System. It invents no permission: you see exactly what the record already lets you see. Guests read this page; members sign in to read their record.</p>
+    <h2>Bodies of work, held in common</h2>
+    <p class="lede">Any participant can share a body of work as a project. Stewards read projects as programs or ventures.</p>
     <div class="card">
       <div class="k">Sign in &middot; members and participants</div>
       <form class="signin" id="signin-form">
@@ -223,14 +221,14 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
         <button class="act" type="submit">send magic link</button>
       </form>
       <div class="status" id="signin-status"></div>
-      <p class="dim" style="margin:0">Same identity as the <a href="https://techne.coop/intranet/">intranet</a>. No new account system.</p>
+      <p class="dim" style="margin:0">Same identity as the <a href="https://techne.coop/intranet/">intranet</a>.</p>
     </div>
   </section>
 
   <!-- Member surface -->
   <section id="member" class="hidden">
     <h2>The net work</h2>
-    <p class="dim">Designated programs of the cooperative. The projects rail, where any participant shares their own work, is not in the schema yet; until it is, this shelf shows only what stewards have designated.</p>
+    <p class="dim">Programs stewards have designated.</p>
     <div id="net-work"></div>
     <section>
       <h2 class="sub">Your standing</h2>
@@ -244,21 +242,19 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
          Every mark in here is dashed or hollow on purpose. -->
     <section class="stamps">
       <h2 class="sub">Stamps <span class="chip proposed"><span class="dot"></span>proposed</span></h2>
-      <p class="dim">A stamp is a prepaid service credit. The cooperative would meter what it carries for you against a published rate card, the way a post office franks a letter. The meter prices carriage, never content.</p>
-      <p class="rule-line">Your stamp standing is computed from your own acts and is never comparative.</p>
-      <p class="dim">None of this exists: no stamp issued, nothing for sale, no price set. The schema is drafted across four migrations, none applied. They wait on human answers: whether the cooperative hosts members' mail, whether the board grants the carve-out that lets a member see a number about themselves, and whether counsel reads Colorado's gift-card escheat statute as blocking the sale of a credit. Working record: techne.coop issue <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a> and the migration stop card in front of 0031 through 0034.</p>
+      <p class="dim">A prepaid service credit, metered by a rate card. Nothing exists yet: no stamp, no price. Record: techne.coop <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a>.</p>
 
       <div class="card proposed">
         <div class="k">Your stamp book <span class="chip example"><span class="dot"></span>example</span></div>
         <div class="book" id="stamp-book" aria-hidden="true"></div>
         <div id="stamp-standing" style="margin-bottom: var(--s3)"></div>
-        <p class="vars" style="margin:0">Example shape only; every cell is hollow because no unit has been issued. When real, it would fold your own <code>credit.purchased</code>, <code>credit.granted</code> and <code>credit.consumed</code> events into a standing per class. There is no stored balance: the standing is the fold, and no query takes a person and returns a number.</p>
+        <p class="vars" style="margin:0">Example shape; no unit issued.</p>
       </div>
 
       <div class="card proposed">
         <div class="k">Rate card <span class="chip proposed"><span class="dot"></span>unpriced</span></div>
         <div id="rate-card"></div>
-        <p class="vars" style="margin: var(--s3) 0 0">No coefficient is filled in, deliberately. A rate travels in an instrument the board adopts, never in code; every figure published so far is a placeholder. The first audit of what delivery costs is the founding act.</p>
+        <p class="vars" style="margin: var(--s3) 0 0">Unpriced until the board adopts a rate.</p>
       </div>
 
       <div class="legend">
@@ -274,7 +270,6 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
 <footer>
   <div class="wrap">
     <span>alpha &middot; nothing here is adopted</span>
-    <span>the app caches its shell, never the record</span>
     <a href="https://github.com/Techne-Co-op/journal">source</a>
     <a href="https://techne.coop/commons/authority-map/">authority map</a>
   </div>
