@@ -56,59 +56,88 @@ html[data-mode="light"] {
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-html, body { height: 100%; }
+html { -webkit-text-size-adjust: 100%; }
+/* Layout: one column, the document scrolls (no nested scroll region), header sticky,
+   footer after the content. Safe-area insets are paid by each band, not the body,
+   so the sticky header's background reaches the notch. */
 body {
+  min-height: 100vh; min-height: 100dvh;
   background: var(--bg); color: var(--text);
   font-family: var(--mono); font-size: 14px; line-height: 1.6;
   display: flex; flex-direction: column;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-wrap: anywhere;
 }
+:root { --measure: 720px; --gutter: var(--s4); --tap: 44px; }
+@media (min-width: 600px) { :root { --gutter: var(--s5); } }
+.wrap { max-width: var(--measure); width: 100%; margin: 0 auto; min-width: 0; }
 header {
-  display: flex; align-items: baseline; gap: var(--s3);
-  padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 2; background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding: 0 calc(var(--gutter) + env(safe-area-inset-right)) 0 calc(var(--gutter) + env(safe-area-inset-left));
+  padding-top: env(safe-area-inset-top);
 }
-header h1 { font-family: var(--serif); font-size: 18px; color: var(--heading); font-weight: 400; }
-header .mark { font-size: 11px; color: var(--ember-text); letter-spacing: .08em; text-transform: uppercase; }
-header .spacer { flex: 1; }
+header .wrap { display: flex; align-items: center; gap: var(--s2) var(--s3); min-height: 56px; }
+header .brand { display: flex; align-items: baseline; gap: var(--s3); flex: 1 1 auto; min-width: 0; flex-wrap: wrap; row-gap: 0; }
+header h1 { font-family: var(--serif); font-size: 18px; color: var(--heading); font-weight: 400; white-space: nowrap; }
+header .mark { font-size: 11px; color: var(--ember-text); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+header .acts { display: flex; gap: var(--s2); flex: none; }
 button.ghost {
   background: none; border: 1px solid var(--line); color: var(--muted);
-  font-family: var(--mono); font-size: 12px; padding: var(--s1) var(--s3);
+  font-family: var(--mono); font-size: 12px; padding: 0 var(--s3);
+  min-height: var(--tap); min-width: var(--tap); white-space: nowrap;
   cursor: pointer; border-radius: 3px; transition: color var(--micro), border-color var(--micro);
 }
 button.ghost:hover { color: var(--heading); border-color: var(--rule); }
-main { flex: 1; overflow-y: auto; padding: var(--s6) var(--s5); max-width: 720px; width: 100%; margin: 0 auto; }
-h2 { font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--heading); margin-bottom: var(--s4); }
+main {
+  flex: 1 0 auto;
+  padding: var(--s5) calc(var(--gutter) + env(safe-area-inset-right)) var(--s6) calc(var(--gutter) + env(safe-area-inset-left));
+}
+@media (min-width: 600px) { main { padding-top: var(--s6); padding-bottom: var(--s7); } }
+h2 { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.3; color: var(--heading); margin-bottom: var(--s4); }
+@media (min-width: 600px) { h2 { font-size: 22px; } }
+h2.sub { font-size: 18px; }
 p.lede { color: var(--text); margin-bottom: var(--s4); }
 p.dim { color: var(--muted); font-size: 13px; margin-bottom: var(--s4); }
 .card {
   background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
-  padding: var(--s4) var(--s5); margin-bottom: var(--s3);
+  padding: var(--s4); margin-bottom: var(--s3); min-width: 0;
 }
+@media (min-width: 600px) { .card { padding: var(--s4) var(--s5); } }
 .card .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
 .card .v { color: var(--heading); font-size: 15px; }
-.card.body-of-work { display: flex; align-items: baseline; gap: var(--s3); }
-.card.body-of-work .name { font-family: var(--serif); font-size: 16px; color: var(--heading); flex: 1; }
+.card .v a.door { display: block; padding: var(--s2) 0; min-height: var(--tap); color: var(--blue-text); }
+.card.body-of-work { display: flex; align-items: baseline; gap: var(--s2) var(--s3); flex-wrap: wrap; }
+.card.body-of-work .name { font-family: var(--serif); font-size: 16px; color: var(--heading); flex: 1 1 200px; }
 .card.body-of-work .kind { font-size: 11px; color: var(--ember-text); letter-spacing: .06em; text-transform: uppercase; }
-form.signin { display: flex; gap: var(--s2); margin: var(--s4) 0; flex-wrap: wrap; }
+form.signin { display: flex; gap: var(--s2); margin: var(--s3) 0; flex-wrap: wrap; }
 input[type=email] {
-  flex: 1; min-width: 220px; background: var(--inset); border: 1px solid var(--line);
-  color: var(--text); font-family: var(--mono); font-size: 14px; padding: var(--s2) var(--s3); border-radius: 3px;
+  flex: 1 1 220px; min-width: 0; background: var(--inset); border: 1px solid var(--line);
+  color: var(--text); font-family: var(--mono); font-size: 16px; padding: var(--s2) var(--s3); border-radius: 3px;
+  min-height: var(--tap);
 }
 button.act {
   background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue-text);
-  font-family: var(--mono); font-size: 13px; padding: var(--s2) var(--s4);
-  cursor: pointer; border-radius: 3px;
+  font-family: var(--mono); font-size: 13px; padding: 0 var(--s4); min-height: var(--tap);
+  cursor: pointer; border-radius: 3px; flex: 1 0 auto;
 }
-.status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-bottom: var(--s4); }
+@media (min-width: 600px) { button.act { flex: none; } }
+.status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-bottom: var(--s3); }
+.status:empty { display: none; }
 .status.warn { color: var(--warn); }
 .status.ok { color: var(--ok); }
 footer {
-  border-top: 1px solid var(--line); padding: var(--s3) var(--s5);
-  font-size: 11px; color: var(--faint); display: flex; gap: var(--s4); flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding: var(--s2) calc(var(--gutter) + env(safe-area-inset-right)) calc(var(--s2) + env(safe-area-inset-bottom)) calc(var(--gutter) + env(safe-area-inset-left));
+  font-size: 11px; color: var(--faint);
 }
-footer a { color: var(--muted); }
+footer .wrap { display: flex; gap: 0 var(--s4); flex-wrap: wrap; align-items: center; }
+footer span, footer a { display: inline-flex; align-items: center; min-height: var(--tap); }
+footer a { color: var(--muted); padding: 0 var(--s1); }
+@media (min-width: 600px) { footer span, footer a { min-height: 32px; } }
 .hidden { display: none; }
 section { margin-bottom: var(--s6); }
+section section { margin-top: var(--s6); margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 /* Proposed, not built. The estate's convention: dashed borders, hollow marks,
    and a legend that says what the marks mean. Nothing in here reads a record. */
@@ -155,34 +184,42 @@ section { margin-bottom: var(--s6); }
 </head>
 <body>
 <header>
-  <h1>Open World</h1>
-  <span class="mark">Techne &middot; alpha</span>
-  <span class="spacer"></span>
-  <button class="ghost" id="mode-toggle" aria-label="Toggle light or dark">mode</button>
-  <button class="ghost hidden" id="signout">sign out</button>
+  <div class="wrap">
+    <div class="brand">
+      <h1>Open World</h1>
+      <span class="mark">Techne &middot; alpha</span>
+    </div>
+    <div class="acts">
+      <button class="ghost" id="mode-toggle" aria-label="Toggle light or dark">mode</button>
+      <button class="ghost hidden" id="signout">sign out</button>
+    </div>
+  </div>
 </header>
 
 <main>
+<div class="wrap">
   <!-- The Daybook door. Visible to every persona: the beta is a demonstration
-       surface, not the record, and says so on its own face. -->
+       surface, not the record, and says so on its own face.
+       Copy in this file is draft until the steward edits it (PR body lists every change). -->
   <section id="daybook-door">
     <div class="card">
       <div class="k">The Daybook &middot; public beta</div>
-      <div class="v"><a href="/daybook/">One shared journal, read seven ways &rarr;</a></div>
-      <p class="dim" style="margin:var(--s2) 0 0">The cooperative's append-only journal: everything enters through the pen, a reader proposes structure, and a member always has the last word. Signed out, it is a signpost: what the door is, where the public book of the same name is, and the ways in. Signed in here, it reads and appends the beta relations of the record under your own name; the rail's foot there says which.</p>
+      <div class="v"><a class="door" href="/daybook/">One shared journal, read seven ways &rarr;</a></div>
+      <p class="dim" style="margin:0">The cooperative's append-only journal: everything enters through the pen, a reader proposes structure, and a member has the last word. Signed out, it is a signpost to the door, the public book, and the ways in. Signed in here, it reads and appends the beta relations of the record under your own name.</p>
     </div>
   </section>
 
   <!-- Guest surface: published presentation only; no database read (AM: anon reads nothing) -->
   <section id="guest">
     <h2>Federated bodies of work, held in common</h2>
-    <p class="lede">Any participant in the community of practice can share their body of work as a project. Projects add to, and form, the net work: federated bodies of work with common peers of the cooperative &mdash; stewards, members, and guests.</p>
-    <p class="dim">A <em>project</em> is the open entry point. A <em>venture</em> is the same body of work read as an external relationship; a <em>program</em>, the same work read as an internal one. Any body of work can be all three at once. Stewards designate programs and ventures; any participant may share a project.</p>
-    <p class="dim">This is the alpha shell of the open-world application: a second door onto the cooperative's Common Information System. It invents no permission &mdash; what you can see here is exactly what the record already lets you see. Guests read this page; members sign in to read the record they are entitled to.</p>
+    <p class="lede">Any participant can share their body of work as a project. Projects form the net work: federated bodies of work held in common by stewards, members, and guests.</p>
+    <p class="dim">A <em>project</em> is the open entry point. A <em>venture</em> is the same work read as an external relationship; a <em>program</em>, as an internal one. Stewards designate programs and ventures; any participant may share a project.</p>
+    <p class="dim">This shell is a second door onto the cooperative's Common Information System. It invents no permission: you see exactly what the record already lets you see. Guests read this page; members sign in to read their record.</p>
     <div class="card">
       <div class="k">Sign in &middot; members and participants</div>
       <form class="signin" id="signin-form">
-        <input type="email" id="email" placeholder="you@example.org" autocomplete="email" required>
+        <label class="hidden" for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.org" autocomplete="email" inputmode="email" required>
         <button class="act" type="submit">send magic link</button>
       </form>
       <div class="status" id="signin-status"></div>
@@ -193,10 +230,10 @@ section { margin-bottom: var(--s6); }
   <!-- Member surface -->
   <section id="member" class="hidden">
     <h2>The net work</h2>
-    <p class="dim">Bodies of work the record holds today: designated programs of the cooperative. The projects rail &mdash; where any participant shares their own body of work &mdash; does not exist yet in the schema; until it does, this shelf shows only what stewards have designated.</p>
+    <p class="dim">Designated programs of the cooperative. The projects rail, where any participant shares their own work, is not in the schema yet; until it is, this shelf shows only what stewards have designated.</p>
     <div id="net-work"></div>
-    <section style="margin-top: var(--s6)">
-      <h2 style="font-size:18px">Your standing</h2>
+    <section>
+      <h2 class="sub">Your standing</h2>
       <div class="card"><div class="k">Signed in as</div><div class="v" id="who">&mdash;</div></div>
       <div class="card"><div class="k">Membership</div><div class="v" id="membership">&mdash;</div></div>
       <div class="card"><div class="k">Roles</div><div class="v" id="roles">&mdash;</div></div>
@@ -205,23 +242,23 @@ section { margin-bottom: var(--s6); }
     <!-- Stamps. Member surface only. Renders entirely from a typed placeholder in
          the script below: it reads no record, because there is no record to read.
          Every mark in here is dashed or hollow on purpose. -->
-    <section class="stamps" style="margin-top: var(--s6)">
-      <h2 style="font-size:18px">Stamps <span class="chip proposed"><span class="dot"></span>proposed</span></h2>
-      <p class="dim">A stamp is a prepaid service credit. You would buy or be granted a block of them, and the cooperative would meter what it carries for you against a published rate card, the way a post office franks a letter. The meter prices carriage and never content: a stamp does not know what your letter says.</p>
+    <section class="stamps">
+      <h2 class="sub">Stamps <span class="chip proposed"><span class="dot"></span>proposed</span></h2>
+      <p class="dim">A stamp is a prepaid service credit. The cooperative would meter what it carries for you against a published rate card, the way a post office franks a letter. The meter prices carriage, never content.</p>
       <p class="rule-line">Your stamp standing is computed from your own acts and is never comparative.</p>
-      <p class="dim">None of this exists. No stamp has been issued, nothing is for sale, and no price has been set. The schema this section would read is drafted across four migrations and none of them are applied. What they wait on is not code: whether the cooperative hosts members' mail at all, whether the board grants the one carve-out that lets a member see a number about themselves, and whether counsel reads Colorado's gift-card escheat statute as blocking the sale of a credit. Those are the humans' to answer. The working record is techne.coop issue <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a> and the migration stop card that sits in front of 0031 through 0034.</p>
+      <p class="dim">None of this exists: no stamp issued, nothing for sale, no price set. The schema is drafted across four migrations, none applied. They wait on human answers: whether the cooperative hosts members' mail, whether the board grants the carve-out that lets a member see a number about themselves, and whether counsel reads Colorado's gift-card escheat statute as blocking the sale of a credit. Working record: techne.coop issue <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a> and the migration stop card in front of 0031 through 0034.</p>
 
       <div class="card proposed">
         <div class="k">Your stamp book <span class="chip example"><span class="dot"></span>example</span></div>
         <div class="book" id="stamp-book" aria-hidden="true"></div>
         <div id="stamp-standing" style="margin-bottom: var(--s3)"></div>
-        <p class="vars" style="margin:0">Example shape only. Every cell is hollow because no unit has been issued to anyone. When this is real, it would fold your own <code>credit.purchased</code>, <code>credit.granted</code> and <code>credit.consumed</code> events into a standing per class. There is no stored balance anywhere and there never will be: the standing is the fold, and no query takes a person and returns a number.</p>
+        <p class="vars" style="margin:0">Example shape only; every cell is hollow because no unit has been issued. When real, it would fold your own <code>credit.purchased</code>, <code>credit.granted</code> and <code>credit.consumed</code> events into a standing per class. There is no stored balance: the standing is the fold, and no query takes a person and returns a number.</p>
       </div>
 
       <div class="card proposed">
         <div class="k">Rate card <span class="chip proposed"><span class="dot"></span>unpriced</span></div>
         <div id="rate-card"></div>
-        <p class="vars" style="margin: var(--s3) 0 0">No coefficient is filled in, and that is deliberate rather than unfinished. A rate travels in the payload of an instrument the board adopts, never in code, and every figure published so far is a placeholder. The first honest audit of what delivery actually costs is the founding act, not a number typed here.</p>
+        <p class="vars" style="margin: var(--s3) 0 0">No coefficient is filled in, deliberately. A rate travels in an instrument the board adopts, never in code; every figure published so far is a placeholder. The first audit of what delivery costs is the founding act.</p>
       </div>
 
       <div class="legend">
@@ -231,13 +268,16 @@ section { margin-bottom: var(--s6); }
       </div>
     </section>
   </section>
+</div>
 </main>
 
 <footer>
-  <span>alpha &middot; nothing here is adopted</span>
-  <span>the app caches its shell, never the record</span>
-  <a href="https://github.com/Techne-Co-op/open-world">source</a>
-  <a href="https://techne.coop/commons/authority-map/">authority map</a>
+  <div class="wrap">
+    <span>alpha &middot; nothing here is adopted</span>
+    <span>the app caches its shell, never the record</span>
+    <a href="https://github.com/Techne-Co-op/journal">source</a>
+    <a href="https://techne.coop/commons/authority-map/">authority map</a>
+  </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
