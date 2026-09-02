@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#101014">
-<meta name="description" content="The Daybook, public beta — one shared journal, read seven ways. Demonstration seed, in memory only.">
+<meta name="description" content="The Daybook, public beta — the cooperative's shared journal, read seven ways. Members sign in at the shell; the public book of the same name is at techne.coop/daybook/.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
@@ -64,6 +64,21 @@ button{font-family:var(--serif);cursor:pointer}
 input,textarea{font-family:var(--serif)}
 
 .app{display:flex;min-height:100vh}
+
+/* ── the gate: the stranger's frame (SHELL-A1 §3). The document fails closed: the
+   gate is the markup's default and the journal opens only when the engine has a
+   member session and the record answers. Scripting off, a stranger meets the gate. ── */
+body:not(.open) .app,body:not(.open) .bar{display:none!important}
+body.open .gate{display:none}
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--s6) var(--s5)}
+.gate .card{max-width:52ch;border:1px solid var(--line);border-radius:3px;padding:var(--s6) var(--s6) var(--s5);background:var(--surface)}
+.gate .brand{font:700 17px/1.2 var(--serif);color:var(--heading);letter-spacing:-.01em;margin:0 0 var(--s4)}
+.gate p{margin:0 0 var(--s4);font-size:15px;line-height:1.6;max-width:48ch}
+.gate .ways{list-style:none;margin:0 0 var(--s4);padding:0;display:flex;flex-direction:column;gap:var(--s2)}
+.gate .ways a{color:var(--blue-text);border-bottom:1px dotted var(--blue);text-decoration:none;font-size:14px}
+.gate .signin{display:inline-block;font:400 13.5px/1 var(--serif);color:var(--bg);background:var(--blue);border:1px solid var(--blue);border-radius:3px;padding:11px 14px;text-decoration:none}
+.gate .why{margin:var(--s4) 0 0;font:400 9.5px/1.6 var(--mono);color:var(--faint);letter-spacing:.02em;overflow-wrap:anywhere}
+.gate .why:empty{display:none}
 
 /* ── rail: serif chrome, quiet ── */
 .rail{
@@ -165,6 +180,11 @@ textarea.pen::placeholder{color:var(--faint);font-style:italic}
 .entry{position:relative;padding:var(--s4) 0 var(--s5);border-top:1px solid var(--line)}
 .entry.new{animation:settle var(--slow) var(--spring)}
 @keyframes settle{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* an entry reached by its address: the citation landed here */
+.entry.cited{background:linear-gradient(90deg,var(--surface),transparent 70%);margin:0 calc(-1 * var(--s3));padding-left:var(--s3);padding-right:var(--s3)}
+/* a §-address anywhere in prose or the record's hand is a link to the entry it names */
+a.alink{color:var(--blue-text);text-decoration:none;border-bottom:1px dotted var(--blue);font-family:var(--mono);font-size:.95em}
+.meta .cites{font:400 10px/1.6 var(--mono);color:var(--faint)}
 .entry .body{margin:0 0 var(--s2);max-width:60ch;font-size:15.5px}
 .mn{color:var(--blue-text);border-bottom:1px dotted var(--blue);cursor:pointer}
 .thlink{color:var(--ember-text);border-bottom:1px dotted var(--ember);cursor:pointer;font-style:italic}
@@ -313,6 +333,7 @@ textarea.pen::placeholder{color:var(--faint);font-style:italic}
 .inf b{color:var(--heading)}
 .logrow{font:400 10px/1.85 var(--mono);color:var(--muted);border-bottom:1px solid var(--line);padding:5px 0;display:flex;gap:var(--s3)}
 .logrow .la{color:var(--blue-text);flex:0 0 42px}
+.logrow.cited{background:var(--surface)}
 .logrow .lk{color:var(--ember-text);flex:0 0 140px}
 .logrow .lb{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .morelist .rbtn{font-size:14px;padding:14px 10px;border-bottom:1px solid var(--line);border-radius:0;min-height:48px}
@@ -345,6 +366,25 @@ body.guest .guestbar{display:flex}
 </style>
 </head>
 <body>
+<!-- The gate as a signpost (SHELL-A1 §3, U-32 default): one sentence naming the door,
+     the public counterpart, the ways in, the sign-in, and nothing else. No view, no
+     rail, no seed, no member's name. The sentence is a public word about a members'
+     surface: DRAFT by the build, edited by the steward before merge; the merge adopts it. -->
+<section class="gate" id="gate" aria-label="Members' door">
+  <div class="card">
+    <p class="brand">The Daybook</p>
+    <p data-draft="steward edits before merge">This is the cooperative's shared journal: members write into one record that is never edited or erased, a reader proposes what each entry was, and the member has the last word. Reading and writing it is what membership is.</p>
+    <ul class="ways">
+      <li><a href="https://techne.coop/daybook/">The public book of the same name, at techne.coop/daybook/</a></li>
+      <li><a href="https://techne.coop/participation/">Ways in: techne.coop/participation/</a></li>
+    </ul>
+    <a class="signin" href="/">Members sign in at the shell</a>
+    <p class="why" id="gateWhy"></p>
+  </div>
+</section>
+<!-- The room. Inert until a member session exists in this origin (or ?seed): a
+     stranger's document carries the gate and nothing of the shape of the room. -->
+<template id="room">
 <div class="app">
 
   <nav class="rail" aria-label="Views">
@@ -370,7 +410,7 @@ body.guest .guestbar{display:flex}
     <div class="foot">
       <p class="sess" id="sessLine">this session · in memory</p>
       <p class="seedonly" style="margin:0 0 8px;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Illustrative seed. Every name, entry, wager, question and disagreement below is invented for this beta; none of it is the record, and none of the people are members of the cooperative. In memory, it is gone on reload.</p>
-      <p style="margin:0 0 8px;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Public beta, unadopted. Signed in at the shell, this page reads and appends the beta relations of the record under your own name; otherwise it stays in memory. The reader is a word-pattern stand-in for the live one.</p>
+      <p style="margin:0 0 8px;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Public beta, unadopted. Signed in at the shell, this page reads and appends the beta relations of the record under your own name; signed out, it is a signpost. The reader is a word-pattern stand-in for the live one.</p>
       <button class="rbtn" id="railMethod">the method</button>
       <button class="rbtn" id="railLog">the record itself</button>
       <button class="rbtn g-hide" id="railGuest">view as guest</button>
@@ -466,6 +506,7 @@ body.guest .guestbar{display:flex}
   </div>
   <div class="pbody" id="paneBody"></div>
 </aside>
+</template>
 
 <script>
 (function(){
@@ -497,6 +538,12 @@ function cisSession(){
     if(t.expires_at&&t.expires_at*1000<Date.now()-60000)return null;
     return t}catch(e){return null}
 }
+/* The stranger's frame (SHELL-A1 §3): the room is stamped into the document only when a
+   shell session exists here, or ?seed asks for the demonstration. Otherwise the engine
+   stops at this line and the gate is the whole document. */
+var SEED=/[?&]seed\b/.test(location.search);
+if(!cisSession()&&!SEED)return;
+document.body.appendChild(document.importNode(document.getElementById('room').content,true));
 function cisFetch(path,opts){
   opts=opts||{};
   var h={apikey:CIS_ANON,Authorization:'Bearer '+store.session.access_token,'Content-Type':'application/json'};
@@ -527,13 +574,18 @@ store.select=function(){
       cisFetch('agents?select=id,display_name&order=display_name.asc&limit=500'),
       cisFetch('beta_events?select=id,at,agent_id,kind,body,about_event_id,address&order=at.asc,address.asc&limit=2000'),
       cisFetch('beta_threads?select=id,name,named_by&order=named_at.asc'),
-      cisFetch('beta_terms?select=term&order=term.asc')
+      cisFetch('beta_terms?select=term,first_event_id&order=term.asc'),
+      /* D-03: the viewer's own staging, self-only by policy; another member's is unqueryable. */
+      cisFetch('beta_staging?select=id,body,about_event_id,at&order=at.asc')
     ]);
   }).then(function(all){
     all[0].forEach(function(a){agents[a.id]={id:a.id,name:a.display_name||a.id.slice(0,8),cls:'member'}});
     all[1].forEach(fromRow);
     threads=all[2].map(function(t){return {id:t.id,name:t.name,namedBy:t.named_by}});
     terms=foldTerms(all[3].map(function(t){return t.term}));
+    all[3].forEach(function(t){var first=findByAddr(store.byUuid[t.first_event_id]||'');var f=terms.find(function(x){return x.t===t.term});
+      if(f&&first&&first.ago<=7){f.fresh='coined by '+nameOf(first.agent)+' · '+first.when;f.one=undefined}});
+    all[4].forEach(function(r){var p=stage(r.body||{},r.about_event_id?(store.byUuid[r.about_event_id]||null):null,daysAgo(r.at));p.rid=r.id});
     store.mode='record';store.why='signed in as '+agents[VIEWER].name;
   }).catch(function(err){
     if(err&&err.why)return fallBack(err.why);
@@ -564,6 +616,39 @@ store.nameThread=function(id,name){
     .then(function(){threads.push({id:id,name:name,namedBy:VIEWER})}).catch(function(err){refused(err);throw err});
 };
 function refused(err){store.last=err;renderSession('the record refused the append ('+(err&&err.status?err.status:'no answer')+') · nothing was written')}
+/* stage(): a proposal to the viewer's screen. In memory it is the local list. Against the
+   record it is the viewer's own row in beta_staging (D-03): no address, no kind, freely
+   dropped, self-only in both directions. If the record will not hold it, it is held locally
+   for this session and the foot says so; nothing about a proposal enters events. */
+store.stage=function(body,about,ago){
+  var p=stage(body,about,ago);
+  if(store.mode!=='record')return Promise.resolve(p);
+  return cisFetch('beta_staging',{method:'POST',body:{agent_id:VIEWER,body:body||{},about_event_id:uuidOfAddr(about)},prefer:'return=representation'})
+    .then(function(rows){p.rid=rows[0].id;return p})
+    .catch(function(){renderSession('staging did not persist · held for this session only');return p});
+};
+/* drop(): the proposal leaves staging, locally at once and on the record when it was there.
+   A failed delete costs nothing in events: the decided chain always outranks a stale stage. */
+store.drop=function(p){
+  staged=staged.filter(function(x){return x.sid!==p.sid});
+  if(store.mode==='record'&&p.rid)cisFetch('beta_staging?id=eq.'+encodeURIComponent(p.rid),{method:'DELETE',prefer:'return=minimal'}).catch(function(){});
+};
+/* coin(): a word joins the vocabulary by use (beta_terms). The pen brings a term in when the
+   member sets it in quotation marks; that is the member's act, not the reader's, so it
+   carries the member's own entry as first_event_id. Duplicate terms are the record's to refuse. */
+store.coin=function(term,entry){
+  var key=term.toLowerCase();
+  if(terms.some(function(t){return t.t.toLowerCase()===key}))return Promise.resolve(null);
+  var local=function(){var f=foldTerms([term])[0];f.fresh='coined by '+nameOf(entry.agent)+' · today';f.one=undefined;terms.push(f);return f};
+  if(store.mode!=='record')return Promise.resolve(local());
+  return cisFetch('beta_terms',{method:'POST',body:{term:term,first_event_id:entry.uuid},prefer:'return=minimal'})
+    .then(local).catch(function(err){if(err&&err.status===409)return local();return null});
+};
+function coinFrom(text){
+  var out=[],re=/[“"]([^”"\n]{2,40})[”"]/g,m;
+  while((m=re.exec(text))){var t=m[1].trim();if(t&&out.indexOf(t)<0)out.push(t)}
+  return out;
+}
 /* Words, against the record: a term joins by use (beta_terms); counts are folds. */
 function foldTerms(list){
   return list.map(function(t){
@@ -587,7 +672,7 @@ function renderSession(msg){
 var staged=[],nextStage=1;
 function stage(body,about,ago){var p={sid:nextStage++,body:body||{},about:about||null,ago:ago};staged.push(p);return p}
 function stagedFor(addr){for(var i=staged.length-1;i>=0;i--){if(staged[i].about===addr&&!staged[i].body.forming)return staged[i]}return null}
-function unstage(addr){staged=staged.filter(function(p){return !(p.about===addr&&!p.body.forming)})}
+function unstage(addr){staged.filter(function(p){return p.about===addr&&!p.body.forming}).forEach(store.drop)}
 var threads=[],terms=[],corrTally={},E={};
 function seedDemo(){
 VIEWER='ines';
@@ -676,17 +761,35 @@ function linkNames(s){return s.replace(/\{([\w-]+)\}/g,function(_,id){return '<s
 function threadName(tid){var t=threads.find(function(x){return x.id===tid});return t?t.name:null}
 
 var VIEWS=['journal','people','threads','open','gather','words','share'];
-function currentView(){var h=location.hash.replace('#/','');return VIEWS.indexOf(h)>-1?h:'journal'}
+/* Every §-address is a route: #/§12 opens the journal on that entry. The frank copies the
+   link, so a citation pasted anywhere lands here. An address that names a row other than an
+   entry opens the record itself at that row. */
+function hashAddr(){var h;try{h=decodeURIComponent(location.hash)}catch(e){h=location.hash}var m=/^#\/(§\d+)$/.exec(h);return m?m[1]:null}
+function addrHref(addr){return '#/'+addr}
+function addrLink(addr){return location.origin+location.pathname+addrHref(addr)}
+function alink(addr){return '<a class="alink" href="'+addrHref(addr)+'">'+addr+'</a>'}
+function currentView(){if(hashAddr())return 'journal';var h=location.hash.replace('#/','');return VIEWS.indexOf(h)>-1?h:'journal'}
 var prevView=null;
-function go(v){if(currentView()!==v)location.hash='#/'+v;else route()}
+function go(v){if(currentView()!==v||hashAddr())location.hash='#/'+v;else route()}
 function route(){
   if(prevView)scrollPos[prevView]=window.scrollY;
   var v=guest?'journal':currentView();
   document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-current',b.dataset.view===v?'true':'false')});
   VIEWS.forEach(function(k){document.getElementById('v-'+k).classList.toggle('on',k===v)});
   renderAll();
+  var a=hashAddr();
+  if(a){closePaneQuiet();landOn(a);prevView=v;return}
   window.scrollTo(0,scrollPos[v]||0);
   prevView=v;
+}
+function landOn(addr){
+  var e=findByAddr(addr);
+  if(!e){renderSession(addr+' is not in this record');return}
+  if(e.kind==='entry.written'){
+    var el=document.querySelector('#stream [data-addr="'+addr+'"]');
+    if(!el){setTimeout(function(){landOn(addr)},460);return}
+    el.classList.add('cited');el.scrollIntoView({block:'center'});
+  } else showLog(addr);
 }
 window.addEventListener('hashchange',route);
 document.querySelectorAll('[data-view]').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.view)})});
@@ -706,6 +809,8 @@ function openPane(kick,html){
   pane.classList.add('on');scrim.classList.add('on');
   if(!history.state||!history.state.pane)history.pushState({pane:true},'');
 }
+/* closing without touching history: for a route change that already made an entry */
+function closePaneQuiet(){pane.classList.remove('on');scrim.classList.remove('on');pane.style.transform=''}
 function closePane(){
   if(!pane.classList.contains('on'))return;
   pane.classList.remove('on');scrim.classList.remove('on');pane.style.transform='';
@@ -759,9 +864,10 @@ function submitEntry(v,isCord){
     var gth=/threshold|guest|newcomer/i.test(v)?'threshold':(/measure|trial/i.test(v)?'measure':(/treasury|ledger|patronage/i.test(v)?'treasury':null));
     var reason=isCord?'entered through the cord \u2014 carried as a contest, with your standing'
       :'pattern read from the words \u2014 the live reader replaces this stand-in'+(gth?'; \u201c'+threadName(gth)+'\u201d owns words this entry uses':'');
-    stage({type:gt,thread:gth,reason:reason},ne.addr,0);
-    flashChip=ne.id;renderAll();
+    store.stage({type:gt,thread:gth,reason:reason},ne.addr,0).then(function(){flashChip=ne.id;renderAll()});
   },950);
+  /* a word in quotation marks joins the vocabulary by the member's use of it */
+  coinFrom(v).reduce(function(p,t){return p.then(function(){return store.coin(t,ne)})},Promise.resolve()).then(function(){renderWords()});
   }).catch(function(){});
 }
 document.getElementById('writeBtn').addEventListener('click',function(){openComposer()});
@@ -803,10 +909,11 @@ function renderStream(){
         +'<div class="acts"><button class="wbtn yes" data-ok="'+i+'">That\u2019s right</button>'
         +'<button class="wbtn" data-no="'+i+'">Not quite \u2014 say why</button></div></div>';
     }
-    html+='<article class="entry'+(frankId===i?' new':'')+'">'
-      +'<button class="addr'+(frankId===i?' franked':'')+'" data-copy="'+e.addr+'" title="Copy address">'+e.addr+'<span class="copied">copied</span></button>'
+    var cites=(e.body.cites||[]).length?'<span class="cites">cites '+e.body.cites.map(alink).join(' ')+'</span>':'';
+    html+='<article class="entry'+(frankId===i?' new':'')+(hashAddr()===e.addr?' cited':'')+'" data-addr="'+e.addr+'">'
+      +'<button class="addr'+(frankId===i?' franked':'')+'" data-copy="'+e.addr+'" title="Copy the link to this address">'+e.addr+'<span class="copied">copied</span></button>'
       +'<p class="body">'+linkNames(e.body.text)+'</p>'
-      +'<div class="meta"><span class="who"><b>'+nameOf(e.agent)+'</b> \u00b7 '+e.when+'</span>'+chips+th+'</div>'+whyBox+'</article>';
+      +'<div class="meta"><span class="who"><b>'+nameOf(e.agent)+'</b> \u00b7 '+e.when+'</span>'+chips+th+cites+'</div>'+whyBox+'</article>';
   });
   el.innerHTML=html;
   flashChip=null;flashInk=null;frankId=null;
@@ -821,7 +928,7 @@ document.querySelectorAll('.lbtn').forEach(function(b){
 document.getElementById('stream').addEventListener('click',function(evn){
   var t=evn.target;
   var cp=t.closest('[data-copy]');
-  if(cp){if(navigator.clipboard)navigator.clipboard.writeText(cp.dataset.copy);
+  if(cp){if(navigator.clipboard)navigator.clipboard.writeText(addrLink(cp.dataset.copy)).catch(function(){});
     cp.classList.add('did');setTimeout(function(){cp.classList.remove('did')},900);return}
   var w=t.closest('[data-why]');
   if(w){var el=document.getElementById('why-'+w.dataset.why);if(el)el.classList.toggle('on');return}
@@ -887,7 +994,7 @@ function openPerson(id){
   openPane('person',
     '<h3>'+p.name+'</h3><div class="std">'+(rel&&rel.mutual?'woven both ways':'woven one way, so far')+'</div>'
     +'<div class="csect">between you</div>'
-    +between.map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+e.addr+' \u00b7 '+nameOf(e.agent)+' \u00b7 '+e.when+'</span></div>'}).join('')
+    +between.map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+alink(e.addr)+' \u00b7 '+nameOf(e.agent)+' \u00b7 '+e.when+'</span></div>'}).join('')
     +'<div class="csect">as the record holds them</div>'
     +strands(id).map(function(s){
       if(!s.v)return '<div class="attr thin" style="--bc:'+s.c+'"><div class="ak"><b>'+s.n+'</b></div><p>Nothing in the record yet \u2014 a blank page, not a blank person.</p></div>';
@@ -927,7 +1034,7 @@ function openThread(tid){
   openPane('thread',
     '<h3>'+t.name+'</h3><div class="std">kept by members \u00b7 '+(f.alive?'alive':'dormant')+' \u00b7 named by '+nameOf(t.namedBy)+'</div>'
     +'<div class="csect">the entries, in order</div>'
-    +f.entries.slice().reverse().map(function(x){return '<div class="tent"><p>'+linkNames(x.e.body.text)+'</p><span class="tw">'+x.e.addr+' \u00b7 '+nameOf(x.e.agent)+' \u00b7 '+x.e.when+' \u00b7 '+x.a.type+'</span></div>'}).join('')
+    +f.entries.slice().reverse().map(function(x){return '<div class="tent"><p>'+linkNames(x.e.body.text)+'</p><span class="tw">'+alink(x.e.addr)+' \u00b7 '+nameOf(x.e.agent)+' \u00b7 '+x.e.when+' \u00b7 '+x.a.type+'</span></div>'}).join('')
     +(f.questions.length?'<div class="csect">open here</div>'+f.questions.map(function(q){return '<p style="font-size:12.5px">'+q.body.q+' <b style="color:var(--heading)">\u2014 '+q.body.owner+'</b></p>'}).join(''):'')
     +'<div class="csect">the people in it</div>'
     +'<div class="attr" style="--bc:var(--line)"><div class="vals">'+f.people.map(function(id){return '<i class="mn" data-p="'+id+'" style="cursor:pointer">'+nameOf(id)+'</i>'}).join('')+'</div></div>'
@@ -941,7 +1048,7 @@ function openForming(i){
   openPane('forming',
     '<h3>Is this a thread?</h3><div class="std">staged by the reader · not in the record until you name it</div>'
     +'<div class="inf"><span class="wk">its evidence</span>'+fm.ev.body.reason+'</div>'
-    +ents.map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+e.addr+' \u00b7 '+nameOf(e.agent)+' \u00b7 '+e.when+'</span></div>'}).join('')
+    +ents.map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+alink(e.addr)+' \u00b7 '+nameOf(e.agent)+' \u00b7 '+e.when+'</span></div>'}).join('')
     +'<p>If it is real, it needs a member\u2019s name for it \u2014 in the members\u2019 own words, not the reader\u2019s.</p>'
     +'<div class="actions"><input class="ninput" id="tname" placeholder="name it, if it\u2019s real">'
     +'<button class="tbtn go" data-namethread="'+i+'">Keep &amp; name</button>'
@@ -987,7 +1094,7 @@ function renderGather(){
   events.filter(function(e){return e.kind==='demo.reported'}).forEach(function(d){
     var pr=findByAddr(d.about);
     html+='<div class="row"><div class="r1"><span class="rn">'+(pr?pr.body.what:'demo')+' \u00b7 held</span><span class="last">'+d.when+'</span></div>'
-      +'<p class="sub">'+d.body.status+' \u2014 the promise stays auditable after the applause.</p><div class="mline">promised '+(pr?pr.addr:'')+' \u00b7 reported '+d.addr+'</div></div>';
+      +'<p class="sub">'+d.body.status+' \u2014 the promise stays auditable after the applause.</p><div class="mline">promised '+(pr?alink(pr.addr):'')+' \u00b7 reported '+alink(d.addr)+'</div></div>';
   });
   document.getElementById('glist').innerHTML=html;
 }
@@ -1015,7 +1122,7 @@ document.getElementById('wlist').addEventListener('click',function(evn){
   var users=events.filter(function(e){return e.kind==='entry.written'&&e.body.text.toLowerCase().indexOf(t.t.replace('the ',''))>-1});
   openPane('word',
     '<h3>\u201c'+t.t+'\u201d</h3><div class="std">'+t.uses+' uses \u00b7 '+t.voices+' voice'+(t.voices===1?'':'s')+(t.one?' \u00b7 so far only '+t.one+'\u2019s':'')+'</div>'
-    +(users.length?'<div class="csect">where it lives, lately</div>'+users.slice(0,3).map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+e.addr+' \u00b7 '+nameOf(e.agent)+'</span></div>'}).join(''):'')
+    +(users.length?'<div class="csect">where it lives, lately</div>'+users.slice(0,3).map(function(e){return '<div class="tent"><p>'+linkNames(e.body.text)+'</p><span class="tw">'+alink(e.addr)+' \u00b7 '+nameOf(e.agent)+'</span></div>'}).join(''):'')
     +'<p class="fine">A word joins the lexicon by use, not decree. When the reader leans on this term to classify, that lean is inspectable here \u2014 the dictionary is the members\u2019, on loan to the machine.</p>');
 });
 
@@ -1074,16 +1181,17 @@ function openMethod(){
     +'<p class="fine">The reader is not an agent row and writes nothing: it stages proposals to you, and your act is what enters the record. Not built, deliberately: no feed, no notifications, no progress tracking, no admin panel. The full documents govern: The Second Generation, the schema, and The Reader\u2019s Instructions.</p>'
     +'<div class="actions"><button class="tbtn">Open the register</button><button class="tbtn" data-showlog>See the record itself</button></div>');
 }
-function showLog(){
+function showLog(at){
+  var rows=events.slice().reverse(),start=at?Math.max(0,rows.findIndex(function(e){return e.addr===at})):0;
   openPane('the record itself',
-    '<h3>The record itself</h3><div class="std">the one growing table \u00b7 appended, never edited \u00b7 every view is a fold over this</div>'
-    +events.slice().reverse().slice(0,30).map(function(e){
-      return '<div class="logrow"><span class="la">'+e.addr+'</span><span class="lk">'+e.kind+'</span><span class="lb">'+nameOf(e.agent)+' \u00b7 '+(e.about?'about '+e.about+' \u00b7 ':'')+(e.body.text||e.body.reason||e.body.terms||e.body.what||e.body.q||JSON.stringify(e.body)).slice(0,72)+'</span></div>';
+    '<h3>The record itself</h3><div class="std">the one growing table \u00b7 appended, never edited \u00b7 every view is a fold over this'+(at?' \u00b7 at '+at:'')+'</div>'
+    +rows.slice(start,start+30).map(function(e){
+      return '<div class="logrow'+(e.addr===at?' cited':'')+'"><span class="la">'+alink(e.addr)+'</span><span class="lk">'+e.kind+'</span><span class="lb">'+nameOf(e.agent)+' \u00b7 '+(e.about?'about '+alink(e.about)+' \u00b7 ':'')+(e.body.text||e.body.reason||e.body.terms||e.body.what||e.body.q||JSON.stringify(e.body)).slice(0,72)+'</span></div>';
     }).join('')
     +'<div class="fine" style="margin-top:12px">Every row here was written by a member. The reader\u2019s proposals are not in this table at all \u2014 they are staged, and enter only as provenance inside the confirmation or correction a member makes of them. The chain of about-addresses is how any state on any screen traces back to acts.</div>');
 }
 document.getElementById('railMethod').addEventListener('click',openMethod);
-document.getElementById('railLog').addEventListener('click',showLog);
+document.getElementById('railLog').addEventListener('click',function(){showLog()});
 
 /* more (mobile) */
 document.getElementById('moreBtn').addEventListener('click',function(){
@@ -1099,7 +1207,8 @@ document.getElementById('moreBtn').addEventListener('click',function(){
     +'<button class="rbtn" data-more-act="guest">View as guest</button>'
     +'</div>'
     +'<p class="sess" id="sessMore" style="margin:12px 10px 0">'+(document.getElementById('sessLine')||{}).textContent+'</p>'
-    +'<p class="seedonly" style="margin:8px 10px 0;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Illustrative seed \u2014 every name and entry below is invented; none of the people are members. Public beta, unadopted. The reader is a word-pattern stand-in for the live one.</p>');
+    +'<p class="seedonly" style="margin:8px 10px 0;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Illustrative seed \u2014 every name and entry below is invented; none of the people are members. Public beta, unadopted. The reader is a word-pattern stand-in for the live one.</p>'
+    +'<p style="margin:8px 10px 0;font-size:10.5px;line-height:1.6;color:var(--faint);font-style:italic">Signed out, this page is a signpost. Public beta, unadopted.</p>');
 });
 
 /* guest */
@@ -1150,7 +1259,7 @@ paneBody.addEventListener('click',function(evn){
         });
       })},Promise.resolve());
     }).then(function(){
-      staged=staged.filter(function(p){return p.sid!==fm.ev.sid});
+      store.drop(fm.ev);
       closePane();renderAll();
     }).catch(function(){});
     return}
@@ -1158,7 +1267,7 @@ paneBody.addEventListener('click',function(evn){
   if(xt){
     var fm2=foldForming()[+xt.dataset.notthread];
     store.append(VIEWER,'inference.corrected',{reason:'not a thread',via:'forming refusal',proposal:fm2.ev.body},fm2.members[0]||null).then(function(){
-      staged=staged.filter(function(p){return p.sid!==fm2.ev.sid});
+      store.drop(fm2.ev);
       closePane();renderAll();
     }).catch(function(){});
     return}
@@ -1198,10 +1307,16 @@ function tutStep(){
   if(b)b.addEventListener('click',function(){pg--;tutStep()});
   if(d)d.addEventListener('click',closePane);
 }
+/* boot(): the journal opens for a member the record answers to. Otherwise the document stays
+   at its gate (SHELL-A1 §3): a stranger reads the signpost and nothing of the room; a member
+   whose record did not answer reads why, and writes nothing that would vanish on reload.
+   ?seed opens the invented demonstration in memory; it is not linked from the gate. */
+function openJournal(){document.body.classList.add('open');renderSession();route();tutStep()}
 function boot(){
   store.select().then(function(){
-    if(store.mode!=='record')seedDemo();
-    renderSession();route();tutStep();
+    if(store.mode==='record')return openJournal();
+    if(SEED){seedDemo();return openJournal()}
+    document.getElementById('gateWhy').textContent=store.session?'signed in · '+store.why.replace(/^signed in[;,] /,''):'';
   });
 }
 boot();
