@@ -178,7 +178,7 @@ As of D-05 the four delivered artifacts are no longer held verbatim: D-01 and D-
 
 - `app.techne.coop` has no DNS record and will not get one. Closed 2026-09-02 by the steward's word in #open-world: the host is `journal.techne.coop`, whose record and Pages configuration already exist, and this repository is now served from it.
 - Sign-in lives at the shell (`/`), which sends the magic link under the CIS `uri_allow_list`. The allow list is production auth configuration and a named human's to change. The steward reports (2026-09-02) that `journal.techne.coop` is already in the redirect list; unverified from this repository until a member's magic link lands.
-- Guest reading of the record: anon reads nothing (0040), and ledger item 3 is unanswered. The guest surface stays on the seed until it is.
-- Staging still lives in the client session. Moving it into D-03's `beta_staging` relation is a build step with no authority gap, not yet taken; the live reader (layer 5) waits on it.
-- `beta_terms` is read and never written from this app. A word joins by use, and only the reader would notice one.
+- Guest reading of the record: anon reads nothing (0040), and ledger item 3 is unanswered. Since D-07 the signed-out route is a signpost after SHELL-A1, not a reading surface: the public counterpart is `techne.coop/daybook/`, and no guest reading of the record is built until item 3 is answered.
+- Staging lives in D-03's `beta_staging` relation as of D-07, under the member's own identity; the live reader (layer 5) can now propose into it.
+- `beta_terms` is written on use as of D-07: a word the member sets in quotation marks joins with the member's own entry as its first use. The reader still notices nothing; that is the stand-in's limit, not the schema's.
 - The PRD's promise that the member's last word is a database constraint is now the case (a row under another member's `agent_id` is refused by the record, not by the interface), and it has not been exercised by a second real member. That is a verification walk, not a build step.
