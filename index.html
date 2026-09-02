@@ -4,9 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="The Open World of Techne  --  federated bodies of work, held in common. Alpha.">
 <title>Open World &middot; Techne</title>
+<meta name="description" content="The Open World of Techne  --  federated bodies of work, held in common. Alpha.">
 <meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://journal.techne.coop/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://journal.techne.coop/">
+<meta property="og:title" content="Open World · Techne">
+<meta property="og:description" content="The Open World of Techne: federated bodies of work, held in common. Alpha.">
+<meta property="og:site_name" content="Techne">
+<meta property="og:image" content="https://techne.coop/assets/og-default.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -17,169 +24,209 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
 <script>
   (function () {
-    try {
-      var m = localStorage.getItem('techne-mode');
-      if (!m) m = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-mode', m);
-    } catch(e) {}
+    var stored = null;
+    try { stored = localStorage.getItem('techne-mode'); } catch(e) {}
+    var m = stored || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-mode', m);
   })();
 </script>
 <style>
-/* Techne v4 tokens (shared with techne.coop) */
+/* grammar: framed (techne.coop/design-system/AGENT-DIRECTIONS.md section 1). A signed-in
+   members' surface on its own origin: it cannot load /assets/shell.js from techne.coop, so
+   the header below mirrors the shell topbar's geometry and the mode control's two faces
+   (assets/shell.css .cis-topbar, .cis-mode) rather than loading the frame. */
+
+/* ---------- tokens: commons/ui/commons.css, copied verbatim (AGENT-DIRECTIONS 3a) ---------- */
 :root {
-  --serif: 'Libre Baskerville', Georgia, serif;
-  --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
-  --dur: .4s; --micro: .16s; --ease: cubic-bezier(.4,0,.2,1);
+  --serif:"Libre Baskerville",Georgia,serif;            /* document voice, X-06 decision 2026-07-20 */
+  --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+  /* two faces only: Inter retired per X-06 (U-12). Formation-era commons
+     documents carry their own inline copies until each page's re-emission. */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:.4s; --micro:.16s; --ease:cubic-bezier(.4,0,.2,1);
+  /* sunset range: a twilight-to-sunset sweep, gold at the top of a page, blue at the foot */
+  --sun-gold:#EAB668; --sun-amber:#E09A52; --sun-coral:#D1755A;
+  --sun-rose:#B45C7C; --sun-violet:#6E5494; --sun-blue:#5476B8;
 }
 html[data-mode="dark"] {
-  --bg: #0F0F12; --inset: #08080A; --surface: #16161B; --raised: #232329;
-  --line: #2A2A30; --rule: #3A3A42;
-  --heading: #E8E4DF; --text: #CFCBC4; --muted: #8A857E; --faint: #5A554F;
-  --blue: #6A8AC4; --blue-text: #97B5E8;
-  --ember: #C4956A; --ember-text: #D4A57A;
-  --blue-dim: rgba(106, 138, 196, 0.14);
-  --ember-dim: rgba(196, 149, 106, 0.14);
-  --ok: #6A9A6A; --warn: #C46A6A;
-  color-scheme: dark;
+  --bg:#0F0F12; --inset:#08080A; --surface:#16161B; --raised:#232329;
+  --line:#2A2A30; --rule:#3A3A42;
+  --heading:#E8E4DF; --text:#CFCBC4; --muted:#8A857E; --faint:#5A554F;
+  --blue:#6A8AC4; --blue-text:#97B5E8;     /* primary accent */
+  --ember:#C4956A; --ember-text:#D4A57A;   /* secondary accent */
+  --ok:#6A9A6A; --info:#6A8AC4; --warn:#C46A6A;
+  --heat-1:#6E5494; --heat-2:#B45C7C; --heat-3:#D1755A; --heat-4:#E09A52; --heat-5:#EAB668;
+  --sun-gold-t:#EAB668; --sun-amber-t:#E5A562; --sun-coral-t:#DE8872;
+  --sun-rose-t:#CF7C9A; --sun-violet-t:#9E86C4; --sun-blue-t:#8FAEE0;
 }
 html[data-mode="light"] {
-  --bg: #F7F5F0; --inset: #EBE7DF; --surface: #FCFBF8; --raised: #FEFDFB;
-  --line: #D8D3C8; --rule: #9A958A;
-  --heading: #1A1A1F; --text: #2E2C28; --muted: #646058; --faint: #A39E92;
-  --blue: #4A6FB0; --blue-text: #39588F;
-  --ember: #8A6A4A; --ember-text: #6F5436;
-  --blue-dim: rgba(74, 111, 176, 0.10);
-  --ember-dim: rgba(138, 106, 74, 0.10);
-  --ok: #4A7A4A; --warn: #A84F4C;
-  color-scheme: light;
+  --bg:#F7F5F0; --inset:#EBE7DF; --surface:#FCFBF8; --raised:#FEFDFB;
+  --line:#D8D3C8; --rule:#9A958A;
+  --heading:#1A1A1F; --text:#2E2C28; --muted:#646058; --faint:#A39E92;
+  --blue:#4A6FB0; --blue-text:#39588F;
+  --ember:#8A6A4A; --ember-text:#6F5436;
+  --ok:#4A7A4A; --info:#4A6FB0; --warn:#A84F4C;
+  --heat-1:#EAB668; --heat-2:#E09A52; --heat-3:#D1755A; --heat-4:#B45C7C; --heat-5:#6E5494;
+  --sun-gold-t:#87621F; --sun-amber-t:#8C581D; --sun-coral-t:#9C4636;
+  --sun-rose-t:#8C3D58; --sun-violet-t:#4C3870; --sun-blue-t:#3A5694;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-html { -webkit-text-size-adjust: 100%; }
-/* Layout: one column, the document scrolls (no nested scroll region), header sticky,
-   footer after the content. Safe-area insets are paid by each band, not the body,
-   so the sticky header's background reaches the notch. */
+/* page-local, derived from tokens only: the touch floor, and the untinted stop (ember) */
+:root { --tap:44px; --shue:var(--ember); --shue-t:var(--ember-text); }
+/* sweep assignment: data-tint (commons.css) */
+[data-tint="gold"]   { --shue:var(--sun-gold);   --shue-t:var(--sun-gold-t); }
+[data-tint="amber"]  { --shue:var(--sun-amber);  --shue-t:var(--sun-amber-t); }
+[data-tint="coral"]  { --shue:var(--sun-coral);  --shue-t:var(--sun-coral-t); }
+[data-tint="rose"]   { --shue:var(--sun-rose);   --shue-t:var(--sun-rose-t); }
+[data-tint="violet"] { --shue:var(--sun-violet); --shue-t:var(--sun-violet-t); }
+[data-tint="blue"]   { --shue:var(--sun-blue);   --shue-t:var(--sun-blue-t); }
+
+/* ---------- base (commons.css) ---------- */
+* { box-sizing:border-box; margin:0; padding:0; }
+html { color-scheme:light dark; -webkit-text-size-adjust:100%; }
 body {
-  min-height: 100vh; min-height: 100dvh;
-  background: var(--bg); color: var(--text);
-  font-family: var(--mono); font-size: 14px; line-height: 1.6;
-  display: flex; flex-direction: column;
-  overflow-wrap: anywhere;
+  min-height:100vh; min-height:100dvh; background:var(--bg); color:var(--text);
+  font:400 16px/1.75 var(--serif);
+  display:flex; flex-direction:column; overflow-wrap:anywhere;
+  transition:background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-:root { --measure: 720px; --gutter: var(--s4); --tap: 44px; }
-@media (min-width: 600px) { :root { --gutter: var(--s5); } }
-.wrap { max-width: var(--measure); width: 100%; margin: 0 auto; min-width: 0; }
+em { font-style:italic; color:var(--heading); }
+code { font:400 .85em/1 var(--mono); color:var(--ember-text); background:var(--inset); padding:2px 5px; border-radius:2px; }
+a { color:var(--blue-text); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px; transition:text-decoration-thickness var(--micro) var(--ease); }
+a:hover { text-decoration-thickness:2px; }
+:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+svg.lucide { width:16px; height:16px; flex:none; vertical-align:-3px; }
+.hidden { display:none !important; }
+.wrap { min-width:0; }
+
+/* ---------- the topbar, after the shell's (.cis-topbar, .cis-brand, .cis-mode) ---------- */
 header {
-  position: sticky; top: 0; z-index: 2; background: var(--bg);
-  border-bottom: 1px solid var(--line);
-  padding: 0 calc(var(--gutter) + env(safe-area-inset-right)) 0 calc(var(--gutter) + env(safe-area-inset-left));
-  padding-top: env(safe-area-inset-top);
+  position:sticky; top:0; z-index:40; background:var(--surface); border-bottom:1px solid var(--line);
+  padding:0 calc(var(--s5) + env(safe-area-inset-right)) 0 calc(var(--s5) + env(safe-area-inset-left));
+  padding-top:env(safe-area-inset-top);
 }
-header .wrap { display: flex; align-items: center; gap: var(--s2) var(--s3); min-height: 56px; }
-header .brand { display: flex; align-items: baseline; gap: var(--s3); flex: 1 1 auto; min-width: 0; flex-wrap: wrap; row-gap: 0; }
-header h1 { font-family: var(--serif); font-size: 18px; color: var(--heading); font-weight: 400; white-space: nowrap; }
-header .mark { font-size: 11px; color: var(--ember-text); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-header .acts { display: flex; gap: var(--s2); flex: none; }
+header .wrap { display:flex; align-items:center; justify-content:space-between; gap:var(--s3); height:48px; }
+header .brand { display:flex; align-items:center; gap:var(--s3); min-width:0; }
+header h1 { font:400 .78rem/1 var(--mono); color:var(--ember); letter-spacing:.08em; white-space:nowrap; }
+header .mark { font:400 .68rem/1 var(--mono); color:var(--muted); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+header .acts { display:flex; align-items:center; gap:10px; flex:none; }
 button.ghost {
-  background: none; border: 1px solid var(--line); color: var(--muted);
-  font-family: var(--mono); font-size: 12px; padding: 0 var(--s3);
-  min-height: var(--tap); min-width: var(--tap); white-space: nowrap;
-  cursor: pointer; border-radius: 3px; transition: color var(--micro), border-color var(--micro);
+  font-family:var(--mono); font-size:.7rem; color:var(--muted); background:none;
+  border:1px solid var(--line); border-radius:2px; padding:3px 10px; min-height:32px;
+  cursor:pointer; letter-spacing:.04em; white-space:nowrap; display:inline-flex; align-items:center;
+  transition:color var(--micro) var(--ease), border-color var(--micro) var(--ease);
 }
-button.ghost:hover { color: var(--heading); border-color: var(--rule); }
-main {
-  flex: 1 0 auto;
-  padding: var(--s5) calc(var(--gutter) + env(safe-area-inset-right)) var(--s6) calc(var(--gutter) + env(safe-area-inset-left));
-}
-@media (min-width: 600px) { main { padding-top: var(--s6); padding-bottom: var(--s7); } }
-h2 { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.3; color: var(--heading); margin-bottom: var(--s4); }
-@media (min-width: 600px) { h2 { font-size: 22px; } }
-h2.sub { font-size: 18px; }
-p.lede { color: var(--text); margin-bottom: var(--s4); }
-p.dim { color: var(--muted); font-size: 13px; margin-bottom: var(--s4); }
-.card {
-  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
-  padding: var(--s4); margin-bottom: var(--s3); min-width: 0;
-}
-@media (min-width: 600px) { .card { padding: var(--s4) var(--s5); } }
-.card .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
-.card .v { color: var(--heading); font-size: 15px; }
-.card .v a.door { display: block; padding: var(--s2) 0; min-height: var(--tap); color: var(--blue-text); }
-.card.body-of-work { display: flex; align-items: baseline; gap: var(--s2) var(--s3); flex-wrap: wrap; }
-.card.body-of-work .name { font-family: var(--serif); font-size: 16px; color: var(--heading); flex: 1 1 200px; }
-.card.body-of-work .kind { font-size: 11px; color: var(--ember-text); letter-spacing: .06em; text-transform: uppercase; }
-form.signin { display: flex; gap: var(--s2); margin: var(--s3) 0; flex-wrap: wrap; }
-input[type=email] {
-  flex: 1 1 220px; min-width: 0; background: var(--inset); border: 1px solid var(--line);
-  color: var(--text); font-family: var(--mono); font-size: 16px; padding: var(--s2) var(--s3); border-radius: 3px;
-  min-height: var(--tap);
-}
-button.act {
-  background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue-text);
-  font-family: var(--mono); font-size: 13px; padding: 0 var(--s4); min-height: var(--tap);
-  cursor: pointer; border-radius: 3px; flex: 1 0 auto;
-}
-@media (min-width: 600px) { button.act { flex: none; } }
-.status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin-bottom: var(--s3); }
-.status:empty { display: none; }
-.status.warn { color: var(--warn); }
-.status.ok { color: var(--ok); }
-footer {
-  border-top: 1px solid var(--line);
-  padding: var(--s2) calc(var(--gutter) + env(safe-area-inset-right)) calc(var(--s2) + env(safe-area-inset-bottom)) calc(var(--gutter) + env(safe-area-inset-left));
-  font-size: 11px; color: var(--faint);
-}
-footer .wrap { display: flex; gap: 0 var(--s4); flex-wrap: wrap; align-items: center; }
-footer span, footer a { display: inline-flex; align-items: center; min-height: var(--tap); }
-footer a { color: var(--muted); padding: 0 var(--s1); }
-@media (min-width: 600px) { footer span, footer a { min-height: 32px; } }
-.hidden { display: none; }
-section { margin-bottom: var(--s6); }
-section section { margin-top: var(--s6); margin-bottom: 0; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+button.ghost:hover { color:var(--ember); border-color:var(--ember); }
+button.ghost span { display:inline-flex; align-items:center; gap:5px; }
+button.ghost svg.lucide { width:12px; height:12px; }
+/* two faces in the markup, one shown: the control names the mode the press switches to */
+#mode-toggle .to-light { display:none; }
+html[data-mode="dark"] #mode-toggle .to-dark { display:none; }
+html[data-mode="dark"] #mode-toggle .to-light { display:inline-flex; }
 
-/* Proposed, not built. The estate's convention: dashed borders, hollow marks,
-   and a legend that says what the marks mean. Nothing in here reads a record. */
-.chip {
-  display: inline-flex; align-items: center; gap: 7px;
-  font: 500 9.5px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  padding: 3px 9px; border: 1px solid var(--line); border-radius: 2px;
-  background: var(--surface); color: var(--muted); vertical-align: middle;
-}
-.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
-.chip.proposed { color: var(--ember-text); border-color: var(--ember); border-style: dashed; }
-.chip.proposed .dot { background: transparent; border: 2px solid var(--ember); }
-.chip.example { color: var(--muted); border-style: dashed; }
-.chip.example .dot { background: transparent; border: 1px dashed var(--muted); }
+/* ---------- the frame measure, verbatim (AGENT-DIRECTIONS 4c) ---------- */
+main { width:100%; max-width:70rem; margin-inline:auto;
+       padding-block:clamp(var(--s5), 3.5vw, var(--s7));
+       padding-inline:clamp(var(--s4), 3vw, var(--s6)); }
+main { flex:1 0 auto; }
+.frame-grid { display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(min(var(--grid-min, 300px), 100%), 1fr));
+  gap:var(--s4); align-items:start; }
+.frame-grid > .card { margin:0; }
 
-.card.proposed { border-style: dashed; background: none; }
-.stamps .rule-line { color: var(--muted); font-size: 13px; border-left: 2px solid var(--ember); padding-left: var(--s3); margin-bottom: var(--s4); }
+/* ---------- sections and type (commons.css .sec, .lead) ---------- */
+section { margin-bottom:clamp(var(--s6), 4vw, var(--s7)); }
+section:last-child { margin-bottom:0; }
+section section { margin-top:var(--s7); margin-bottom:0; }
+h2 { font:700 25px/1.25 var(--serif); color:var(--heading); margin:0 0 var(--s4); letter-spacing:-.01em; padding-left:14px; border-left:3px solid var(--shue); }
+h2.sub { font-size:19px; }
+h2 .chip { margin-left:var(--s2); }
+p.lede { font-size:17px; max-width:68ch; margin:0 0 var(--s4); }
+p.dim { font:400 14px/1.7 var(--serif); color:var(--muted); max-width:68ch; margin:0 0 var(--s4); }
 
-.book { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s3) 0 var(--s2); }
-.book .stamp {
-  width: 44px; height: 52px; border: 1px dashed var(--rule); border-radius: 2px;
-  background: none; display: flex; align-items: center; justify-content: center;
+/* ---------- cards (commons.css .panel, .pcard) ---------- */
+.card { background:var(--surface); border:1px solid var(--line); padding:var(--s4) var(--s5); margin-bottom:var(--s3); min-width:0; }
+.card p.dim:last-child { margin-bottom:0; }
+.card .k { display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap; font:500 11px/1.6 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--shue-t); margin-bottom:var(--s2); }
+.card .v { font:400 16px/1.6 var(--serif); color:var(--heading); }
+.card .v a.door { display:inline-flex; align-items:center; min-height:var(--tap); font-size:17px; }
+#daybook-door .card { border-top:2px solid var(--shue); }
+.card.body-of-work { display:flex; align-items:baseline; gap:var(--s2) var(--s3); flex-wrap:wrap; }
+.card.body-of-work .name { font:700 16px/1.5 var(--serif); color:var(--heading); flex:1 1 200px; }
+.card.body-of-work .kind { font:500 10px/1.6 var(--mono); color:var(--shue-t); letter-spacing:.1em; text-transform:uppercase; }
+
+/* ---------- form (commons.css forms; the shell's gate for the input ground) ---------- */
+form.signin { display:flex; flex-wrap:wrap; gap:var(--s2) var(--s3); align-items:flex-end; margin:var(--s3) 0 0; }
+form.signin .field { flex:1 1 220px; min-width:0; margin:0; }
+.field > label { display:block; font:500 11px/1.6 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:var(--s2); }
+.field input[type="email"] {
+  width:100%; box-sizing:border-box; background:var(--inset); border:1px solid var(--line); border-radius:2px;
+  color:var(--heading); font:400 16px/1.5 var(--serif); padding:10px var(--s3); min-height:var(--tap);
+  transition:border-color var(--micro) var(--ease);
 }
-.book .stamp::after {
-  content: ''; width: 9px; height: 9px; border-radius: 50%;
-  border: 1px dashed var(--faint); background: none;
+.field input:focus { border-color:var(--blue); }
+.field input::placeholder { color:var(--faint); }
+.field-hint { font:400 12px/1.6 var(--mono); color:var(--muted); margin:var(--s2) 0 0; }
+.status { min-height:1.5em; font:400 13px/1.6 var(--mono); color:var(--muted); margin:var(--s3) 0 0; }
+.status.warn { color:var(--warn); }
+.status.ok { color:var(--ok); }
+
+/* ---------- buttons (commons.css .btn) ---------- */
+.btn {
+  font:500 12px/1 var(--mono); color:var(--heading); background:var(--surface); border:1px solid var(--rule); border-radius:2px;
+  padding:0 14px; height:32px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  transition:background-color var(--micro) var(--ease), border-color var(--micro) var(--ease);
 }
-.stamps .classline {
-  display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
-  padding: var(--s3) 0; border-bottom: 1px dashed var(--line);
+.btn:hover { background:var(--raised); border-color:var(--heading); }
+.btn.primary { border-color:var(--blue); color:var(--blue-text); }
+.btn.secondary { border-color:var(--ember); color:var(--ember-text); }
+.btn:hover.primary, .btn:hover.secondary { background:var(--raised); }
+form.signin .btn { flex:0 0 auto; min-height:var(--tap); height:auto; }
+
+/* ---------- footer (commons.css footer) ---------- */
+footer { border-top:1px solid var(--rule); padding:var(--s5) 0 calc(var(--s5) + env(safe-area-inset-bottom)); font:400 11px/1.8 var(--mono); color:var(--muted); }
+footer .wrap {
+  width:100%; max-width:70rem; margin-inline:auto;
+  padding-inline:calc(clamp(var(--s4), 3vw, var(--s6)) + env(safe-area-inset-left)) calc(clamp(var(--s4), 3vw, var(--s6)) + env(safe-area-inset-right));
+  display:flex; flex-wrap:wrap; gap:6px var(--s5); align-items:center;
 }
-.stamps .classline:last-child { border-bottom: 0; }
-.stamps .classline .cid { font-size: 12.5px; color: var(--heading); flex: 1 1 auto; }
-.stamps .classline .cid .name { color: var(--muted); }
-.stamps .classline .units { font-size: 12px; color: var(--muted); font-style: italic; flex: none; margin-left: auto; }
-.stamps .classline .sub { flex-basis: 100%; font-size: 11px; color: var(--faint); margin-top: 2px; }
-.stamps .classline .sub .carrier { letter-spacing: .07em; text-transform: uppercase; }
-.stamps .vars { font-size: 11px; color: var(--faint); }
-.legend {
-  font: 400 10px/1.8 var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  color: var(--faint); display: flex; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s4);
+footer span, footer a { display:inline-flex; align-items:center; min-height:var(--tap); }
+@media (min-width:600px) { footer span, footer a { min-height:0; } }
+
+/* ---------- status chips: a word and a square mark, never color alone (commons.css) ----------
+   proposed and example are this shell's two marks for what is drawn but not built: dashed
+   border, hollow mark, and the legend at the foot says what they mean. */
+.chip { display:inline-flex; align-items:center; gap:6px; font:500 10.5px/1 var(--mono); padding:4px 9px; border:1px solid var(--line); border-radius:2px; background:var(--surface); white-space:nowrap; color:var(--muted); vertical-align:middle; }
+.chip .dot { width:6px; height:6px; flex:none; background:var(--faint); }
+.chip.proposed { color:var(--ember-text); border-color:var(--ember); border-style:dashed; }
+.chip.proposed .dot { background:transparent; border:1px solid var(--ember); }
+.chip.example { color:var(--muted); border-style:dashed; }
+.chip.example .dot { background:transparent; border:1px dashed var(--muted); }
+
+/* ---------- stamps: proposed, not built; dashed and hollow on purpose ---------- */
+.card.proposed { border-style:dashed; background:none; }
+.book { display:flex; flex-wrap:wrap; gap:var(--s2); margin:var(--s3) 0 var(--s2); }
+.book .stamp { width:44px; height:52px; border:1px dashed var(--rule); border-radius:2px; display:flex; align-items:center; justify-content:center; }
+.book .stamp::after { content:''; width:9px; height:9px; border:1px dashed var(--faint); }
+.stamps .classline { display:flex; align-items:baseline; gap:var(--s3); flex-wrap:wrap; padding:var(--s3) 0; border-bottom:1px dashed var(--line); }
+.stamps .classline:last-child { border-bottom:0; }
+.stamps .classline .cid { font:400 12.5px/1.6 var(--mono); color:var(--heading); flex:1 1 auto; }
+.stamps .classline .cid .name { font:400 13.5px/1.6 var(--serif); color:var(--muted); }
+.stamps .classline .units { font:400 12.5px/1.6 var(--serif); font-style:italic; color:var(--muted); flex:none; margin-left:auto; }
+.stamps .classline .sub { flex-basis:100%; font:400 11px/1.7 var(--mono); color:var(--muted); margin-top:2px; }
+.stamps .classline .sub .carrier { letter-spacing:.07em; text-transform:uppercase; }
+.stamps .vars { font:400 12px/1.6 var(--mono); color:var(--muted); }
+.legend { font:400 10px/1.8 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); display:flex; gap:var(--s5); flex-wrap:wrap; margin-top:var(--s4); }
+
+/* ---------- the page held in one hand (shell.css U-17) ---------- */
+@media (max-width:760px) {
+  header { padding-left:calc(var(--s3) + env(safe-area-inset-left)); padding-right:calc(var(--s3) + env(safe-area-inset-right)); }
+  header .acts { gap:6px; }
+  button.ghost { padding:8px 12px; min-height:var(--tap); }
+  .btn { height:auto; min-height:var(--tap); }
+  .card { padding:var(--s4); }
 }
+@media (max-width:420px) { header .mark { display:none; } }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
@@ -190,8 +237,8 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
       <span class="mark">Techne &middot; alpha</span>
     </div>
     <div class="acts">
-      <button class="ghost" id="mode-toggle" aria-label="Toggle light or dark">mode</button>
-      <button class="ghost hidden" id="signout">sign out</button>
+      <button class="ghost hidden" id="signout" type="button">sign out</button>
+      <button class="ghost" id="mode-toggle" type="button" aria-label="Toggle light or dark"><span class="to-light"><svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</span><span class="to-dark"><svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>Dark</span></button>
     </div>
   </div>
 </header>
@@ -201,46 +248,50 @@ section section { margin-top: var(--s6); margin-bottom: 0; }
   <!-- The Daybook door. Visible to every persona: the beta is a demonstration
        surface, not the record, and says so on its own face.
        Copy in this file is draft until the steward edits it (PR body lists every change). -->
-  <section id="daybook-door">
+  <section id="daybook-door" data-tint="gold">
     <div class="card">
       <div class="k">The Daybook &middot; public beta</div>
       <div class="v"><a class="door" href="/daybook/">One shared journal, read seven ways &rarr;</a></div>
-      <p class="dim" style="margin:0">Members write into one append-only record. A reader proposes; the member decides.</p>
+      <p class="dim">Members write into one append-only record. A reader proposes; the member decides.</p>
     </div>
   </section>
 
   <!-- Guest surface: published presentation only; no database read (AM: anon reads nothing) -->
-  <section id="guest">
+  <section id="guest" data-tint="amber">
     <h2>Bodies of work, held in common</h2>
     <p class="lede">Any participant can share a body of work as a project. Stewards read projects as programs or ventures.</p>
     <div class="card">
       <div class="k">Sign in &middot; members and participants</div>
       <form class="signin" id="signin-form">
-        <label class="hidden" for="email">Email</label>
-        <input type="email" id="email" placeholder="you@example.org" autocomplete="email" inputmode="email" required>
-        <button class="act" type="submit">send magic link</button>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.org" autocomplete="email" inputmode="email" required>
+        </div>
+        <button class="act btn primary" type="submit">send magic link</button>
       </form>
-      <div class="status" id="signin-status"></div>
-      <p class="dim" style="margin:0">Same identity as the <a href="https://techne.coop/intranet/">intranet</a>.</p>
+      <div class="status" id="signin-status" aria-live="polite"></div>
+      <p class="field-hint">Same identity as the <a href="https://techne.coop/intranet/">intranet</a>.</p>
     </div>
   </section>
 
   <!-- Member surface -->
-  <section id="member" class="hidden">
+  <section id="member" class="hidden" data-tint="coral">
     <h2>The net work</h2>
     <p class="dim">Programs stewards have designated.</p>
-    <div id="net-work"></div>
-    <section>
+    <div id="net-work" class="frame-grid"></div>
+    <section data-tint="rose">
       <h2 class="sub">Your standing</h2>
-      <div class="card"><div class="k">Signed in as</div><div class="v" id="who">&mdash;</div></div>
-      <div class="card"><div class="k">Membership</div><div class="v" id="membership">&mdash;</div></div>
-      <div class="card"><div class="k">Roles</div><div class="v" id="roles">&mdash;</div></div>
+      <div class="frame-grid">
+        <div class="card"><div class="k">Signed in as</div><div class="v" id="who">&mdash;</div></div>
+        <div class="card"><div class="k">Membership</div><div class="v" id="membership">&mdash;</div></div>
+        <div class="card"><div class="k">Roles</div><div class="v" id="roles">&mdash;</div></div>
+      </div>
     </section>
 
     <!-- Stamps. Member surface only. Renders entirely from a typed placeholder in
          the script below: it reads no record, because there is no record to read.
          Every mark in here is dashed or hollow on purpose. -->
-    <section class="stamps">
+    <section class="stamps" data-tint="violet">
       <h2 class="sub">Stamps <span class="chip proposed"><span class="dot"></span>proposed</span></h2>
       <p class="dim">A prepaid service credit, metered by a rate card. Nothing exists yet: no stamp, no price. Record: techne.coop <a href="https://github.com/Techne-Co-op/techne.coop/issues/196">#196</a>.</p>
 
